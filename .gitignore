@@ -1,0 +1,5 @@
+data
+logs
+*.DS_Store
+settings.*
+old
