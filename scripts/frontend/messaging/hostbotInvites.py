@@ -34,7 +34,7 @@ wiki.login(settings.username, settings.password)
 conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf', use_unicode=1, charset="utf8" )
 cursor = conn.cursor()
 
-logging.basicConfig(filename='/home/jmorgan/teahouse/hostbot_scripts/logs/invites.log',level=logging.INFO)
+logging.basicConfig(filename='/home/jmorgan/hostbot/logs/invites.log',level=logging.INFO)
 
 ##GLOBAL VARIABLES##
 curtime = str(datetime.utcnow())
@@ -66,7 +66,7 @@ def getUsernames(cursor):
 	FROM th_up_invitees
 	WHERE date(sample_date) = date(NOW())
 	AND invite_status = 0
-	AND ut_is_redirect != 1	
+	AND ut_is_redirect != 1
 	''')
 	rows = cursor.fetchall()
 
@@ -74,7 +74,7 @@ def getUsernames(cursor):
 
 
 # selects a host to personalize the invite from curHosts[]
-def select_host(curHosts):	
+def select_host(curHosts):
 	host = choice(curHosts)
 
 	return host
@@ -91,7 +91,7 @@ def talkpageCheck(guest, header):
 				skip_test = True
 		allowed = allow_bots(contents, settings.username)
 		if not allowed:
-			skip_test = True		
+			skip_test = True
 	except:
 		logging.info('Guest ' + guest + ' failed on talkpageCheck ' + curtime)
 
@@ -102,7 +102,7 @@ def talkpageCheck(guest, header):
 def allow_bots(text, user):
 	return not re.search(r'\{\{(nobots|bots\|(allow=none|deny=.*?' + user + r'.*?|optout=all|deny=all))\}\}', text, flags=re.IGNORECASE)
 
-#invites guests		
+#invites guests
 def inviteGuests(cursor):
 	for invitee in invite_list:
 		host = select_host(curHosts)
@@ -116,14 +116,14 @@ def inviteGuests(cursor):
 			logging.info('Guest ' + invitee + ' failed on invitation ' + curtime)
 			continue
 		try:
-# 			invitee = MySQLdb.escape_string(invitee)	
+# 			invitee = MySQLdb.escape_string(invitee)
 			cursor.execute('''update jmorgan.th_up_invitees set invite_status = 1, hostbot_invite = 1, hostbot_personal = 1 where user_name = %s ''', (invitee,))
-			conn.commit()	
+			conn.commit()
 		except UnicodeDecodeError:
 			logging.info('Guest ' + invitee + ' failed on invite db update due to UnicodeDecodeError ' + curtime)
 			continue
 
-			
+
 #records the users who were skipped
 def recordSkips(cursor):
 	for skipped in skip_list:
@@ -134,7 +134,7 @@ def recordSkips(cursor):
 		except:
 			logging.info('Guest ' + invitee + ' failed on skip db update ' + curtime)
 			continue
-	
+
 
 ##MAIN##
 rows = getUsernames(cursor)
@@ -147,16 +147,16 @@ for row in rows:
 		pass
 	if has_template:
 		skip_list.append(guest)
-	else:		
+	else:
 		invite_list.append(guest)
 inviteGuests(cursor)
-recordSkips(cursor)	
+recordSkips(cursor)
 
 # print ("invited: ", invite_list)
-# print ("skipped: ", skip_list)	
+# print ("skipped: ", skip_list)
 
 #updates Wikipedia:Teahouse/Hosts/Database_reports
-os.system("python ~/teahouse/hostbot_scripts/invitecheck.py")
+os.system("python ~/hostbot/scripts/frontend/reporting/invitecheck.py")
 
 cursor.close()
 conn.close()
