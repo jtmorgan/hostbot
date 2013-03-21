@@ -26,7 +26,7 @@ sys.setdefaultencoding('utf-8')
 report_title = settings.rootpage + '/Badge/Awarded'
 
 report_template = u'''== Badges awarded ==
-Please do not edit this table manually. It is updated daily by [[User:HostBot|HostBot]] and your edits will be overwritten. The page was last updated at {{subst:DATETIME}}
+Please do not edit this table manually. It is updated daily by [[User:HostBot|HostBot]] and your edits will be overwritten. The page was last updated on {{subst:REVISIONMONTH}}/{{subst:REVISIONDAY}}/{{subst:REVISIONYEAR}} by {{subst:REVISIONUSER}}.
 <onlyinclude>
 %s badges have been given out so far.
 
@@ -83,6 +83,7 @@ def findLinks(cursor, list):
 	''' % (l[2], l[1], "%/%"))
 		conn.commit()
 		badges_inserted += cursor.rowcount
+# 		print badges_inserted
 	return badges_inserted
 # 		print cursor._executed
 
@@ -119,7 +120,7 @@ def outputBadgeTable(cursor):
 		output.append(table_row)
 
 	output2 = [] #the recent by-user badge table
-	cursor.execute('SELECT user_name, b_name, bpage_title, ba_date FROM th_badges as b, th_up_badges_awarded as ba WHERE b.b_id = ba.b_id AND ba.bap_ns = 3 AND ba.b_id != 9 ORDER BY ba_date DESC LIMIT 100')
+	cursor.execute('SELECT user_name, b_name, bpage_title, ba_date FROM th_badges as b, th_up_badges_awarded as ba WHERE b.b_id = ba.b_id AND ba.bap_ns = 3 AND ba.b_id != 9 AND ba.user_id IS NOT NULL ORDER BY ba_date DESC LIMIT 100')
 	rows = cursor.fetchall()
 	for row in rows:
 		uname = row[0]
@@ -144,10 +145,10 @@ def outputBadgeTable(cursor):
 updatePageList()
 badge_list = getPages(cursor)
 badges_inserted = findLinks(cursor, badge_list)
-# if badges_inserted > 0:
-getUserData(cursor)
-updateBadgeTable(cursor)
-outputBadgeTable(cursor)
+if badges_inserted > 0:
+	getUserData(cursor)
+	updateBadgeTable(cursor)
+	outputBadgeTable(cursor)
 
 cursor.close()
 conn.close()
