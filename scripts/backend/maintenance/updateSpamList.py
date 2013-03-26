@@ -1,17 +1,17 @@
-#! /usr/bin/env python
+#! /usr/bin/python
 
 # Copyright 2012 Jtmorgan
- 
+
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
- 
+
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
- 
+
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -32,7 +32,7 @@ curtime = str(datetime.utcnow())
 
 signup_list = []
 cursor.execute('''select rev_user, rev_user_text from enwiki.revision WHERE rev_page = 38190470 AND rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 3 DAY),'%Y%m%d%H%i%s') AND rev_user NOT IN (SELECT user_id FROM th_up_hosts WHERE colleague = 1);
-''')	
+''')
 rows = cursor.fetchall()
 if rows:
 	cursor2 = conn.cursor()
@@ -42,7 +42,7 @@ if rows:
 		signup_list.append(name)
 		cursor2.execute('''UPDATE th_up_hosts SET no_spam = 1 WHERE no_spam = 0 AND user_id = %s''' % (signup,))
 		conn.commit()
-	cursor2.close()		
+	cursor2.close()
 	logging.info('SIGNUP: Signed up ' + ' '.join(signup_list) + ' ' + curtime)
 else:
 	logging.info('SIGNUP: No signups today ' + curtime)

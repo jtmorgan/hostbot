@@ -1,17 +1,17 @@
-#! /usr/bin/env python
+#! /usr/bin/python
 
 # Copyright 2012 Jtmorgan
- 
+
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
- 
+
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
- 
+
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -26,7 +26,7 @@ report_template = u'''==Daily Report==
 
 ===Highly active new editors===
 Below is a list of editors who joined within the last 24 hours, have since made more than 10 edits, and were not blocked at the time the report was generated.
- 
+
 {| class="wikitable sortable plainlinks"
 |-
 ! Guest #
@@ -42,7 +42,7 @@ Below is a list of editors who joined within the last 24 hours, have since made 
 
 ===New Autoconfirmed Editors===
 Below is a list of editors who gained [[Wikipedia:User_access_levels#Autoconfirmed_users|autoconfirmed status]] today, who were not previously invited to Teahouse after their first day, and were not blocked at the time the report was generated.
- 
+
 {| class="wikitable sortable plainlinks"
 |-
 ! Guest #
@@ -66,7 +66,7 @@ cursor = conn.cursor()
 
 # insert 10-edit newbies
 cursor.execute('''
-insert ignore into th_up_invitees 
+insert ignore into th_up_invitees
 	(user_id, user_name, user_registration, user_editcount, email_status, sample_date, sample_type, invite_status, hostbot_invite, hostbot_personal, hostbot_skipped, ut_is_redirect)
 SELECT
 user_id,
@@ -106,16 +106,16 @@ insert ignore into th_up_invitees
 		0,
 		0,
 		0
-			from enwiki.user 
-				where user_editcount > 10 
-				and user_registration 
-					between DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 5 DAY),'%Y%m%d%H%i%s') 
+			from enwiki.user
+				where user_editcount > 10
+				and user_registration
+					between DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 5 DAY),'%Y%m%d%H%i%s')
 					and DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 4 DAY),'%Y%m%d%H%i%s')
 					AND user_id NOT IN (SELECT ug_user FROM enwiki.user_groups WHERE ug_group = 'bot')
-					AND user_name not in 
-						(SELECT REPLACE(log_title,"_"," ") from enwiki.logging 
-							where log_type = "block" 
-							and log_action = "block" 
+					AND user_name not in
+						(SELECT REPLACE(log_title,"_"," ") from enwiki.logging
+							where log_type = "block"
+							and log_action = "block"
 							and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 5 DAY),'%Y%m%d%H%i%s'));
 ''')
 conn.commit()
@@ -158,7 +158,7 @@ output1 = []
 fields = cursor.fetchall()
 for field in fields:
 	number = field[0]
-	user_name = unicode(field[1], 'utf-8')	
+	user_name = unicode(field[1], 'utf-8')
 	user_editcount = field[2]
 	email_status = field[3]
 	email_string = "No"
@@ -194,7 +194,7 @@ output2 = []
 fields = cursor.fetchall()
 for field in fields:
 	number = field[0]
-	user_name = unicode(field[1], 'utf-8')	
+	user_name = unicode(field[1], 'utf-8')
 	user_editcount = field[2]
 	email_status = field[3]
 	email_string = "No"
@@ -209,7 +209,7 @@ for field in fields:
 | %s
 |
 |-''' % (number, talk_page, user_editcount, email_string, user_contribs)
-	output2.append(table_row)	
+	output2.append(table_row)
 
 
 # prints reports
@@ -220,5 +220,5 @@ report.edit(report_text, section=1, summary="Automatic daily invitee report gene
 
 cursor.close()
 conn.close()
-	
+
 

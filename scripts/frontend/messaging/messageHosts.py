@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/python
 
 # Copyright 2013 Jtmorgan
 
@@ -62,7 +62,7 @@ def getUsernames(cursor):
 	if rows:
 		return rows
 	else:
-		pass		
+		pass
 
 # checks to see if the user's talkpage has any nobots templates
 def talkpageCheck():
@@ -74,7 +74,7 @@ def talkpageCheck():
 			allowed = allow_bots(contents, settings.username)
 			if not allowed:
 				logging.info('REMIND: Nobots! Reminder to User:' + name + ' not delivered ' + curtime)
-				recipients.remove(name)	
+				recipients.remove(name)
 		except:
 			logging.info('REMIND: Reminder to User:' + name + ' failed on talkpageCheck at ' + curtime)
 
@@ -84,7 +84,7 @@ def allow_bots(text, user):
 	return not re.search(r'\{\{(nobots|bots\|(allow=none|deny=.*?' + user + r'.*?|optout=all|deny=all))\}\}', text, flags=re.IGNORECASE)
 
 
-#invites guests		
+#invites guests
 def messageUsers():
 	for name in recipients:
 		page_title = page_namespace + name
@@ -95,19 +95,19 @@ def messageUsers():
 			logging.info('REMIND: Reminder to User:' + name + ' failed at to send at ' + curtime)
 			continue
 
-	
+
 
 ##MAIN##
 rows = getUsernames(cursor)
 if rows:
 	for row in rows:
 		name = row[0]
-		recipients.append(name)		
+		recipients.append(name)
 	talkpageCheck()
-	messageUsers()	
+	messageUsers()
 # 	print recipients
 	logging.info('REMIND: Sent reminders to ' + ' '.join(recipients) + ' ' + curtime)
-	
+
 else:
 	logging.info('REMIND: No reminders today ' + curtime)
 

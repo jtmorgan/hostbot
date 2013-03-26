@@ -1,17 +1,17 @@
-#! /usr/bin/env python
+#! /usr/bin/python
 
 # Copyright 2012 Jtmorgan
- 
+
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
- 
+
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
- 
+
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -25,7 +25,7 @@ from BeautifulSoup import BeautifulStoneSoup as bss
 report_title = settings.rootpage + '/Guest_book'
 
 # the page you want to archive
-remove_title_left = settings.rootpage + '/Guests/Right_column' 
+remove_title_left = settings.rootpage + '/Guests/Right_column'
 
 report_template = '''%s
 '''
@@ -59,7 +59,7 @@ else:
 	j = i - 10
 	output = []
 	returns = []
-	
+
 	while i > 1:
 		texturl1 = u'http://en.wikipedia.org/w/index.php?title=Wikipedia%%3ATeahouse%%2FGuests%%2FRight_column&action=raw&section=%d' % i
 		usock = urllib2.urlopen(texturl1)
@@ -68,14 +68,14 @@ else:
 		sections1 = unicode(sections1, 'utf8')
 		sections1 = sections1.strip()
 		sec1_template = u'''%s
-		
+
 		''' % sections1
 		if i > j:	#to keep 10 intros on the page, we add these back (rather than archiving them)
 			returns.insert(0,sec1_template)	#to maintain the original ordering
-		else:		#put the oldest intros in the archive list		
+		else:		#put the oldest intros in the archive list
 			output.append(sec1_template)
 		i -= 1
-	
+
 	texturl2 = u'http://en.wikipedia.org/w/index.php?title=Wikipedia%3ATeahouse%2FGuest_book&action=raw&section=2'
 	usock = urllib2.urlopen(texturl2)
 	sections2 = usock.read()
@@ -83,10 +83,10 @@ else:
 	sections2 = unicode(sections2, 'utf8')
 	sections2 = sections2.strip()
 	sec2_template = u'''%s
-	
+
 	''' % sections2
 	output.append(sec2_template)
-	
+
 	#adding the archived profiles to Teahouse/Guest_book
 	report = wikitools.Page(wiki, report_title)
 	report_text = report_template % '\n'.join(output)
@@ -94,8 +94,8 @@ else:
 	report_text = report_text.replace("</noinclude>", "")
 	report_text = report_text.encode('utf-8')
 	report.edit(report_text, section=2, summary="HostBot is automatically archiving recent intros from [[WP:Teahouse/Guests/Right_column]]", bot=1)
-	
-	#removing the intros that were archived	
+
+	#removing the intros that were archived
 	remove = wikitools.Page(wiki, remove_title_left)
 	remove_text = remove_template % '\n'.join(returns)
 	remove_text = remove_text.encode('utf-8')

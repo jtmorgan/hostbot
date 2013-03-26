@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/python
 
 # Copyright 2012 Jtmorgan
 
@@ -123,7 +123,6 @@ def inviteGuests(cursor):
 			logging.info('Guest ' + invitee + ' failed on invite db update due to UnicodeDecodeError ' + curtime)
 			continue
 
-
 #records the users who were skipped
 def recordSkips(cursor):
 	for skipped in skip_list:
@@ -150,7 +149,10 @@ for row in rows:
 	else:
 		invite_list.append(guest)
 inviteGuests(cursor)
+logging.info('HostBot invited ' + len(invite_list) + ' guests on ' + curtime)
 recordSkips(cursor)
+logging.info('HostBot skipped ' + len(skip_list) + ' guests on ' + curtime)
+
 
 # print ("invited: ", invite_list)
 # print ("skipped: ", skip_list)

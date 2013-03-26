@@ -1,17 +1,17 @@
-#! /usr/bin/env python
+#! /usr/bin/python
 
 # Copyright 2012 Jtmorgan
- 
+
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
- 
+
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
- 
+
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -59,26 +59,26 @@ section = u'''
 #gets the numeric month and year, and num days in month
 def getMonthData(interval, cursor):
 	cursor.execute('''select month(date_sub(now(), Interval %d month)), year(date_sub(now(), Interval %d month))''' % (interval, interval))
-	row = cursor.fetchone()	
+	row = cursor.fetchone()
 	month = int(row[0])
 	year = int(row[1])
 	cursor.execute('''select distinct day(last_day(post_date)) from th_up_questions where month(post_date) = %d and year(post_date) = %d''' % (month, year))
-	row = cursor.fetchone()		
-	days = int(row[0])	
-	
-	return (month, year, days)
-	
+	row = cursor.fetchone()
+	days = int(row[0])
 
-	
-#posts as a new section to the metrics page		
-def postSection(month_data, section):	
+	return (month, year, days)
+
+
+
+#posts as a new section to the metrics page
+def postSection(month_data, section):
 # 	print section % (str(month_data[0]),str(month_data[1]),str(month_data[0]),str(month_data[2]),str(month_data[1]))
 	page = wikitools.Page(wiki, page_namespace + page_title)
 	page_text = section % (str(month_data[0]),str(month_data[1]),str(month_data[0]),str(month_data[2]),str(month_data[1]))
 # 	page_text = page_text.encode('utf-8')
-	page.edit(page_text, summary="HostBot is adding the monthly automated metrics intro section for %s/%s" % (str(month_data[0]),str(month_data[1])), bot=1)	
+	page.edit(page_text, summary="HostBot is adding the monthly automated metrics intro section for %s/%s" % (str(month_data[0]),str(month_data[1])), bot=1)
 
-			
+
 ## MAIN ##
 month_data = getMonthData(1, cursor) #get current month
 postSection(month_data, section) #post it to the metrics page in a new section

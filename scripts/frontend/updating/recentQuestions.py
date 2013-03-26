@@ -1,17 +1,17 @@
-#! /usr/bin/env python
+#! /usr/bin/python
 
 # Copyright 2012 Jtmorgan
- 
+
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
- 
+
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
- 
+
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -25,7 +25,7 @@ import settings
 
 
 report_title = settings.rootpage + '/Questions-recent/%i'
- 
+
 report_template = '''%s
 
 <!-- Fill in the "section" parameter with the question title from the Q&A page -->
@@ -37,13 +37,13 @@ conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_f
 cursor = conn.cursor()
 
 cursor.execute('''
-select rev_id from enwiki.revision 
-	where rev_page = 34745517 
+select rev_id from enwiki.revision
+	where rev_page = 34745517
 	and rev_comment like "New question:%" and rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s') order by rand() limit 5;
 	''')
 
 page = 1
-	
+
 row = cursor.fetchone()
 while 1:
 	if not row:
@@ -68,7 +68,7 @@ while 1:
 	page+=1
 	if page > 5:
 		break
-	row = cursor.fetchone()                
+	row = cursor.fetchone()
 
 cursor.close()
 conn.close()

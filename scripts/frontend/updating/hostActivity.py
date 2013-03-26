@@ -1,17 +1,17 @@
-#! /usr/bin/env python
+#! /usr/bin/python
 
 # Copyright 2013 Jtmorgan
- 
+
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
- 
+
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
- 
+
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -33,7 +33,7 @@ wiki.login(settings.username, settings.password)
 conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf', use_unicode=1, charset="utf8" )
 cursor = conn.cursor()
 
-logging.basicConfig(filename='/home/jmorgan/logs/moves.log',level=logging.INFO)
+logging.basicConfig(filename='/home/jmorgan/hostbot/logs/moves.log',level=logging.INFO)
 
 ##global variables and output templates
 curtime = str(datetime.utcnow())
@@ -51,7 +51,7 @@ class Params:
 			self.topg_tem = '%s\n'
 			self.frpg_cmt = (u'HostBot is automatically moving profiles for currently inactive hosts to [[WP:Teahouse/Host_breakroom]]', u'HostBot is automatically moving profiles of recently active hosts to [[WP:Teahouse/Host_landing]]')
 			self.topg_cmt = (u'HostBot is automatically moving profiles for currently inactive hosts from [[WP:Teahouse/Host_landing]]', u'HostBot is automatically moving profiles of recently active hosts from [[WP:Teahouse/Host_breakroom]]')
-			self.db_up = ((0,1), (1,0))	
+			self.db_up = ((0,1), (1,0))
 
 
 ###NOTES
@@ -61,8 +61,8 @@ class Params:
 def urlEncode(url):
 	reps = {'_':'+', '/':'%2F', ' ':'+'}
 	for j, k in reps.iteritems():
-		url = url.replace(j, k)	
-	return url	
+		url = url.replace(j, k)
+	return url
 
 
 ##UPDATE HOST ACTIVITY
@@ -72,20 +72,20 @@ def clearStatus():
 	conn.commit()
 	cursor.execute('UPDATE th_up_hosts SET featured = 0 WHERE featured = 1 AND join_date < DATE_SUB(NOW(),INTERVAL 14 DAY) AND (last_move_date < DATE_SUB(NOW(),INTERVAL 14 DAY) OR last_move_date IS NULL)')
 	conn.commit()
-	
+
 
 #adds metadata of newly-joined hosts to db, if there are any
 def addNewHosts():
 	cursor.execute('''
 	INSERT IGNORE INTO th_up_hosts
-		(user_name, user_id, join_date, in_breakroom, featured, colleague) 
+		(user_name, user_id, join_date, in_breakroom, featured, colleague)
 		SELECT rev_user_text, rev_user, STR_TO_DATE(rev_timestamp, '%s'), 0, 1, 0
-		FROM enwiki.revision 
+		FROM enwiki.revision
 		WHERE rev_page = 36794919
 		AND rev_user != 0
 		AND rev_comment = "/* {{subst:REVISIONUSER}} */ new section";
 	''' % "%Y%m%d%H%i%s")
-	conn.commit()	
+	conn.commit()
 	rowsaffected = cursor.rowcount
 	if rowsaffected > 0:
 		#adding in talkpage id for new hosts
@@ -107,16 +107,16 @@ def updateLastEdit():
 		SET h.latest_edit = STR_TO_DATE(latest_rev, '%s')
 			WHERE h.user_id = tmp.user_id;
 	''' % ("%Y%m%d%H%i%s", "%Y%m%d%H%i%s"))
-	conn.commit()	
-	
+	conn.commit()
+
 #updates the revision_counts for all hosts. features the top hosts.
-def updateHostEditCounts():	
-	cursor.execute('''UPDATE th_up_hosts AS h, (SELECT rev_user, COUNT(rev_id) AS recent_edits FROM enwiki.revision AS r, th_pages AS p WHERE rev_user IN (SELECT user_id FROM th_up_hosts) AND r.rev_page = p.page_id AND r.rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 14 DAY),'%s') GROUP BY rev_user) AS tmp 
+def updateHostEditCounts():
+	cursor.execute('''UPDATE th_up_hosts AS h, (SELECT rev_user, COUNT(rev_id) AS recent_edits FROM enwiki.revision AS r, th_pages AS p WHERE rev_user IN (SELECT user_id FROM th_up_hosts) AND r.rev_page = p.page_id AND r.rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 14 DAY),'%s') GROUP BY rev_user) AS tmp
 	SET h.num_edits_2wk = tmp.recent_edits WHERE h.user_id = tmp.rev_user;
 	''' % "%Y%m%d%H%i%s")
 	conn.commit()
 	cursor.execute('UPDATE th_up_hosts AS h, (SELECT user_id FROM th_up_hosts ORDER BY num_edits_2wk DESC LIMIT 10) AS tmp SET h.featured = 1 WHERE h.featured = 0 AND h.user_id = tmp.user_id')
-	conn.commit()	#marks the most active hosts as featured		
+	conn.commit()	#marks the most active hosts as featured
 
 ##FIND HOST PROFILES
 #gets the host profile metadata
@@ -125,7 +125,7 @@ def getSectionData(api_url, mv_to):
 	page = urlEncode(Params().frpg[mv_to])
 # 	for i, j in reps.iteritems():
 # 		page = page.replace(i, j)
-	url = api_url % (page)		
+	url = api_url % (page)
 # 	print url
 	usock = urllib2.urlopen(url)
 	sections = usock.read()
@@ -134,7 +134,7 @@ def getSectionData(api_url, mv_to):
 	for x in soup.findAll('s',toclevel="2"):
 		profile = (x['index'], x['line'])
 # 		print profile
-		sec_list.append(profile)	
+		sec_list.append(profile)
 	return sec_list
 
 #checks for duplicate profiles
@@ -146,7 +146,7 @@ def dupe_check(list1, list2):
 			dupe_profiles.append(name)
 	if len(dupe_profiles) > 0:
 		logging.info('DUPLICATES: duplicate profiles for ' + ' '.join(dupe_profiles) + ' ' + curtime)	# would be nice to do this within-lists, too.
-		
+
 #writes these operations to the database
 #clears the slate
 def updateHostTable(list1, list2, list3):
@@ -163,7 +163,7 @@ UPDATE th_up_hosts SET has_profile = 1, in_breakroom = 1 WHERE user_name in (%s)
 	cursor.execute('''
 UPDATE th_up_hosts SET has_profile = 1, in_breakroom = 0 WHERE user_name in (%s)
 ''' % ('"' + '", "'.join(item[1] for item in list3) + '"'))
-	conn.commit()			
+	conn.commit()
 
 ##DEACTIVATE HOSTS
 # gets the hosts who should have their profiles moved from the database
@@ -190,22 +190,22 @@ def findUsersToMove(mv_to): #whether this is a move to or from the breakroom
 			AND join_date IS NOT NULL;
 			''')
 	else:
-		pass				
+		pass
 	rows = cursor.fetchall()
 	if rows:
 		for row in rows:
 			user = unicode(row[0],'utf-8')
 			move_list.append(user)
-	else: 
+	else:
 		if mv_to == 0:
-			logging.info('No moves to breakroom today' + curtime)	
+			logging.info('No moves to breakroom today' + curtime)
 		elif mv_to == 1:
 			logging.info('No moves to host landing today' + curtime)
 		else:
-			pass						
+			pass
 	return move_list
 
-#identifies those sections that need to be moved (either way)	
+#identifies those sections that need to be moved (either way)
 ##VALIDATE
 def getSectionsToMove(profile_list, user_list): #gets our list of profiles that exist from above, and our lists of people to be moved from findUsersToMove
 	move_list = []
@@ -217,7 +217,7 @@ def getSectionsToMove(profile_list, user_list): #gets our list of profiles that 
 #collects the profile text based on lists
 def getProfileText(mv_lst, mv_to, mv_add):
 	page_from = urlEncode(Params().frpg[mv_to])
-	page_to = urlEncode(Params().topg[mv_to])	
+	page_to = urlEncode(Params().topg[mv_to])
 # 	#first, gets text for the profiles to be moved
 	i = 0
 	prof_text_list = []
@@ -241,7 +241,7 @@ def getProfileText(mv_lst, mv_to, mv_add):
 		usock.close()
 		text = unicode(text, 'utf8')
 		text = text.strip()
-		prof_text_list.append(text + '\n')		
+		prof_text_list.append(text + '\n')
 	return prof_text_list
 
 #moves profiles
@@ -251,9 +251,9 @@ def moveProfiles(profiles, mv_to, mv_add):
 		template = Params().topg_tem
 		comment = Params().topg_cmt[mv_to]
 		path = Params().ns + Params().topg[mv_to]
-			
+
 	else:
-		sec = 1	
+		sec = 1
 		template = Params().frpg_tem[mv_to]
 		comment = Params().frpg_cmt[mv_to]
 		path = Params().ns + Params().frpg[mv_to]
@@ -265,11 +265,11 @@ def moveProfiles(profiles, mv_to, mv_add):
 # 	print comment
 # 	print edit_profiles
 	wikipage.edit(edit_profiles, section=sec, summary=comment, bot=1)
-		
+
 #writes this operation to the database
-def updateStatus(sub_list, mv_to):	
+def updateStatus(sub_list, mv_to):
 	featured = Params().db_up[mv_to][0]
-	breakroom = Params().db_up[mv_to][1]	
+	breakroom = Params().db_up[mv_to][1]
 	for user in sub_list:
 		cursor.execute('''UPDATE th_up_hosts
 		set featured = %s, in_breakroom = %s, last_move_date = NOW()
@@ -296,17 +296,17 @@ users_to_mv = findUsersToMove(0)
 if users_to_mv:
 	hl_profiles = getSectionData(api_url, 0)
 	users_to_move = getSectionsToMove(hl_profiles, users_to_mv)
-	users_to_keep = [item for item in hl_profiles if item not in users_to_move]	
+	users_to_keep = [item for item in hl_profiles if item not in users_to_move]
 	profiles_move = getProfileText(users_to_move, 0, True)
-	profiles_keep = getProfileText(users_to_keep, 0, False)	
-	moveProfiles(profiles_move, 0, True)	
-	moveProfiles(profiles_keep, 0, False)		
-	updateStatus(users_to_mv, 0) 
+	profiles_keep = getProfileText(users_to_keep, 0, False)
+	moveProfiles(profiles_move, 0, True)
+	moveProfiles(profiles_keep, 0, False)
+	updateStatus(users_to_mv, 0)
 else:
 	pass
 
 # time.sleep(60) #delay to let api and db catch up
-# 
+#
 # ##REACTIVATE HOSTS
 # users_to_mv = findUsersToMove(1)
 # if users_to_mv:
@@ -318,7 +318,7 @@ else:
 # 	moveProfiles(profiles_move, 1, True)
 # 	time.sleep(60) #delay to let api and db catch up
 # 	moveProfiles(profiles_keep, 1, False)
-# 	updateStatus(users_to_mv, 1) 
+# 	updateStatus(users_to_mv, 1)
 # else:
 # 	pass
 

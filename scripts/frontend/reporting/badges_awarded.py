@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/python
 
 # Copyright 2012 Jtmorgan
 
@@ -55,8 +55,12 @@ wiki.login(settings.username, settings.password)
 conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf', use_unicode=1, charset="utf8" )
 cursor = conn.cursor()
 
-#adds pages to the badge page list
 def updatePageList():
+	"""
+	adds pages to the badge page list
+	this is giving a new duplicate key warning as of 20130325.
+	commenting out for now.
+	"""
 	cursor.execute('INSERT IGNORE INTO th_badges (bpage_title, bpage_id) SELECT page_title, page_id FROM enwiki.page WHERE page_namespace = 4 AND page_title LIKE "Teahouse/Badge/%"')
 	conn.commit()
 
@@ -90,7 +94,9 @@ def findLinks(cursor, list):
 
 #gets recipient user data
 def getUserData(cursor):
-		cursor.execute('UPDATE th_up_badges_awarded as t, enwiki.user AS u SET t.user_id = u.user_id, t.user_name = u.user_name, t.user_registration = u.user_registration, t.not_badge = 0 WHERE REPLACE(t.bap_title,"_"," ") = u.user_name AND t.user_id IS NULL')
+		cursor.execute('UPDATE th_up_badges_awarded as t, enwiki.user AS u SET t.user_id = u.user_id, t.user_name = u.user_name, t.user_registration = u.user_registration, t.not_badge = 0 WHERE REPLACE(t.bap_title,"_"," ") = u.user_name')
+		conn.commit()
+		cursor.execute('DELETE FROM th_up_badges_awarded WHERE ba_date = DATE(NOW()) AND user_id IS NULL')
 		conn.commit()
 
 
@@ -142,7 +148,7 @@ def outputBadgeTable(cursor):
 
 
 ##MAIN##
-updatePageList()
+# updatePageList()
 badge_list = getPages(cursor)
 badges_inserted = findLinks(cursor, badge_list)
 if badges_inserted > 0:
