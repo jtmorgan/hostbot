@@ -28,7 +28,7 @@ wiki.login(settings.username, settings.password)
 conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf', use_unicode=1, charset="utf8" )
 cursor = conn.cursor()
 
-logging.basicConfig(filename='/home/jmorgan/logs/reminders.log',level=logging.INFO)
+logging.basicConfig(filename='/home/jmorgan/hostbot/logs/reminders.log',level=logging.INFO)
 
 
 ##GLOBAL VARIABLES##

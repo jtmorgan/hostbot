@@ -18,7 +18,7 @@
 import MySQLdb
 import wikitools
 import settings
-import os
+# import os
 from random import choice
 from datetime import datetime
 import urllib2 as u2
@@ -131,7 +131,7 @@ def recordSkips(cursor):
 			cursor.execute('''update jmorgan.th_up_invitees set hostbot_skipped = 1 where user_name = %s ''', (skipped,))
 			conn.commit()
 		except:
-			logging.info('Guest ' + invitee + ' failed on skip db update ' + curtime)
+			logging.info('Guest ' + skipped + ' failed on skip db update ' + curtime)
 			continue
 
 
@@ -149,16 +149,18 @@ for row in rows:
 	else:
 		invite_list.append(guest)
 inviteGuests(cursor)
-logging.info('HostBot invited ' + len(invite_list) + ' guests on ' + curtime)
+invited = len(invite_list)
+skipped = len(skip_list)
+logging.info('HostBot invited ' + str(invited) + ' guests on ' + curtime)
 recordSkips(cursor)
-logging.info('HostBot skipped ' + len(skip_list) + ' guests on ' + curtime)
+logging.info('HostBot skipped ' + str(skipped) + ' guests on ' + curtime)
 
 
 # print ("invited: ", invite_list)
 # print ("skipped: ", skip_list)
-
-#updates Wikipedia:Teahouse/Hosts/Database_reports
-os.system("python ~/hostbot/scripts/frontend/reporting/invitecheck.py")
+# 
+# #updates Wikipedia:Teahouse/Hosts/Database_reports
+# os.system("/usr/bin/python $HOME/hostbot/scripts/frontend/reporting/invitecheck.py")
 
 cursor.close()
 conn.close()

@@ -94,7 +94,7 @@ def findLinks(cursor, list):
 
 #gets recipient user data
 def getUserData(cursor):
-		cursor.execute('UPDATE th_up_badges_awarded as t, enwiki.user AS u SET t.user_id = u.user_id, t.user_name = u.user_name, t.user_registration = u.user_registration, t.not_badge = 0 WHERE REPLACE(t.bap_title,"_"," ") = u.user_name')
+		cursor.execute('UPDATE th_up_badges_awarded as t, enwiki.user AS u SET t.user_id = u.user_id, t.user_name = u.user_name, t.user_registration = u.user_registration, t.not_badge = 0 WHERE REPLACE(t.bap_title,"_"," ") = u.user_name AND ba_date = DATE(NOW())')
 		conn.commit()
 		cursor.execute('DELETE FROM th_up_badges_awarded WHERE ba_date = DATE(NOW()) AND user_id IS NULL')
 		conn.commit()
@@ -151,10 +151,10 @@ def outputBadgeTable(cursor):
 # updatePageList()
 badge_list = getPages(cursor)
 badges_inserted = findLinks(cursor, badge_list)
-if badges_inserted > 0:
-	getUserData(cursor)
-	updateBadgeTable(cursor)
-	outputBadgeTable(cursor)
+# if badges_inserted > 0:
+getUserData(cursor)
+updateBadgeTable(cursor)
+outputBadgeTable(cursor)
 
 cursor.close()
 conn.close()

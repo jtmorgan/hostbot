@@ -44,7 +44,7 @@ checkin_template = '''= Recent checkins as of {{CURRENTDAYNAME}}, {{CURRENTMONTH
 #determines if there are any users to check in
 def findCheckins(cursor):
 	global checkin_list
-	cursor.execute('''select rev_user_text from enwiki.revision where rev_page = 36967956 and rev_comment = "/* {{subst:REVISIONUSER}} */ new section" and rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 10 DAY),'%Y%m%d%H%i%s')
+	cursor.execute('''select rev_user_text from enwiki.revision where rev_page = 36967956 and rev_comment = "/* {{subst:REVISIONUSER}} */ new section" and rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 1 DAY),'%Y%m%d%H%i%s')
 	''')
 	rows = cursor.fetchall()
 	checkins = False

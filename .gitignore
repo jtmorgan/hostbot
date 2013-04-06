@@ -3,3 +3,6 @@ logs
 *.DS_Store
 settings.*
 old
+*.InterarchyMirrorCacheData
+Icon
+
