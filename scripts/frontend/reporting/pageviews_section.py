@@ -66,7 +66,7 @@ def getMonthData(interval, cursor):
 	year = str(row[1])
 	if len(month) == 1:
 		month = '0' + month
-	print (month, year)
+# 	print (month, year)
 	return (month, year)
 
 #gets list of pageviews by day for month
@@ -135,7 +135,7 @@ month_data = getMonthData(2, cursor) #get previous month
 pv_list = getMonthlyPvList(month_data, pageview_url)
 prevmonth_data = getMonthlyPvMetrics(2, pv_list, month_data)
 bothmonth_data = compareMonths(curmonth_data, prevmonth_data) #compare the two months
-# postSection(bothmonth_data) #post it to the metrics page in a new section
+postSection(bothmonth_data) #post it to the metrics page in a new section
 
 
 

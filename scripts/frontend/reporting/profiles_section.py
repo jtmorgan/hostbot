@@ -84,7 +84,8 @@ def getMonthCounts(month_data, cursor):
 						FROM th_up_profiles
 							WHERE
 								MONTH(post_date) = %d
-					''' % (month_data[0]))
+								AND YEAR(post_date) = %d
+					''' % (month_data[0], month_data[1]))
 	row = cursor.fetchone()
 	count = int(row[0])
 
@@ -119,7 +120,7 @@ def postSection(cur_datetime, q_tot_count, bothmonth_data):
 
 
 ## MAIN ##
-cursor.execute("SELECT date(NOW()), COUNT(rev_id) FROM th_up_profiles WHERE week > 8;") #get total profiles for all time
+cursor.execute("SELECT date(NOW()), COUNT(rev_id) FROM th_up_profiles WHERE week != 8;") #get total profiles for all time
 row = cursor.fetchone()
 cur_datetime = str(row[0])
 q_tot_count = str(row[1])

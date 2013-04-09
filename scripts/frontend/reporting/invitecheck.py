@@ -23,6 +23,7 @@ import settings
 report_title = settings.rootpage + '/Hosts/Database_reports#Daily_Report'
 
 report_template = u'''==Daily Report==
+This list was last updated on {{subst:REVISIONMONTH}}/{{subst:REVISIONDAY}}/{{subst:REVISIONYEAR}} by {{subst:REVISIONUSER}}.
 
 ===Highly active new editors===
 Below is a list of editors who joined within the last 24 hours, have since made more than 10 edits, and were not blocked at the time the report was generated.

@@ -87,7 +87,8 @@ def getMonthCounts(month_data, cursor):
 						FROM th_up_questions
 							WHERE
 								MONTH(post_date) = %d
-					''' % (month_data[0]))
+								AND YEAR(post_date) = %d
+					''' % (month_data[0], month_data[1]))
 	row = cursor.fetchone()
 	count = int(row[0])
 
@@ -99,8 +100,9 @@ def getAvgAnswers(month_data, cursor):
 	cursor.execute('''SELECT AVG(answers)
 						FROM th_up_questions
 							WHERE MONTH(post_date) = %d
-							AND answers > 0;
-					''' % month_data[0])
+							AND YEAR(post_date) = %d
+							AND answers > 0
+					''' % (month_data[0], month_data[1]))
 	row = cursor.fetchone()
 	avg = float(round(row[0],2))
 
@@ -115,8 +117,9 @@ def getAvgResponseTime(month_data, cursor):
 									AS diff
 										FROM th_up_questions
 											WHERE MONTH(post_date) = %d
-												AND answers > 0) AS tmp;
-					''' % month_data[0])
+											AND YEAR(post_date) = %d
+											AND answers > 0) AS tmp WHERE diff > 0
+					''' % (month_data[0], month_data[1]))
 	row = cursor.fetchone()
 	avg = float(round(row[0],2))
 
@@ -128,8 +131,9 @@ def getAvgPerGuest(month_data, cursor):
 						FROM (select count(rev_id) as questions
 							FROM th_up_questions
 								WHERE MONTH(post_date) = %d
-								GROUP BY rev_user_text) as tmp;
-					''' % month_data[0])
+								AND YEAR(post_date) = %d
+								GROUP BY rev_user_text) as tmp
+					''' % (month_data[0], month_data[1]))
 	row = cursor.fetchone()
 	avg = float(round(row[0],2))
 
@@ -172,7 +176,7 @@ def postSection(cur_datetime, q_tot_count, bothmonth_data):
 
 
 ## MAIN ##
-cursor.execute("SELECT date(NOW()), COUNT(rev_id) FROM th_up_questions WHERE week > 8;") #get total questions for all time
+cursor.execute("SELECT date(NOW()), COUNT(rev_id) FROM th_up_questions WHERE week != 8") #get total questions for all time
 row = cursor.fetchone()
 cur_datetime = str(row[0])
 q_tot_count = str(row[1])

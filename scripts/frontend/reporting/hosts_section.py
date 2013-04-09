@@ -79,7 +79,8 @@ def getMonthCounts(month_data, cursor):
 						FROM th_up_hosts
 							WHERE
 								MONTH(latest_edit) = %d
-					''' % (month_data[0]))
+								AND YEAR(latest_edit) = %d
+					''' % (month_data[0], month_data[1]))
 	row = cursor.fetchone()
 	count = int(row[0])
 
@@ -91,8 +92,9 @@ def getNewUsers(month_data, cursor):
 	cursor.execute('''SELECT count(user_id)
 						FROM th_up_hosts
 							WHERE MONTH(join_date) = %d
+							AND YEAR(join_date) = %d
 							AND colleague = 0
-					''' % month_data[0])
+					''' % (month_data[0], month_data[1]))
 	row = cursor.fetchone()
 	new = row[0]
 
@@ -104,8 +106,9 @@ def getInactiveUsers(month_data, cursor):
 	cursor.execute('''SELECT count(user_id)
 						FROM th_up_hosts
 							WHERE MONTH(latest_edit) = %d
+							AND YEAR(latest_edit) = %d
 							AND colleague = 0
-					''' % (month_data[0] - 1)) #this doesn't account for the December/January switchover
+					''' % (month_data[0] - 1, month_data[1])) #this doesn't account for the December/January switchover
 	row = cursor.fetchone()
 	inactive = row[0]
 
