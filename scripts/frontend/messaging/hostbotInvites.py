@@ -46,10 +46,10 @@ invite_list = []
 skip_list = []
 
 # the basic invite template
-invite_template = u'{{subst:Wikipedia:Teahouse/HostBot_Invitation|personal=I hope to see you there! [[User:%s|%s]] ([[w:en:WP:Teahouse/Hosts|I\'m a Teahouse host]])%s}}'
+invite_template = u'{{subst:Wikipedia:Teahouse/HostBot_Invitation|personal=I hope to see you there! [[User_talk:%s|%s]] ([[w:en:WP:Teahouse/Hosts|I\'m a Teahouse host]])%s}}'
 
 # list of hosts who have volunteered to have their usernames associated with HostBot invites
-curHosts = ['Rosiestep','Jtmorgan','SarahStierch','Ryan Vesey','Writ Keeper','Doctree','Osarius','Hajatvrc','Nathan2055','Benzband','Theopolisme','TheOriginalSoni','Ushau97']
+curHosts = ['Rosiestep','Jtmorgan','SarahStierch','Ryan Vesey','Writ Keeper','Doctree','Osarius','Hajatvrc','Nathan2055','Benzband','Theopolisme','TheOriginalSoni','Ushau97','Technical 13']
 
 
 # strings associated with substituted templates that mean I should skip this guest
@@ -158,7 +158,7 @@ logging.info('HostBot skipped ' + str(skipped) + ' guests on ' + curtime)
 
 # print ("invited: ", invite_list)
 # print ("skipped: ", skip_list)
-# 
+#
 # #updates Wikipedia:Teahouse/Hosts/Database_reports
 # os.system("/usr/bin/python $HOME/hostbot/scripts/frontend/reporting/invitecheck.py")
 

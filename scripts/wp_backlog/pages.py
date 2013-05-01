@@ -21,7 +21,7 @@ import json
 
 class CategoryCheck:
 	"""Requests pages and subcategories in categories from the MediaWiki API."""
-	
+
 	def __init__(self):
 		"""
 		catmems['cmtitle'] - the title of the category you want info about
@@ -29,14 +29,16 @@ class CategoryCheck:
 		"""
 		self.wiki = wikitools.Wiki(settings.apiurl)
 		self.wiki.login(settings.username, settings.password)
-		self.catmems = {'action':'query','list':'categorymembers','cmtitle':'', 'cmtype':''}
+		self.catmems = {'action':'query','list':'categorymembers','cmtitle':'', 'cmtype':'','cmnamespace':''}
 
 
-	def getPages(self, rtype, rtitle):
+	def getPages(self, rtype, rtitle, rns=None):
 		self.catmems['cmtype'] = rtype
 		self.catmems['cmtitle'] = rtitle
+		if rns is not None:
+			self.catmems['cmnamespace'] = rns
 		request = wikitools.APIRequest(self.wiki, self.catmems)
 		subcats = request.query()
 		pages = subcats['query']['categorymembers']
-		
+
 		return pages
