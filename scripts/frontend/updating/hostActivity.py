@@ -33,18 +33,18 @@ cursor = conn.cursor()
 logging.basicConfig(filename='/home/jmorgan/hostbot/logs/moves.log',level=logging.INFO)
 curtime = str(datetime.utcnow())
 params = moves.Params()
+
 def clearStatus():
 	"""clears edit counts, profile, breakroom and featured status.
 	Makes sure that new and active hosts are featured.
 	"""
-
 	cursor.execute('UPDATE th_up_hosts SET num_edits_2wk = 0, in_breakroom = 0, has_profile = 0, featured = 0')
 	conn.commit()
+
 
 def addNewHosts():
 	"""add metadata of newly-joined hosts to db, if there are any
 	"""
-
 	cursor.execute('''
 	INSERT IGNORE INTO th_up_hosts
 		(user_name, user_id, join_date, in_breakroom, featured, colleague, no_spam)
@@ -62,6 +62,7 @@ def addNewHosts():
 		UPDATE th_up_hosts AS t, enwiki.page AS p SET t.user_talkpage = p.page_id WHERE p.page_namespace = 3 AND REPLACE(t.user_name," ","_") = p.page_title AND t.user_talkpage IS NULL''')
 		conn.commit()
 
+
 def urlEncode(url):
 	"""encode characters in the url
 	"""
@@ -73,7 +74,6 @@ def urlEncode(url):
 def getSectionData(mv_to):
 	"""get the section number and name for each profile
 	"""
-
 	sec_list = []
 	page = urlEncode(params.frpg[mv_to])
 # 	for i, j in reps.iteritems():
@@ -90,10 +90,10 @@ def getSectionData(mv_to):
 		sec_list.append(profile)
 	return sec_list
 
+
 def dupe_check(list1, list2):
 	"""check whether any hosts have profiles in both the host landing and breakroom
 	"""
-
 	dupe_profiles = []
 	for item in list1:
 		name = item[1]
@@ -101,6 +101,7 @@ def dupe_check(list1, list2):
 			dupe_profiles.append(name)
 	if len(dupe_profiles) > 0:
 		logging.info('DUPLICATES: duplicate profiles for ' + ' '.join(dupe_profiles) + ' ' + curtime)	# would be nice to do this within-lists, too.
+
 
 def updateHostTable(list1, list2, list3):
 	"""update the host table indicating whether each host has a profile,
@@ -117,7 +118,6 @@ def updateHostTable(list1, list2, list3):
 def updateLastEdit():
 	"""get timestamp of latest edit for all hosts
 	"""
-
 	cursor.execute('''
 	UPDATE th_up_hosts AS h,
 	(SELECT h.user_id, MAX(r.rev_timestamp) AS latest_rev
@@ -131,10 +131,10 @@ def updateLastEdit():
 	''' % ("%Y%m%d%H%i%s", "%Y%m%d%H%i%s"))
 	conn.commit()
 
+
 def updateHostEditCounts():
 	"""update the rev counts for all hosts. features the top-contributing hosts.
 	"""
-
 	cursor.execute('''UPDATE th_up_hosts AS h, (SELECT rev_user, COUNT(rev_id) AS recent_edits FROM enwiki.revision AS r, th_pages AS p WHERE rev_user IN (SELECT user_id FROM th_up_hosts) AND r.rev_page = p.page_id AND r.rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 14 DAY),'%s') GROUP BY rev_user) AS tmp
 	SET h.num_edits_2wk = tmp.recent_edits WHERE h.user_id = tmp.rev_user;
 	''' % ("%Y%m%d%H%i%s",))
@@ -142,10 +142,10 @@ def updateHostEditCounts():
 	cursor.execute('UPDATE th_up_hosts AS h, (SELECT user_id FROM th_up_hosts WHERE has_profile = 1 ORDER BY num_edits_2wk DESC LIMIT 20) AS tmp SET h.featured = 1 WHERE h.featured = 0 AND h.user_id = tmp.user_id')
 	conn.commit()
 
+
 def findUsersToMove(mv_to): #whether this is a move to or from the breakroom
 	"""gets a list of profiles to move between pages
 	"""
-
 	move_list = []
 	cursor.execute(params.mv_queries[mv_to])
 	rows = cursor.fetchall()
@@ -157,20 +157,20 @@ def findUsersToMove(mv_to): #whether this is a move to or from the breakroom
 		logging.info(params.nomv_log[mv_to] + curtime)
 	return move_list
 
+
 def getSectionsToMove(profile_list, user_list):
 	"""combine profile metadata with list of users to move
 	"""
-
 	move_list = []
 	for item in profile_list:
 		if item[1] in user_list:
 			move_list.append(item)
 	return move_list
 
+
 def getProfileText(mv_lst, mv_to, mv_add):
 	"""get the content of profiles. first, gets text for the profiles to be moved. then, 	appends the first profile off the target page, if this is edit is adding profiles
 	"""
-
 	page_from = urlEncode(params.frpg[mv_to])
 	page_to = urlEncode(params.topg[mv_to])
 	i = 0
@@ -197,10 +197,10 @@ def getProfileText(mv_lst, mv_to, mv_add):
 		prof_text_list.append(text + '\n')
 	return prof_text_list
 
+
 def moveProfiles(profiles, mv_to, mv_add):
 	"""edit the profile page
 	"""
-
 	if mv_add:
 		sec = 2
 		template = params.topg_tem
@@ -221,10 +221,10 @@ def moveProfiles(profiles, mv_to, mv_add):
 # 	print edit_profiles
 	wikipage.edit(edit_profiles, section=sec, summary=comment, bot=1)
 
+
 def updateStatus(sub_list, mv_to):
 	"""record the move to the host table
 	"""
-
 	breakroom = params.db_up[mv_to]
 	for user in sub_list:
 		cursor.execute('''UPDATE th_up_hosts SET in_breakroom = %s, last_move_date = NOW() WHERE user_name = "%s"''' % (breakroom, user))

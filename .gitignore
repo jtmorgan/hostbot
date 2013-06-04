@@ -4,5 +4,5 @@ logs
 settings.*
 old
 *.InterarchyMirrorCacheData
-Icon
-
+"Icon\r"
+*.pyc
