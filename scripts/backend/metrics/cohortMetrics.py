@@ -44,13 +44,11 @@ class Data:
 		queries = query_lib.badgeQueries(self.group_type)
 		usr_data = []
 		dbquery = queries['experimental'] #stopped here
-		print dbquery
 		self.cursor.execute(dbquery) #gets the experimental sample
 		rows = cursor.fetchall()
 		for row in rows:
 			usr_data.append(['experimental',row[0], row[1]])
 		dbquery = queries['control']
-		print dbquery
 		self.cursor.execute(dbquery) #gets the control sample
 		rows = cursor.fetchall()
 		for row in rows:
@@ -67,7 +65,6 @@ class Data:
 			self.cursor.execute(dbquery)
 			row = cursor.fetchone()
 			usr.append(row[0])
-		print usr_data
 		self.csvExport(usr_data)
 
 	def csvExport(self, usr_data):
