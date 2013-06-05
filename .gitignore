@@ -1,8 +1,9 @@
 data
 logs
 *.DS_Store
-settings.*
+*settings.*
 old
 *.InterarchyMirrorCacheData
 "Icon\r"
 *.pyc
+hcde_skillshare
