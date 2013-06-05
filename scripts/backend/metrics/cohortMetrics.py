@@ -20,7 +20,7 @@ import MySQLdb
 import hostbot_settings
 import sys
 import csv
-from queries import Queries as q
+import query
 
 conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = '~/.my.cnf', use_unicode=1, charset="utf8" )
 cursor = conn.cursor()
@@ -40,42 +40,43 @@ class Data:
 		"""
 		generate a list of our userdata
 		"""
-		query_lib = q()
+		query_lib = query.Queries()
 		queries = query_lib.badgeQueries(self.group_type)
 		usr_data = []
-		query = self.queries['welcome']['experimental'] #stopped here
-		print query
-		self.cursor.execute(query) #gets the experimental sample
+		dbquery = queries['experimental'] #stopped here
+		print dbquery
+		self.cursor.execute(dbquery) #gets the experimental sample
 		rows = cursor.fetchall()
 		for row in rows:
-			usr_data.append(['experimental',row[0], row[1]] for row in rows)
-		query = self.queries['control']
-		print query
-		self.cursor.execute(query) #gets the control sample
+			usr_data.append(['experimental',row[0], row[1]])
+		dbquery = queries['control']
+		print dbquery
+		self.cursor.execute(dbquery) #gets the control sample
 		rows = cursor.fetchall()
 		for row in rows:
-			usr_data.append(['control',row[0], row[1]] for row in rows)
-		usr_activity = getActivity(usr_data)
+			usr_data.append(['control',row[0], row[1]])
+			print row[1]
+		usr_activity = self.getActivity(usr_data, queries)
 
-	def getActivity(self, usr_data):
+	def getActivity(self, usr_data, queries):
 		"""
 		find out what they've been up to on-wiki
 		"""
-		query = self.queries['activity']
 		for usr in usr_data:
-			self.cursor.execute(query % (usr, '%Y%m%d%H%i%s'))
+			dbquery = queries['activity'] % (usr[1], '%Y%m%d%H%i%s')
+			self.cursor.execute(dbquery)
 			row = cursor.fetchone()
 			usr.append(row[0])
 		print usr_data
-		csvExport(usr_data)
+		self.csvExport(usr_data)
 
-	def csvExport(usr_data):
+	def csvExport(self, usr_data):
 		"""prints it all to csv"""
 		f = open(sys.argv[2], 'wt') #you tell it what to name the files at the command line
 		writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
 		writer.writerow( ('condition', 'user id', 'sample date', 'subsequent activity') )
 		for usr in usr_data:
-			writer.writerow(x for x in usr)
+			writer.writerow( (usr[0], usr[1], usr[2], usr[3]) )
 		f.close()
 
 
