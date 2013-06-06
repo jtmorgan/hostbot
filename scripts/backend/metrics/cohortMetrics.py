@@ -69,7 +69,7 @@ class Data:
 
 	def csvExport(self, usr_data):
 		"""prints it all to csv"""
-		f = open(sys.argv[2], 'wt') #you tell it what to name the files at the command line
+		f = open(sys.argv[2], 'wt') #specify file name and relative path at command line
 		writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
 		writer.writerow( ('condition', 'user id', 'sample date', 'subsequent activity') )
 		for usr in usr_data:
