@@ -17,10 +17,18 @@
 
 import sys
 import shelve
+import query
 
 db = shelve.open('/home/jmorgan/hostbot/data/metrics/queries.db')
 
-try:
-    db[sys.argv[1]] = sys.argv[2]
-finally:
-    db.close()
+
+query_lib = query.Queries()
+query = query_lib.queries
+for k, v in query.iteritems():
+	db[k] = [v]
+		
+db.close()	
+# try:
+#     db[sys.argv[1]] = sys.argv[2]
+# finally:
+#     db.close()
