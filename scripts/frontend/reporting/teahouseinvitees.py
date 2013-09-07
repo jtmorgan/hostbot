@@ -18,7 +18,7 @@
 import datetime
 import MySQLdb
 import wikitools
-import settings
+import hostbot_settings
 
 report_title = settings.rootpage + '/Hosts/Database_reports#Daily_Report'
 
@@ -60,9 +60,9 @@ Below is a list of editors who gained [[Wikipedia:User_access_levels#Autoconfirm
 {{Wikipedia:Teahouse/Host navigation}}
 '''
 
-wiki = wikitools.Wiki(settings.apiurl)
-wiki.login(settings.username, settings.password)
-conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf' )
+wiki = wikitools.Wiki(hostbot_settings.apiurl)
+wiki.login(hostbot_settings.username, hostbot_settings.password)
+conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
 
 # insert 10-edit newbies
@@ -82,11 +82,11 @@ NOW(),
 0,
 0,
 0
-FROM enwiki.user
+FROM enwiki_p.user
 WHERE user_registration > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 1 DAY),'%Y%m%d%H%i%s')
 AND user_editcount > 10
-AND user_id NOT IN (SELECT ug_user FROM enwiki.user_groups WHERE ug_group = 'bot')
-AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki.logging where log_type = "block" and log_action = "block" and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s'));
+AND user_id NOT IN (SELECT ug_user FROM enwiki_p.user_groups WHERE ug_group = 'bot')
+AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging where log_type = "block" and log_action = "block" and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s'));
 ''')
 conn.commit()
 
@@ -107,14 +107,14 @@ insert ignore into th_up_invitees
 		0,
 		0,
 		0
-			from enwiki.user
+			from enwiki_p.user
 				where user_editcount > 10
 				and user_registration
 					between DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 5 DAY),'%Y%m%d%H%i%s')
 					and DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 4 DAY),'%Y%m%d%H%i%s')
-					AND user_id NOT IN (SELECT ug_user FROM enwiki.user_groups WHERE ug_group = 'bot')
+					AND user_id NOT IN (SELECT ug_user FROM enwiki_p.user_groups WHERE ug_group = 'bot')
 					AND user_name not in
-						(SELECT REPLACE(log_title,"_"," ") from enwiki.logging
+						(SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging
 							where log_type = "block"
 							and log_action = "block"
 							and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 5 DAY),'%Y%m%d%H%i%s'));
@@ -124,7 +124,7 @@ conn.commit()
 
 #adds in talkpage ids for later link checks
 cursor.execute('''
-UPDATE jmorgan.th_up_invitees as i, enwiki.page as p
+UPDATE th_up_invitees as i, enwiki_p.page as p
 SET i.user_talkpage = p.page_id, i.ut_is_redirect = p.page_is_redirect
 WHERE date(i.sample_date) = date(NOW())
 AND p.page_namespace = 3
