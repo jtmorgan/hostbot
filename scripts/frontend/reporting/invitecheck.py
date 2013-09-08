@@ -18,9 +18,9 @@
 import datetime
 import MySQLdb
 import wikitools
-import settings
+import hostbot_settings
 
-report_title = settings.rootpage + '/Hosts/Database_reports#Daily_Report'
+report_title = hostbot_settings.rootpage + '/Hosts/Database_reports#Daily_Report'
 
 report_template = u'''==Daily Report==
 This list was last updated on {{subst:REVISIONMONTH}}/{{subst:REVISIONDAY}}/{{subst:REVISIONYEAR}} by {{subst:REVISIONUSER}}.
@@ -60,15 +60,15 @@ Below is a list of editors who gained [[Wikipedia:User_access_levels#Autoconfirm
 {{Wikipedia:Teahouse/Host navigation}}
 '''
 
-wiki = wikitools.Wiki(settings.apiurl)
-wiki.login(settings.username, settings.password)
-conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf' )
+wiki = wikitools.Wiki(hostbot_settings.apiurl)
+wiki.login(hostbot_settings.username, hostbot_settings.password)
+conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
 
 
 #adding talkpage ids for users whose talkpage was created by the invitation
 cursor.execute('''
-UPDATE jmorgan.th_up_invitees as i, enwiki.page as p
+UPDATE th_up_invitees as i, enwiki_p.page as p
 SET i.user_talkpage = p.page_id, i.ut_is_redirect = p.page_is_redirect
 WHERE date(i.sample_date) = date(NOW())
 AND i.user_talkpage is null
@@ -93,7 +93,7 @@ for row in rows:
 	cursor2 = conn.cursor()
 	cursor2.execute('''
 SELECT pl_from
-FROM enwiki.pagelinks
+FROM enwiki_p.pagelinks
 WHERE pl_namespace = 4
 AND pl_from = %s
 AND pl_title = "Teahouse"

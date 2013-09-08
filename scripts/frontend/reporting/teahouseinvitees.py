@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python2.7
 
 # Copyright 2012 Jtmorgan
 
@@ -20,7 +20,7 @@ import MySQLdb
 import wikitools
 import hostbot_settings
 
-report_title = settings.rootpage + '/Hosts/Database_reports#Daily_Report'
+report_title = hostbot_settings.rootpage + '/Hosts/Database_reports#Daily_Report'
 
 report_template = u'''==Daily Report==
 This list was last updated on {{subst:REVISIONMONTH}}/{{subst:REVISIONDAY}}/{{subst:REVISIONYEAR}} by {{subst:REVISIONUSER}}.
