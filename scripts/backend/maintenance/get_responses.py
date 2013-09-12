@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python2.7
 
 # Copyright 2012 Jtmorgan
 
@@ -18,14 +18,13 @@
 import datetime
 import MySQLdb
 
-conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf', use_unicode=1, charset="utf8" )
-
+conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
 
 #gets all questions from between 1 and 2 weeks ago
 cursor.execute('''
 SELECT rev_id, rev_user_text, rev_timestamp, rev_comment
-	from jmorgan.th_up_questions AS q
+	from th_up_questions AS q
 	where q.post_date BETWEEN DATE_SUB(NOW(), INTERVAL 14 DAY) AND DATE_SUB(NOW(), INTERVAL 7 DAY)
 ''')
 
