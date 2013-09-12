@@ -17,7 +17,8 @@
 
 import datetime
 import MySQLdb
-conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf', use_unicode=1, charset="utf8" )
+
+conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
 
 ##FUNCTIONS##
@@ -26,7 +27,7 @@ def updateQuestions(cursor):
 	insert ignore into th_up_questions
 		(rev_id, rev_user, rev_user_text, rev_timestamp, rev_comment, post_date)
 		select rev_id, rev_user, rev_user_text, rev_timestamp, rev_comment, str_to_date(rev_timestamp, '%Y%m%d%H%i%s')
-		from enwiki.revision
+		from enwiki_p.revision
 		where rev_page = 34745517
 		and rev_comment like "New question:%";
 	''')
@@ -34,10 +35,10 @@ def updateQuestions(cursor):
 
 def updateAnswers(cursor):
 	cursor.execute('''
-	insert ignore into jmorgan.th_up_answers
+	insert ignore into th_up_answers
 		(rev_id, rev_user, rev_user_text, rev_timestamp, rev_comment, q_date)
 		select rev_id, rev_user, rev_user_text, rev_timestamp, rev_comment, str_to_date(rev_timestamp, '%s')
-		from enwiki.revision
+		from enwiki_p.revision
 		where rev_page = 34745517
 		and rev_comment not like '%s' and rev_user_text not like '%s' and rev_minor_edit = 0;
 	''' % ("%Y%m%d%H%i%s", "New question:%", "%Bot"))
@@ -48,7 +49,7 @@ def updateProfiles(cursor):
 	insert ignore into th_up_profiles
 		(rev_id, rev_user, rev_user_text, rev_timestamp, rev_comment, post_date)
 		select rev_id, rev_user, rev_user_text, rev_timestamp, rev_comment, str_to_date(rev_timestamp, '%Y%m%d%H%i%s')
-		from enwiki.revision
+		from enwiki_p.revision
 		where rev_page in (35844019, 35844104)
 		and rev_comment like "/* {{subst:REVISIONUSER}} */ new section";
 	''')
@@ -56,11 +57,11 @@ def updateProfiles(cursor):
 
 def updateQnaVisitors(cursor):
 	cursor.execute('''
-	insert ignore into jmorgan.th_up_all_visitors_qna
+	insert ignore into th_up_all_visitors_qna
 		(user_id, user_name, user_registration, user_editcount, user_email, rev_count, first_visit_rev, first_visit_date)
 	select user_id, user_name, user_registration, user_editcount, user_email, count(rev_id), min(rev_id), min(rev_timestamp)
-	from enwiki.user
-	inner join enwiki.revision
+	from enwiki_p.user
+	inner join enwiki_p.revision
 	on user_id = rev_user
 	where rev_page = 34745517
 	group by user_id;
@@ -70,7 +71,7 @@ def updateQnaVisitors(cursor):
 	cursor.execute('''
 	update jmorgan.th_up_all_visitors_qna as t,
 		(select rev_user, count(rev_id) as teahouse_revs
-		from enwiki.revision
+		from enwiki_p.revision
 		where rev_page = 34745517
 		group by rev_user) as tmp
 	set t.rev_count = tmp.teahouse_revs
@@ -87,11 +88,11 @@ def updateQnaVisitors(cursor):
 
 def updateGuestbookVisitors(cursor):
 	cursor.execute('''
-	insert ignore into jmorgan.th_up_all_visitors_intro
+	insert ignore into th_up_all_visitors_intro
 		(user_id, user_name, user_registration, user_editcount, user_email, rev_count, first_visit_rev, first_visit_date)
 	select user_id, user_name, user_registration, user_editcount, user_email, count(rev_id), min(rev_id), min(rev_timestamp)
-	from enwiki.user
-	inner join enwiki.revision
+	from enwiki_p.user
+	inner join enwiki_p.revision
 	on user_id = rev_user
 	where (rev_page = 35844019 or rev_page = 35844104)
 	group by user_id;
@@ -99,9 +100,9 @@ def updateGuestbookVisitors(cursor):
 	conn.commit()
 
 	cursor.execute('''
-	update jmorgan.th_up_all_visitors_intro as t,
+	update th_up_all_visitors_intro as t,
 		(select rev_user, count(rev_id) as teahouse_revs
-		from enwiki.revision
+		from enwiki_p.revision
 		where (rev_page = 35844019 or rev_page = 35844104)
 		group by rev_user) as tmp
 	set t.rev_count = tmp.teahouse_revs
@@ -118,7 +119,7 @@ def updateGuestbookVisitors(cursor):
 
 def updatePagelist(cursor):
 	cursor.execute('''
-	insert ignore into th_pages (page_id, page_namespace, page_title, page_touched) select page_id, page_namespace, page_title, page_touched from enwiki.page where page_namespace in (4,5) and page_title like "Teahouse/%";
+	insert ignore into th_pages (page_id, page_namespace, page_title, page_touched) select page_id, page_namespace, page_title, page_touched from enwiki_p.page where page_namespace in (4,5) and page_title like "Teahouse/%";
 	''')
 	conn.commit()
 

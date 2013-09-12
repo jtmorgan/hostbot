@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python2.7
 
 # Copyright 2012 Jtmorgan
 
@@ -17,11 +17,11 @@
 
 import wikitools
 import MySQLdb
-import settings
+import hostbot_settings
 
-wiki = wikitools.Wiki(settings.apiurl)
-wiki.login(settings.username, settings.password)
-conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf' )
+wiki = wikitools.Wiki(hostbot_settings.apiurl)
+wiki.login(hostbot_settings.username, hostbot_settings.password)
+conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
 
 ##OUTPUT COMPONENTS##

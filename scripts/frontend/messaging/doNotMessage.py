@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python2.7
 
 # Copyright 2013 Jtmorgan
 
@@ -17,12 +17,11 @@
 
 import MySQLdb
 
-conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf', use_unicode=1, charset="utf8" )
+conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
 
 #determines if there are any users who have recently opted out
-
-cursor.execute('''select rev_user from enwiki.revision where rev_page = 38190470 and rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 3 DAY),'%Y%m%d%H%i%s')
+cursor.execute('''select rev_user from enwiki_p.revision where rev_page = 38190470 and rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 3 DAY),'%Y%m%d%H%i%s')
 ''')
 rows = cursor.fetchall()
 if rows:
@@ -30,7 +29,5 @@ if rows:
 		user = row[0]
 		cursor.execute('''UPDATE th_up_hosts set no_spam = 1 where user_id = %s
 ''', (user,))
-
-
 cursor.close()
 conn.close()

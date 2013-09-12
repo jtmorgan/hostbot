@@ -19,18 +19,18 @@ import moves
 import MySQLdb
 import urllib2
 import wikitools
-import settings
+import hostbot_settings
 from BeautifulSoup import BeautifulStoneSoup as bss
 from BeautifulSoup import BeautifulSoup as bs
 from datetime import datetime
 import logging
 import time
 
-wiki = wikitools.Wiki(settings.apiurl)
-wiki.login(settings.username, settings.password)
-conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf', use_unicode=1, charset="utf8" )
+wiki = wikitools.Wiki(hostbot_settings.apiurl)
+wiki.login(hostbot_settings.username, hostbot_settings.password)
+conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
-logging.basicConfig(filename='/home/jmorgan/hostbot/logs/moves.log',level=logging.INFO)
+logging.basicConfig(filename='/data/project/hostbot/bot/logs/moves.log',level=logging.INFO)
 curtime = str(datetime.utcnow())
 params = moves.Params()
 
@@ -41,7 +41,6 @@ def clearStatus():
 	cursor.execute('UPDATE th_up_hosts SET num_edits_2wk = 0, in_breakroom = 0, has_profile = 0, featured = 0')
 	conn.commit()
 
-
 def addNewHosts():
 	"""add metadata of newly-joined hosts to db, if there are any
 	"""
@@ -49,7 +48,7 @@ def addNewHosts():
 	INSERT IGNORE INTO th_up_hosts
 		(user_name, user_id, join_date, in_breakroom, featured, colleague, no_spam)
 		SELECT rev_user_text, rev_user, STR_TO_DATE(rev_timestamp, '%s'), 0, 1, 0, 0
-		FROM enwiki.revision
+		FROM enwiki_p.revision
 		WHERE rev_page = 36794919
 		AND rev_user != 0
 		AND rev_comment = "/* {{subst:REVISIONUSER}} */ new section";
@@ -59,9 +58,8 @@ def addNewHosts():
 	if rowsaffected > 0:
 		#adding in talkpage id for new hosts
 		cursor.execute('''
-		UPDATE th_up_hosts AS t, enwiki.page AS p SET t.user_talkpage = p.page_id WHERE p.page_namespace = 3 AND REPLACE(t.user_name," ","_") = p.page_title AND t.user_talkpage IS NULL''')
+		UPDATE th_up_hosts AS t, enwiki_p.page AS p SET t.user_talkpage = p.page_id WHERE p.page_namespace = 3 AND REPLACE(t.user_name," ","_") = p.page_title AND t.user_talkpage IS NULL''')
 		conn.commit()
-
 
 def urlEncode(url):
 	"""encode characters in the url
@@ -90,7 +88,6 @@ def getSectionData(mv_to):
 		sec_list.append(profile)
 	return sec_list
 
-
 def dupe_check(list1, list2):
 	"""check whether any hosts have profiles in both the host landing and breakroom
 	"""
@@ -102,12 +99,10 @@ def dupe_check(list1, list2):
 	if len(dupe_profiles) > 0:
 		logging.info('DUPLICATES: duplicate profiles for ' + ' '.join(dupe_profiles) + ' ' + curtime)	# would be nice to do this within-lists, too.
 
-
 def updateHostTable(list1, list2, list3):
 	"""update the host table indicating whether each host has a profile,
 	and indicates whether that profile is on the landing page or breakroom page
 	"""
-
 	cursor.execute('UPDATE th_up_hosts SET has_profile = 0 WHERE user_name NOT IN (%s)' % ('"' + '", "'.join(item[1] for item in list1) + '"'))
 	conn.commit()
 	cursor.execute('UPDATE th_up_hosts SET has_profile = 1, in_breakroom = 1 WHERE user_name in (%s)' % ('"' + '", "'.join(item[1] for item in list2) + '"'))
@@ -121,7 +116,7 @@ def updateLastEdit():
 	cursor.execute('''
 	UPDATE th_up_hosts AS h,
 	(SELECT h.user_id, MAX(r.rev_timestamp) AS latest_rev
-		FROM enwiki.revision AS r, th_up_hosts AS h, th_pages AS p
+		FROM enwiki_p.revision AS r, th_up_hosts AS h, th_pages AS p
 			WHERE STR_TO_DATE(r.rev_timestamp, '%s') > h.join_date
 			AND r.rev_user = h.user_id
 			AND r.rev_page = p.page_id
@@ -131,17 +126,15 @@ def updateLastEdit():
 	''' % ("%Y%m%d%H%i%s", "%Y%m%d%H%i%s"))
 	conn.commit()
 
-
 def updateHostEditCounts():
 	"""update the rev counts for all hosts. features the top-contributing hosts.
 	"""
-	cursor.execute('''UPDATE th_up_hosts AS h, (SELECT rev_user, COUNT(rev_id) AS recent_edits FROM enwiki.revision AS r, th_pages AS p WHERE rev_user IN (SELECT user_id FROM th_up_hosts) AND r.rev_page = p.page_id AND r.rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 14 DAY),'%s') GROUP BY rev_user) AS tmp
+	cursor.execute('''UPDATE th_up_hosts AS h, (SELECT rev_user, COUNT(rev_id) AS recent_edits FROM enwiki_p.revision AS r, th_pages AS p WHERE rev_user IN (SELECT user_id FROM th_up_hosts) AND r.rev_page = p.page_id AND r.rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 14 DAY),'%s') GROUP BY rev_user) AS tmp
 	SET h.num_edits_2wk = tmp.recent_edits WHERE h.user_id = tmp.rev_user;
 	''' % ("%Y%m%d%H%i%s",))
 	conn.commit()
 	cursor.execute('UPDATE th_up_hosts AS h, (SELECT user_id FROM th_up_hosts WHERE has_profile = 1 ORDER BY num_edits_2wk DESC LIMIT 20) AS tmp SET h.featured = 1 WHERE h.featured = 0 AND h.user_id = tmp.user_id')
 	conn.commit()
-
 
 def findUsersToMove(mv_to): #whether this is a move to or from the breakroom
 	"""gets a list of profiles to move between pages
@@ -157,7 +150,6 @@ def findUsersToMove(mv_to): #whether this is a move to or from the breakroom
 		logging.info(params.nomv_log[mv_to] + curtime)
 	return move_list
 
-
 def getSectionsToMove(profile_list, user_list):
 	"""combine profile metadata with list of users to move
 	"""
@@ -166,7 +158,6 @@ def getSectionsToMove(profile_list, user_list):
 		if item[1] in user_list:
 			move_list.append(item)
 	return move_list
-
 
 def getProfileText(mv_lst, mv_to, mv_add):
 	"""get the content of profiles. first, gets text for the profiles to be moved. then, 	appends the first profile off the target page, if this is edit is adding profiles
@@ -197,7 +188,6 @@ def getProfileText(mv_lst, mv_to, mv_add):
 		prof_text_list.append(text + '\n')
 	return prof_text_list
 
-
 def moveProfiles(profiles, mv_to, mv_add):
 	"""edit the profile page
 	"""
@@ -221,7 +211,6 @@ def moveProfiles(profiles, mv_to, mv_add):
 # 	print edit_profiles
 	wikipage.edit(edit_profiles, section=sec, summary=comment, bot=1)
 
-
 def updateStatus(sub_list, mv_to):
 	"""record the move to the host table
 	"""
@@ -231,7 +220,6 @@ def updateStatus(sub_list, mv_to):
 		conn.commit()
 	log = params.mv_log[mv_to]
 	logging.info(log % ' '.join(sub_list) + curtime)
-
 
 ###MAIN###
 clearStatus()

@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python2.7
 
 # Copyright 2012 Jtmorgan
 
@@ -17,7 +17,7 @@
 
 import urllib2
 import wikitools
-import settings
+import hostbot_settings
 from BeautifulSoup import BeautifulStoneSoup as bss
 
 
@@ -38,8 +38,8 @@ remove_template = '''= Recent guests =
 %s
 '''
 
-wiki = wikitools.Wiki(settings.apiurl)
-wiki.login(settings.username, settings.password)
+wiki = wikitools.Wiki(hostbot_settings.apiurl)
+wiki.login(hostbot_settings.username, hostbot_settings.password)
 
 # get the number of new profiles on the Guest_left page
 

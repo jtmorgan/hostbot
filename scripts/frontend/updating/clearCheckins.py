@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python2.7
 
 # Copyright 2012 Jtmorgan
 
@@ -17,17 +17,16 @@
 
 import MySQLdb
 import wikitools
-import settings
+import hostbot_settings
 from datetime import datetime
 import logging
 
-wiki = wikitools.Wiki(settings.apiurl)
-wiki.login(settings.username, settings.password)
-
-conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf', use_unicode=1, charset="utf8" )
+wiki = wikitools.Wiki(hostbot_settings.apiurl)
+wiki.login(hostbot_settings.username, hostbot_settings.password)
+conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
 
-logging.basicConfig(filename='/home/jmorgan/hostbot/logs/checkins.log',level=logging.INFO)
+logging.basicConfig(filename='/data/project/hostbot/bot/logs/checkins.log',level=logging.INFO)
 
  ##GLOBAL VARIABLES AND TEMPLATES
 checkin_list = []
@@ -44,7 +43,7 @@ checkin_template = '''= Recent checkins as of {{CURRENTDAYNAME}}, {{CURRENTMONTH
 #determines if there are any users to check in
 def findCheckins(cursor):
 	global checkin_list
-	cursor.execute('''select rev_user_text from enwiki.revision where rev_page = 36967956 and rev_comment = "/* {{subst:REVISIONUSER}} */ new section" and rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 1 DAY),'%Y%m%d%H%i%s')
+	cursor.execute('''select rev_user_text from enwiki_p.revision where rev_page = 36967956 and rev_comment = "/* {{subst:REVISIONUSER}} */ new section" and rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 1 DAY),'%Y%m%d%H%i%s')
 	''')
 	rows = cursor.fetchall()
 	checkins = False

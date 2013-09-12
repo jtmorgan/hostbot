@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python2.7
 
 # Copyright 2012 Jtmorgan
 
@@ -21,7 +21,7 @@ import urllib2
 import wikitools
 import re
 import MySQLdb
-import settings
+import hostbot_settings
 
 
 report_title = settings.rootpage + '/Questions-recent/%i'
@@ -31,13 +31,13 @@ report_template = '''%s
 <!-- Fill in the "section" parameter with the question title from the Q&A page -->
 {{Wikipedia:Teahouse/Questions-answer|section=%s}}
 '''
-wiki = wikitools.Wiki(settings.apiurl)
-wiki.login(settings.username, settings.password)
-conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf' )
+wiki = wikitools.Wiki(hostbot_settings.apiurl)
+wiki.login(hostbot_settings.username, hostbot_settings.password)
+conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
 
 cursor.execute('''
-select rev_id from enwiki.revision
+select rev_id from enwiki_p.revision
 	where rev_page = 34745517
 	and rev_comment like "New question:%" and rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s') order by rand() limit 5;
 	''')

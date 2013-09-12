@@ -20,18 +20,18 @@ import moves
 import MySQLdb
 import urllib2
 import wikitools
-import settings
+import hostbot_settings
 from BeautifulSoup import BeautifulStoneSoup as bss
 from BeautifulSoup import BeautifulSoup as bs
 from datetime import datetime
 import logging
 import time
 
-wiki = wikitools.Wiki(settings.apiurl)
-wiki.login(settings.username, settings.password)
-conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf', use_unicode=1, charset="utf8" )
+wiki = wikitools.Wiki(hostbot_settings.apiurl)
+wiki.login(hostbot_settings.username, hostbot_settings.password)
+conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
-logging.basicConfig(filename='/home/jmorgan/hostbot/logs/moves.log',level=logging.INFO)
+logging.basicConfig(filename='/data/project/hostbot/bot/logs/moves.log',level=logging.INFO)
 curtime = str(datetime.utcnow())
 params = moves.Params()
 
