@@ -22,10 +22,10 @@ from BeautifulSoup import BeautifulStoneSoup as bss
 
 
 # the archive page, in this case Teahouse/Guest_book
-report_title = settings.rootpage + '/Guest_book'
+report_title = hostbot_settings.rootpage + '/Guest_book'
 
 # the page you want to archive
-remove_title_left = settings.rootpage + '/Guests/Left_column'
+remove_title_left = hostbot_settings.rootpage + '/Guests/Left_column'
 
 
 report_template = '''%s

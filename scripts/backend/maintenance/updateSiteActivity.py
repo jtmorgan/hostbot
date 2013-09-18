@@ -17,6 +17,7 @@
 
 import datetime
 import MySQLdb
+import hostbot_settings
 
 conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
@@ -29,7 +30,7 @@ def updateQuestions(cursor):
 		select rev_id, rev_user, rev_user_text, rev_timestamp, rev_comment, str_to_date(rev_timestamp, '%Y%m%d%H%i%s')
 		from enwiki_p.revision
 		where rev_page = 34745517
-		and rev_comment like "New question:%";
+		and rev_comment like "%*/ new section";
 	''')
 	conn.commit()
 
@@ -41,7 +42,7 @@ def updateAnswers(cursor):
 		from enwiki_p.revision
 		where rev_page = 34745517
 		and rev_comment not like '%s' and rev_user_text not like '%s' and rev_minor_edit = 0;
-	''' % ("%Y%m%d%H%i%s", "New question:%", "%Bot"))
+	''' % ("%Y%m%d%H%i%s", "%*/ new section", "%Bot"))
 	conn.commit()
 
 def updateProfiles(cursor):
@@ -69,7 +70,7 @@ def updateQnaVisitors(cursor):
 	conn.commit()
 
 	cursor.execute('''
-	update jmorgan.th_up_all_visitors_qna as t,
+	update th_up_all_visitors_qna as t,
 		(select rev_user, count(rev_id) as teahouse_revs
 		from enwiki_p.revision
 		where rev_page = 34745517

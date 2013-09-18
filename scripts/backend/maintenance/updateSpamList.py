@@ -18,6 +18,7 @@
 import MySQLdb
 from datetime import datetime
 import logging
+import hostbot_settings
 
 conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()

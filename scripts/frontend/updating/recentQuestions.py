@@ -22,9 +22,11 @@ import wikitools
 import re
 import MySQLdb
 import hostbot_settings
+import logging
 
+# logging.basicConfig(filename='/data/project/hostbot/bot/logs/updates.log',level=logging.INFO)
 
-report_title = settings.rootpage + '/Questions-recent/%i'
+report_title = hostbot_settings.rootpage + '/Questions-recent/%i'
 
 report_template = '''%s
 
@@ -37,9 +39,9 @@ conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbnam
 cursor = conn.cursor()
 
 cursor.execute('''
-select rev_id from enwiki_p.revision
+select * from enwiki_p.revision
 	where rev_page = 34745517
-	and rev_comment like "New question:%" and rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s') order by rand() limit 5;
+	and rev_comment like "%*/ new section" and rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s') order by rand() limit 5;
 	''')
 
 page = 1
