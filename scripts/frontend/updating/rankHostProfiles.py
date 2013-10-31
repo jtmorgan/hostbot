@@ -16,9 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import MySQLdb
-import profiles
+import hb_profiles
 import hostbot_settings
-import output_settings
+import hb_output_settings
 import sys
 
 ###FUNCTIONS###
