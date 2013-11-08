@@ -162,10 +162,7 @@ class Toolkit:
 		Returns the date a specified number of days before the current date as an API and database-friendly 14-digit timestamp string. Also handy for getting a date formatted for pretty output.
 		"""
 		date_since = datetime.utcnow()-timedelta(days=day_interval)
-		if pretty:
-			date_since = date_since.strftime('%m/%d/%y')
-		else:
-			date_since = date_since.strftime('%Y%m%d%H%M%S')
+		date_since = date_since.strftime('%Y%m%d%H%M%S')
 		return date_since
 
 	def titleFromPath(self, path): #making this less abstract, unfortunately
@@ -219,7 +216,7 @@ class Toolkit:
 		"""
 		MySQL queries for the evaluation portal.
 		"""
-		conn = MySQLdb.connect(host = grantsbot_settings.host, db = grantsbot_settings.dbname, read_default_file = grantsbot_settings.defaultcnf, use_unicode=True, charset="utf8")
+		conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=True, charset="utf8")
 		cursor = conn.cursor()
 		q = queries.Query()
 		query = q.getQuery(query_type)
