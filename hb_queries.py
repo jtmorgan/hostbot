@@ -23,13 +23,31 @@ class Query:
 'twa sample' : {
 	'string' : u"""INSERT IGNORE INTO twa_up_invitees (user_id, user_name, user_registration, edit_count, sample_group, dump_unixtime, invite_status) VALUES (%d, "%s", "%s", %d, "%s", %f, 0)""",
 				},
+'twa invites' : {
+	'string' : u"""SELECT user_name, user_talkpage FROM twa_up_invitees WHERE dump_unixtime = (select max(dump_unixtime) from twa_up_invitees) AND invite_status = 0 AND block_status IS NULL AND skipped IS NULL AND sample_group = 'exp'""",
+				},	
+'twa blocked' : {
+	'string' : u"""UPDATE twa_up_invitees AS t SET t.blocked = 1 WHERE REPLACE(t.user_name," ","_") IN (SELECT l.log_title FROM enwiki_p.logging AS l WHERE l.log_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 3 DAY),'%Y%m%d%H%i%s') AND l.log_type = "block" and l.log_action = "block")""",
+				},
+'twa talkpage' : {
+	'string' : u"""UPDATE twa_up_invitees AS t, enwiki_p.page AS p SET t.user_talkpage = p.page_id WHERE p.page_namespace = 3 and p.page_is_redirect = 0 AND REPLACE(t.user_name," ","_") = p.page_title""",
+				},						
+'twa invited' : {
+	'string' : u""" """,
+				},		
+'twa skipped' : {
+	'string' : u""" """,														
 			}	
 
-	def getQuery(self, query_type, query_vars):
+	def getQuery(self, query_type, query_vars = False):
 		try:
 			query_data = self.mysql_queries[query_type]
-			query = query_data['string'] % query_vars
+			if query_vars:
+				query = query_data['string'] % query_vars
+			else:
+				pass	
 			return query
 		except:
 			print "something went wrong in the query module"	
+
 
