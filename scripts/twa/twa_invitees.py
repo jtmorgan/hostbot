@@ -47,18 +47,18 @@ def getSample(recent_newcomers):
 			pass
 		if invite:
 			sample_set.append(x)
-# 	print str(len(sample_set)) + " recent newcomers without teahouse invites" 		
-# 	print str(len(recent_gf_newcomers)) + " recent newcomers total"
+	print str(len(sample_set)) + " recent newcomers without teahouse invites" 		
+	print str(len(recent_gf_newcomers)) + " recent newcomers total"
 	return sample_set
 
 # 			
 def updateDB(sample_set):
 # 	print len(sample_set)
 	group1 = random.sample(sample_set, 100) #first, get 100 invitees
-# 	print len(group1)
+	print str(len(group1)) + " experimental"
 	insertSubSample(group1, "exp")
 	group2 = [x for x in sample_set if x not in group1]
-# 	print len(group2)
+	print str(len(group2)) + " control"
 	insertSubSample(group2, "con")
 	dumpSample(sample_set)
 
@@ -95,11 +95,12 @@ data = json.load(f)
 f.close()
 
 recent_newcomers = data['success']
-# sample_date = datetime.utcfromtimestamp(data['meta']['time'])
+sample_datestring = datetime.utcfromtimestamp(data['meta']['time'])
 sample_date = data['meta']['time']
-# print sample_date
+print sample_datestring
+print sample_date
 sample_set = getSample(recent_newcomers)
 updateDB(sample_set)
-dumpSampleSet(sample_set)
+dumpSample(sample_set)
 cursor.close()
 conn.close()	

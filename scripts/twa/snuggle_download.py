@@ -20,6 +20,6 @@ import urllib2
 
 url = hostbot_settings.snuggleurl
 data = urllib2.urlopen(url)
-localdata = open('/data/project/hostbot/bot/data/snuggle.json', 'w')
+localdata = open('/data/project/hostbot/bot/data/twa/snuggle.json', 'w')
 localdata.write(data.read())
 localdata.close()

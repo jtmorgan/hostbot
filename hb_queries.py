@@ -21,10 +21,10 @@ class Query:
 	def __init__(self):
 		self.mysql_queries = {
 'twa sample' : {
-	'string' : u"""INSERT IGNORE INTO twa_up_invitees (user_id, user_name, user_registration, edit_count, sample_group, dump_unixtime, invite_status) VALUES (%d, "%s", "%s", %d, "%s", %f, 0)""",
+	'string' : u"""INSERT IGNORE INTO twa_up_invitees (user_id, user_name, user_registration, edit_count, sample_group, dump_unixtime, invited, blocked, skipped) VALUES (%d, "%s", "%s", %d, "%s", %f, 0, 0, 0)""",
 				},
 'twa invites' : {
-	'string' : u"""SELECT user_name, user_talkpage FROM twa_up_invitees WHERE dump_unixtime = (select max(dump_unixtime) from twa_up_invitees) AND invite_status = 0 AND block_status IS NULL AND skipped IS NULL AND sample_group = 'exp'""",
+	'string' : u"""SELECT user_name, user_talkpage FROM twa_up_invitees WHERE dump_unixtime = (select max(dump_unixtime) from twa_up_invitees) AND invited = 0 AND blocked = 0 AND skipped = 0 AND sample_group = 'exp'""",
 				},	
 'twa blocked' : {
 	'string' : u"""UPDATE twa_up_invitees AS t SET t.blocked = 1 WHERE REPLACE(t.user_name," ","_") IN (SELECT l.log_title FROM enwiki_p.logging AS l WHERE l.log_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 3 DAY),'%Y%m%d%H%i%s') AND l.log_type = "block" and l.log_action = "block")""",
@@ -32,12 +32,10 @@ class Query:
 'twa talkpage' : {
 	'string' : u"""UPDATE twa_up_invitees AS t, enwiki_p.page AS p SET t.user_talkpage = p.page_id WHERE p.page_namespace = 3 and p.page_is_redirect = 0 AND REPLACE(t.user_name," ","_") = p.page_title""",
 				},						
-'twa invited' : {
-	'string' : u""" """,
-				},		
-'twa skipped' : {
-	'string' : u""" """,														
-			}	
+'update invite status' : {
+	'string' : u"""update twa_up_invitees set %s = 1 where user_name = '%s'""",
+				},	
+			}		
 
 	def getQuery(self, query_type, query_vars = False):
 		try:
@@ -45,7 +43,7 @@ class Query:
 			if query_vars:
 				query = query_data['string'] % query_vars
 			else:
-				pass	
+				query = query_data['string']	
 			return query
 		except:
 			print "something went wrong in the query module"	

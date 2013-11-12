@@ -15,36 +15,61 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from datetime import datetime
+import hb_output_settings
+import hb_profiles
+import hb_queries
+import hostbot_settings
 import MySQLdb
+from random import choice
 import re
 import wikitools
-import hostbot_settings
-from random import choice
-from datetime import datetime
 
 ###FUNCTIONS###
 def updateBlockStatus(cursor):
-	update_query = query.getQuery("twa blocked")#query not currently working
+	"""
+	Excludes recently blocked users from invitation to TWA, 
+	in the event that any newcomers have been blocked since 
+	the Snuggle data was downloaded and processed.
+	"""
+	update_query = query.getQuery("twa blocked")
 	print update_query
 	cursor.execute(update_query)
 	conn.commit()	
 	
-def updateBlockStatus(cursor):
-	update_query = query.getQuery("twa talkpage")#query not currently working
+def updateTalkpageStatus(cursor):
+	"""
+	Inserts the id of the user's talkpage into the database, 
+	in the event that any newcomers have had their talkpage created since 
+	the Snuggle data was downloaded and processed.
+	"""
+	update_query = query.getQuery("twa talkpage")
 	print update_query
 	cursor.execute(update_query)
 	conn.commit()		
 
 def getUsernames(cursor):
+	"""
+	Returns a list of usernames of candidates for invitation:
+	newcomers who joined in the past two days and who have not been blocked.
+	"""
 	select_query = query.getQuery("twa invites")
 	print select_query
 	cursor.execute(select_query)
 	rows = cursor.fetchall()
 	candidates = [(row[0],row[1]) for row in rows]
-	return invitees
+	return candidates
 
-# checks to see if the user's talkpage has any templates that would necessitate skipping
-def talkpageCheck(c, header):#not using header right now... why?
+# 
+def talkpageCheck(c, header):
+	"""
+	Skips invitation if the user's talkpage has any of the following strings.
+	These include keywords embedded in templates for level 4 user warnings, 
+	other serious warnings, and Teahouse invitations:
+	
+	'uw-vandalism4', 'uw-socksuspect', 'Socksuspectnotice', 'Uw-socksuspect', 
+	'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4'
+	"""
 	skip_test = False
 	if c[1] is not None:
 		try:
@@ -62,43 +87,54 @@ def talkpageCheck(c, header):#not using header right now... why?
 		pass		
 	return skip_test
 
-##checks for exclusion compliance, per http://en.wikipedia.org/wiki/Template:Bots
 def allow_bots(text, user):
+	"""
+	Assures exclusion compliance, 
+	per http://en.wikipedia.org/wiki/Template:Bots
+	"""
 	return not re.search(r'\{\{(nobots|bots\|(allow=none|deny=.*?' + user + r'.*?|optout=all|deny=all))\}\}', text, flags=re.IGNORECASE)
 
-#invites guests
-def inviteGuests(cursor, invite_list, skip_list):
-	for i in invite_list:
+def inviteGuests(cursor, invites):
+	"""
+	Invites todays invitees.
+	"""
+	invite_errs = []
+	for i in invites:
 		#construct profile object (again?!?) with params
 		#format invite
 		#format output
 		#send to outputter
-
 		try:
-			output.publishProfile(invite, params['output path'] + i, edit_summ, edit_sec_title = params['section title'], edit_sec = "new")		
-			invite_page.edit(invite_text, section="new", sectiontitle="== {{subst:PAGENAME}}, you are invited to PLAY TWA ==", summary="Automatic invitation to visit [[WP:TWA]] sent by [[User:HostBot|HostBot]]", bot=1)
+# 			output.publishProfile(invite, params['output path'] + i, edit_summ, edit_sec_title = params['section title'], edit_sec = "new")		
+# 			invite_page.edit(invite_text, section="new", sectiontitle="== {{subst:PAGENAME}}, you are invited to PLAY TWA ==", summary="Automatic invitation to visit [[WP:TWA]] sent by [[User:HostBot|HostBot]]", bot=1)
+			updateDB("update invitee status", ("invited", i))
 		except:
-			skip_list.append[i]
-			continue
-		try:
-# 			invitee = MySQLdb.escape_string(invitee)
-			cursor.execute('''update th_up_invitees set invite_status = 1, hostbot_invite = 1, hostbot_personal = 1 where user_name = %s ''', (invitee,))
-			conn.commit()
-		except UnicodeDecodeError:
-			logging.info('Guest ' + invitee + ' failed on invite db update due to UnicodeDecodeError ' + curtime)
-			continue
+			invite_errs.append(i)
+	
+	return invite_errs	
 
-#records the users who were skipped
-def updateDB(cursor, invite_list, skip_list):
-	for skipped in skip_list:
+def recordSkips(cursor, skips):	
+	"""
+	Records users who were skipped because of talkpage templates, or
+	because there was an error sending or recording their invitation.
+	"""		
+	for s in skips:		
 		try:
-# 			skipped = MySQLdb.escape_string(skipped)
-			cursor.execute('''update th_up_invitees set hostbot_skipped = 1 where user_name = %s ''', (skipped,))
-			conn.commit()
+			updateDB("update invitee status", ("skipped", s))
 		except:
-			logging.info('Guest ' + skipped + ' failed on skip db update ' + curtime)
-			continue
+			print "couldn't update db for skipped user " + s			
 
+def updateDB(cursor, query_name, query_vars):
+	"""
+	Updates the database: was the user invited, or skipped?
+	"""	
+	try:
+		update_query = query.getQuery("update invite status", query_vars)
+		print update_query
+		cursor.execute(update_query)
+		conn.commit()		
+	except:
+		print "couldn't update db for " + user
 
 ##MAIN##
 wiki = wikitools.Wiki(hostbot_settings.apiurl)
@@ -110,20 +146,23 @@ query = hb_queries.Query()
 param = hb_output_settings.Params()
 params = param.getParams('twa invites')
 
-invite_list = []
-skip_list = []
 
-updateBlockStatus(cursor)
-updateTalkpage(cursor)
+
+# updateBlockStatus(cursor)
+# updateTalkpageStatus(cursor)
+invites, skips = [], []
 candidates = getUsernames(cursor)
 for c in candidates:
 	skip = talkpageCheck(c, params['headers'])
 	if skip:
-		skip_list.append(c[0])
+		print c[0]
+		skips.append(c[0])
 	else:
-		invite_list.append(c[0])
-inviteGuests(cursor, invite_list)
-updateDB(cursor, invite_list, skip_list)
+		invites.append(c[0])
+invite_errs = inviteGuests(cursor, invites)
+print invite_errs
+skips.extend(invite_errs) #if I couldn't invite for some reason, add to skip list
+recordSkips(cursor, skips)
 
 cursor.close()
 conn.close()

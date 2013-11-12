@@ -36,10 +36,10 @@ class Profiles:
 		Instantiates page-level variables for building a set of profiles.
 		"""
 		self.page_path = path
-		print self.page_path
+# 		print self.page_path
 		if id:
 			self.page_id = str(id)
-			print self.page_id
+# 			print self.page_id
 		if settings:			
 			self.profile_settings = settings
 		self.tools = Toolkit()
