@@ -33,7 +33,7 @@ def updateBlockStatus(cursor):
 	the Snuggle data was downloaded and processed.
 	"""
 	update_query = query.getQuery("twa blocked")
-	print update_query
+# 	print update_query
 	cursor.execute(update_query)
 	conn.commit()	
 	
@@ -44,7 +44,7 @@ def updateTalkpageStatus(cursor):
 	the Snuggle data was downloaded and processed.
 	"""
 	update_query = query.getQuery("twa talkpage")
-	print update_query
+# 	print update_query
 	cursor.execute(update_query)
 	conn.commit()		
 
@@ -54,7 +54,7 @@ def getUsernames(cursor):
 	newcomers who joined in the past two days and who have not been blocked.
 	"""
 	select_query = query.getQuery("twa invites")
-	print select_query
+# 	print select_query
 	cursor.execute(select_query)
 	rows = cursor.fetchall()
 	candidates = [(row[0],row[1]) for row in rows]
@@ -75,8 +75,10 @@ def talkpageCheck(c, header):
 		try:
 			profile = hb_profiles.Profiles(params['output namespace'] + c[0], id = c[1])
 			text = profile.getPageText()
+# 			print text
 			for template in params['skip templates']:
 				if template in text:
+					print text
 					skip_test = True
 			allowed = allow_bots(text, hostbot_settings.username)
 			if not allowed:
@@ -84,7 +86,8 @@ def talkpageCheck(c, header):
 		except:
 			print "error on talkpage check"
 	else:
-		pass		
+		pass
+# 		print c		
 	return skip_test
 
 def allow_bots(text, user):
@@ -100,41 +103,41 @@ def inviteGuests(cursor, invites):
 	"""
 	invite_errs = []
 	for i in invites:
-		#construct profile object (again?!?) with params
-		#format invite
-		#format output
-		#send to outputter
+		output = hb_profiles.Profiles(params['output namespace'] + i, settings = params)		
+		quargs = ["invited", i]
+		invite = output.formatProfile({'user' : i})					
+		edit_summ = "Automatic invitation to visit [[WP:TWA]] sent by [[User:HostBot|HostBot]]"
+		edit_sec_title = params['output section title']
 		try:
-# 			output.publishProfile(invite, params['output path'] + i, edit_summ, edit_sec_title = params['section title'], edit_sec = "new")		
-# 			invite_page.edit(invite_text, section="new", sectiontitle="== {{subst:PAGENAME}}, you are invited to PLAY TWA ==", summary="Automatic invitation to visit [[WP:TWA]] sent by [[User:HostBot|HostBot]]", bot=1)
-			updateDB("update invitee status", ("invited", i))
+			output.publishProfile(invite, params['output namespace'] + i, edit_summ, edit_sec = "new", sec_title = edit_sec_title)		
+			updateDB(cursor, "update invite status", quargs)
 		except:
 			invite_errs.append(i)
-	
 	return invite_errs	
 
 def recordSkips(cursor, skips):	
 	"""
 	Records users who were skipped because of talkpage templates, or
 	because there was an error sending or recording their invitation.
-	"""		
-	for s in skips:		
+	"""	
+	for s in skips:	
+		quargs = ["skipped", s]		
 		try:
-			updateDB("update invitee status", ("skipped", s))
+			updateDB(cursor, "update invite status", quargs)
 		except:
-			print "couldn't update db for skipped user " + s			
+			pass			
 
-def updateDB(cursor, query_name, query_vars):
+def updateDB(cursor, query_name, quargs):
 	"""
 	Updates the database: was the user invited, or skipped?
 	"""	
 	try:
-		update_query = query.getQuery("update invite status", query_vars)
-		print update_query
+		update_query = query.getQuery(query_name, query_vars = quargs)
+# 		print update_query
 		cursor.execute(update_query)
 		conn.commit()		
 	except:
-		print "couldn't update db for " + user
+		print "couldn't update db for " + quargs[0] + " user " + quargs[1]
 
 ##MAIN##
 wiki = wikitools.Wiki(hostbot_settings.apiurl)
@@ -146,22 +149,22 @@ query = hb_queries.Query()
 param = hb_output_settings.Params()
 params = param.getParams('twa invites')
 
-
-
-# updateBlockStatus(cursor)
-# updateTalkpageStatus(cursor)
+updateBlockStatus(cursor)
+updateTalkpageStatus(cursor)
 invites, skips = [], []
 candidates = getUsernames(cursor)
+# candidates = candidates[:10]
+print candidates
 for c in candidates:
 	skip = talkpageCheck(c, params['headers'])
 	if skip:
-		print c[0]
+# 		print c[0]
 		skips.append(c[0])
 	else:
 		invites.append(c[0])
 invite_errs = inviteGuests(cursor, invites)
-print invite_errs
 skips.extend(invite_errs) #if I couldn't invite for some reason, add to skip list
+# print skips
 recordSkips(cursor, skips)
 
 cursor.close()

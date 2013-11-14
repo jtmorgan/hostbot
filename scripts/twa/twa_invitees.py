@@ -66,10 +66,10 @@ def insertSubSample(group, condition):
 	sample_data = []
 	for user in group:
 		reg = datetime.utcfromtimestamp(int(user['registration'])).strftime('%Y%m%d%H%M%S')
-		x = (user['id'], user['name'], reg, user['activity']['counts']['all'], condition, sample_date)
+		x = [user['id'], user['name'], reg, user['activity']['counts']['all'], condition, sample_date]
 # 		print x
 		sample_data.append(x)
-		insert_query = query.getQuery("twa sample", query_vars = x)
+		insert_query = query.getQuery("twa sample", query_vars = x) #needs to be a list
 # 		print insert_query
 		cursor.execute(insert_query)
 		conn.commit()	

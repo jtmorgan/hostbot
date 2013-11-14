@@ -38,14 +38,17 @@ class Query:
 			}		
 
 	def getQuery(self, query_type, query_vars = False):
-		try:
-			query_data = self.mysql_queries[query_type]
+		if query_type in self.mysql_queries:
+			query = self.mysql_queries[query_type]['string']
 			if query_vars:
-				query = query_data['string'] % query_vars
+# 				print query_vars
+				query = query % tuple(query_vars) #should accept a list containing any number of vars
 			else:
-				query = query_data['string']	
+				pass
+# 			print query		
 			return query
-		except:
-			print "something went wrong in the query module"	
+		else:
+			print "something went wrong with query of type " + query_type
+
 
 
