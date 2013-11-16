@@ -106,18 +106,16 @@ class Profiles:
 		tmplt = tmplt.format(**val).encode('utf-8')
 		return tmplt
 
-	def publishProfile(self, val, path, edit_summ, sb_page = False, edit_sec = False, sec_title = False):
+	def publishProfile(self, val, path, edit_summ, sb_page = False, edit_sec = False):
 		"""
 		Publishes a profile or set of concatenated profiles to a page on a wiki.
 		"""
-# 		if sb_page:
-# 			path += str(sb_page)			
-# 		print path
-# 		print val
-# 		print edit_summ
-# 		print edit_sec
-# 		if sec_title:
-# 			print sec_title
+		if sb_page:
+			path += str(sb_page)			
+		print path
+		print val
+		print edit_summ
+		print edit_sec
 		output = wikitools.Page(self.wiki, path)
 		if edit_sec:
 			output.edit(val, section=edit_sec, summary=edit_summ, bot=1)

@@ -106,10 +106,10 @@ def inviteGuests(cursor, invites):
 		output = hb_profiles.Profiles(params['output namespace'] + i, settings = params)		
 		quargs = ["invited", i]
 		invite = output.formatProfile({'user' : i})					
-		edit_summ = "Automatic invitation to visit [[WP:TWA]] sent by [[User:HostBot|HostBot]]"
-		edit_sec_title = params['output section title']
+		edit_summ = "{{subst:PAGENAME}}, you are invited on a Wikipedia Adventure!"
+# 		edit_sec_title = params['output section title']
 		try:
-			output.publishProfile(invite, params['output namespace'] + i, edit_summ, edit_sec = "new", sec_title = edit_sec_title)		
+			output.publishProfile(invite, params['output namespace'] + i, edit_summ, edit_sec = "new")		
 			updateDB(cursor, "update invite status", quargs)
 		except:
 			invite_errs.append(i)
@@ -153,7 +153,7 @@ updateBlockStatus(cursor)
 updateTalkpageStatus(cursor)
 invites, skips = [], []
 candidates = getUsernames(cursor)
-# candidates = candidates[:10]
+candidates = candidates[:5]
 print candidates
 for c in candidates:
 	skip = talkpageCheck(c, params['headers'])
@@ -162,9 +162,11 @@ for c in candidates:
 		skips.append(c[0])
 	else:
 		invites.append(c[0])
+# invites = ["Jtmorgan",]		
 invite_errs = inviteGuests(cursor, invites)
+print invite_errs
 skips.extend(invite_errs) #if I couldn't invite for some reason, add to skip list
-# print skips
+print skips
 recordSkips(cursor, skips)
 
 cursor.close()

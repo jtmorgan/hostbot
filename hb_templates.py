@@ -21,7 +21,7 @@ class Template:
 		self.profile_templates = {
 	'intro' : u"""=Hosts=\n{{{{TOC hidden}}}}\n<br/>\n</noinclude>
 {profiles}""",
-	'twa invites' : u"""{{{{subst:Wikipedia:TWA/INVITEFIXME|{user}}}}}""",
+	'twa invites' : u"""{{{{subst:Wikipedia:TWA/Invite|signature=~~~~}}}}""",
 }
 
 	def getTemplate(self, member):
