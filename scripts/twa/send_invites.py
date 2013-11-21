@@ -153,8 +153,8 @@ updateBlockStatus(cursor)
 updateTalkpageStatus(cursor)
 invites, skips = [], []
 candidates = getUsernames(cursor)
-candidates = candidates[:5]
-print candidates
+# candidates = candidates[:5]
+# print candidates
 for c in candidates:
 	skip = talkpageCheck(c, params['headers'])
 	if skip:
@@ -164,9 +164,9 @@ for c in candidates:
 		invites.append(c[0])
 # invites = ["Jtmorgan",]		
 invite_errs = inviteGuests(cursor, invites)
-print invite_errs
+# print invite_errs
 skips.extend(invite_errs) #if I couldn't invite for some reason, add to skip list
-print skips
+# print skips
 recordSkips(cursor, skips)
 
 cursor.close()
