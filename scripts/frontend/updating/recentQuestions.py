@@ -22,9 +22,6 @@ import wikitools
 import re
 import MySQLdb
 import hostbot_settings
-import logging
-
-# logging.basicConfig(filename='/data/project/hostbot/bot/logs/updates.log',level=logging.INFO)
 
 report_title = hostbot_settings.rootpage + '/Questions-recent/%i'
 
