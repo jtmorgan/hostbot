@@ -107,7 +107,7 @@ def inviteGuests(cursor):
 		invite_text = invite_template % (host, host, '|signature=~~~~')
 		invite_text = invite_text.encode('utf-8')
 		try:
-			invite_page.edit(invite_text, section="new", sectiontitle="== {{subst:PAGENAME}}, you are invited to the Teahouse ==", summary="Automatic invitation to visit [[WP:Teahouse]] sent by [[User:HostBot|HostBot]]", bot=1)
+			invite_page.edit(invite_text, section="new", summary="{{subst:PAGENAME}}, you are invited to the Teahouse", bot=1)
 		except:
 			continue
 		try:

@@ -107,7 +107,6 @@ def inviteGuests(cursor, invites):
 		quargs = ["invited", i.decode('latin-1')] #puts it back in the wonky db format to match user_name
 		invite = output.formatProfile({'user' : i})					
 		edit_summ = "{{subst:PAGENAME}}, you are invited on a Wikipedia Adventure!"
-# 		edit_sec_title = params['output section title']
 		try:
 			output.publishProfile(invite, params['output namespace'] + i, edit_summ, edit_sec = "new")		
 			updateDB(cursor, "update invite status", quargs)
