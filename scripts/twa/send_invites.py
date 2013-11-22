@@ -104,7 +104,7 @@ def inviteGuests(cursor, invites):
 	invite_errs = []
 	for i in invites:
 		output = hb_profiles.Profiles(params['output namespace'] + i, settings = params)		
-		quargs = ["invited", i]
+		quargs = ["invited", i.decode('latin-1')] #puts it back in the wonky db format to match user_name
 		invite = output.formatProfile({'user' : i})					
 		edit_summ = "{{subst:PAGENAME}}, you are invited on a Wikipedia Adventure!"
 # 		edit_sec_title = params['output section title']
@@ -121,7 +121,7 @@ def recordSkips(cursor, skips):
 	because there was an error sending or recording their invitation.
 	"""	
 	for s in skips:	
-		quargs = ["skipped", s]		
+		quargs = ["skipped", s.decode('latin-1')]		
 		try:
 			updateDB(cursor, "update invite status", quargs)
 		except:
@@ -142,7 +142,7 @@ def updateDB(cursor, query_name, quargs):
 ##MAIN##
 wiki = wikitools.Wiki(hostbot_settings.apiurl)
 wiki.login(hostbot_settings.username, hostbot_settings.password)
-conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
+conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="latin1")
 cursor = conn.cursor()
 tools = hb_profiles.Toolkit()
 query = hb_queries.Query()

@@ -35,6 +35,9 @@ class Query:
 'update invite status' : {
 	'string' : u"""update twa_up_invitees set %s = 1 where user_name = '%s'""",
 				},	
+'username encoding test select' : {
+	'string' : u"""select user_name FROM twa_up_invitees WHERE user_id = 20195519""",
+				},								
 			}		
 
 	def getQuery(self, query_type, query_vars = False):
@@ -43,6 +46,8 @@ class Query:
 			if query_vars:
 # 				print query_vars
 				query = query % tuple(query_vars) #should accept a list containing any number of vars
+# 				print query	
+	
 			else:
 				pass
 # 			print query		

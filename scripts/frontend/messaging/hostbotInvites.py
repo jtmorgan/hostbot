@@ -24,7 +24,6 @@ from datetime import datetime
 import urllib2 as u2
 import urllib
 import re
-import logging
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -33,8 +32,6 @@ wiki = wikitools.Wiki(hostbot_settings.apiurl)
 wiki.login(hostbot_settings.username, hostbot_settings.password)
 conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
-
-logging.basicConfig(filename='/data/project/hostbot/bot/logs/invites.log',level=logging.INFO)
 
 ##GLOBAL VARIABLES##
 curtime = str(datetime.utcnow())
@@ -93,8 +90,7 @@ def talkpageCheck(guest, header):
 		if not allowed:
 			skip_test = True
 	except:
-		logging.info('Guest ' + guest + ' failed on talkpageCheck ' + curtime)
-
+		pass
 	return skip_test
 
 
@@ -113,14 +109,12 @@ def inviteGuests(cursor):
 		try:
 			invite_page.edit(invite_text, section="new", sectiontitle="== {{subst:PAGENAME}}, you are invited to the Teahouse ==", summary="Automatic invitation to visit [[WP:Teahouse]] sent by [[User:HostBot|HostBot]]", bot=1)
 		except:
-			logging.info('Guest ' + invitee + ' failed on invitation ' + curtime)
 			continue
 		try:
 # 			invitee = MySQLdb.escape_string(invitee)
 			cursor.execute('''update th_up_invitees set invite_status = 1, hostbot_invite = 1, hostbot_personal = 1 where user_name = %s ''', (invitee,))
 			conn.commit()
 		except UnicodeDecodeError:
-			logging.info('Guest ' + invitee + ' failed on invite db update due to UnicodeDecodeError ' + curtime)
 			continue
 
 #records the users who were skipped
@@ -131,7 +125,6 @@ def recordSkips(cursor):
 			cursor.execute('''update th_up_invitees set hostbot_skipped = 1 where user_name = %s ''', (skipped,))
 			conn.commit()
 		except:
-			logging.info('Guest ' + skipped + ' failed on skip db update ' + curtime)
 			continue
 
 
@@ -151,10 +144,7 @@ for row in rows:
 inviteGuests(cursor)
 invited = len(invite_list)
 skipped = len(skip_list)
-logging.info('HostBot invited ' + str(invited) + ' guests on ' + curtime)
 recordSkips(cursor)
-logging.info('HostBot skipped ' + str(skipped) + ' guests on ' + curtime)
-
 
 cursor.close()
 conn.close()

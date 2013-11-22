@@ -30,7 +30,7 @@ import wikitools
 ###FUNCTIONS###
 def getSample(recent_newcomers):
 	sample_set = []
-	date_since = datetime.utcnow()-timedelta(days=2)
+	date_since = datetime.utcnow()-timedelta(days=1)
 	ds_unix = calendar.timegm(date_since.timetuple())
 # 	print ds_unix
 	recent_gf_newcomers = [x for x in recent_newcomers if x['registration'] > ds_unix and x['desirability']['ratio'] > 4]
