@@ -33,7 +33,6 @@ def updateBlockStatus(cursor):
 	the Snuggle data was downloaded and processed.
 	"""
 	update_query = query.getQuery("twa blocked")
-# 	print update_query
 	cursor.execute(update_query)
 	conn.commit()	
 	
@@ -44,7 +43,6 @@ def updateTalkpageStatus(cursor):
 	the Snuggle data was downloaded and processed.
 	"""
 	update_query = query.getQuery("twa talkpage")
-# 	print update_query
 	cursor.execute(update_query)
 	conn.commit()		
 
@@ -54,7 +52,6 @@ def getUsernames(cursor):
 	newcomers who joined in the past two days and who have not been blocked.
 	"""
 	select_query = query.getQuery("twa invites")
-# 	print select_query
 	cursor.execute(select_query)
 	rows = cursor.fetchall()
 	candidates = [(row[0],row[1]) for row in rows]
@@ -87,7 +84,6 @@ def talkpageCheck(c, header):
 			print "error on talkpage check"
 	else:
 		pass
-# 		print c		
 	return skip_test
 
 def allow_bots(text, user):
@@ -132,7 +128,6 @@ def updateDB(cursor, query_name, quargs):
 	"""	
 	try:
 		update_query = query.getQuery(query_name, query_vars = quargs)
-# 		print update_query
 		cursor.execute(update_query)
 		conn.commit()		
 	except:
@@ -152,20 +147,14 @@ updateBlockStatus(cursor)
 updateTalkpageStatus(cursor)
 invites, skips = [], []
 candidates = getUsernames(cursor)
-# candidates = candidates[:5]
-# print candidates
 for c in candidates:
 	skip = talkpageCheck(c, params['headers'])
 	if skip:
-# 		print c[0]
 		skips.append(c[0])
 	else:
 		invites.append(c[0])
-# invites = ["Jtmorgan",]		
 invite_errs = inviteGuests(cursor, invites)
-# print invite_errs
 skips.extend(invite_errs) #if I couldn't invite for some reason, add to skip list
-# print skips
 recordSkips(cursor, skips)
 
 cursor.close()

@@ -19,6 +19,7 @@ import datetime
 import MySQLdb
 import wikitools
 import hostbot_settings
+from warnings import filterwarnings
 
 report_title = hostbot_settings.rootpage + '/Hosts/Database_reports#Daily_Report'
 
@@ -64,6 +65,7 @@ wiki = wikitools.Wiki(hostbot_settings.apiurl)
 wiki.login(hostbot_settings.username, hostbot_settings.password)
 conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
+filterwarnings('ignore', category = MySQLdb.Warning)
 
 # insert 10-edit newbies
 cursor.execute('''
@@ -117,7 +119,7 @@ insert ignore into th_up_invitees
 						(SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging
 							where log_type = "block"
 							and log_action = "block"
-							and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 5 DAY),'%Y%m%d%H%i%s'));
+							and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 5 DAY),'%Y%m%d%H%i%s')) AND user_id NOT IN (SELECT user_id FROM twa_up_invitees WHERE invited = 1);
 ''')
 conn.commit()
 

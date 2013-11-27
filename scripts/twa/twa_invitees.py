@@ -24,6 +24,7 @@ import hostbot_settings
 import json
 import MySQLdb
 import random
+import sys
 from warnings import filterwarnings
 import wikitools
 
@@ -32,13 +33,11 @@ def getSample(recent_newcomers):
 	sample_set = []
 	date_since = datetime.utcnow()-timedelta(days=1)
 	ds_unix = calendar.timegm(date_since.timetuple())
-# 	print ds_unix
-	recent_gf_newcomers = [x for x in recent_newcomers if x['registration'] > ds_unix and x['desirability']['ratio'] > 4]
+	recent_gf_newcomers = [x for x in recent_newcomers if x['registration'] > ds_unix and x['desirability']['ratio'] >= 4]
 	for x in recent_gf_newcomers:
 		invite = True
 		if x['talk']['threads']:
 			for y in x['talk']['threads']:
-# 				if "name" in y['trace']:
 				if y['trace']:
 					trace = y['trace']
 					if 'name' in trace and trace['name'] == "teahouse invitation":
@@ -47,35 +46,31 @@ def getSample(recent_newcomers):
 			pass
 		if invite:
 			sample_set.append(x)
-	print str(len(sample_set)) + " recent newcomers without teahouse invites" 		
-	print str(len(recent_gf_newcomers)) + " recent newcomers total"
+	print str(len(sample_set)) + " recent good faith newcomers without teahouse invites" 		
+	print str(len(recent_gf_newcomers)) + " recent good faith newcomers total"
 	return sample_set
 
 # 			
 def updateDB(sample_set):
-# 	print len(sample_set)
-	group1 = random.sample(sample_set, 100) #first, get 100 invitees
-	print str(len(group1)) + " experimental"
-	insertSubSample(group1, "exp")
+	group1 = random.sample(sample_set, 50) #first, hold back invites from 100 users as control			
+	print str(len(group1)) + " control"
+	insertSubSample(group1, "con")
 	group2 = [x for x in sample_set if x not in group1]
-	print str(len(group2)) + " control"
-	insertSubSample(group2, "con")
-	dumpSample(sample_set)
+	print str(len(group2)) + " experimental"
+	insertSubSample(group2, "exp")
 
 def insertSubSample(group, condition):
 	sample_data = []
 	for user in group:
 		reg = datetime.utcfromtimestamp(int(user['registration'])).strftime('%Y%m%d%H%M%S')
-		x = [user['id'], user['name'], reg, user['activity']['counts']['all'], condition, sample_date]
-# 		print x
+		x = [user['id'], user['name'], reg, user['activity']['counts']['all'], condition, sample_datestring, sample_unixdate]
 		sample_data.append(x)
 		insert_query = query.getQuery("twa sample", query_vars = x) #needs to be a list
-# 		print insert_query
 		cursor.execute(insert_query)
 		conn.commit()	
 
 def dumpSample(sample_set):
-	filename = str(sample_date) + ".json"
+	filename = str(sample_unixdate) + ".json"
 	path = "/data/project/hostbot/bot/data/twa/"
 	with open(path + filename, 'w') as outfile:
 		json.dump(sample_set, outfile)	
@@ -95,12 +90,18 @@ data = json.load(f)
 f.close()
 
 recent_newcomers = data['success']
-sample_datestring = datetime.utcfromtimestamp(data['meta']['time'])
-sample_date = data['meta']['time']
+sample_datetime = datetime.utcfromtimestamp(data['meta']['time'])
+print sample_datetime
+sample_datestring = tools.getSubDate(0)
 print sample_datestring
-print sample_date
-sample_set = getSample(recent_newcomers)
-updateDB(sample_set)
-dumpSample(sample_set)
+sample_unixdate = data['meta']['time']
+print sample_unixdate
+# sample_set = getSample(recent_newcomers)
+# if len(sample_set) > 50:
+# 	updateDB(sample_set)
+# 	dumpSample(sample_set)	
+# else:
+# 	print "not enough" #need to make this a log instead
+# 	sys.exit("not enough people to invite")
 cursor.close()
 conn.close()	

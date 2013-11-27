@@ -21,10 +21,10 @@ class Query:
 	def __init__(self):
 		self.mysql_queries = {
 'twa sample' : {
-	'string' : u"""INSERT IGNORE INTO twa_up_invitees (user_id, user_name, user_registration, edit_count, sample_group, dump_unixtime, invited, blocked, skipped) VALUES (%d, "%s", "%s", %d, "%s", %f, 0, 0, 0)""",
+	'string' : u"""INSERT IGNORE INTO twa_up_invitees (user_id, user_name, user_registration, edit_count, sample_group, sample_date, dump_unixtime, invited, blocked, skipped) VALUES (%d, "%s", "%s", %d, "%s", "%s", %f, 0, 0, 0)""",
 				},
 'twa invites' : {
-	'string' : u"""SELECT user_name, user_talkpage FROM twa_up_invitees WHERE dump_unixtime = (select max(dump_unixtime) from twa_up_invitees) AND invited = 0 AND blocked = 0 AND skipped = 0 AND sample_group = 'exp'""",
+	'string' : u"""SELECT user_name, user_talkpage FROM twa_up_invitees WHERE  DATE(DATE_FORMAT(sample_date,'%Y%m%d%H%i%s')) = DATE(NOW()) AND invited = 0 AND blocked = 0 AND skipped = 0 AND sample_group = 'exp'""",
 				},	
 'twa blocked' : {
 	'string' : u"""UPDATE twa_up_invitees AS t SET t.blocked = 1 WHERE REPLACE(t.user_name," ","_") IN (SELECT l.log_title FROM enwiki_p.logging AS l WHERE l.log_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 3 DAY),'%Y%m%d%H%i%s') AND l.log_type = "block" and l.log_action = "block")""",
@@ -44,16 +44,10 @@ class Query:
 		if query_type in self.mysql_queries:
 			query = self.mysql_queries[query_type]['string']
 			if query_vars:
-# 				print query_vars
 				query = query % tuple(query_vars) #should accept a list containing any number of vars
-# 				print query	
 	
 			else:
 				pass
-# 			print query		
 			return query
 		else:
 			print "something went wrong with query of type " + query_type
-
-
-
