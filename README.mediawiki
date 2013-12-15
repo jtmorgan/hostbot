@@ -16,3 +16,6 @@ Logs activity on the Teahouse: questions asked and answered, profiles created, u
 
 === Reporting ===
 Publishes database reports to wiki pages: Teahouse invitees and monthly Teahouse activity metrics.
+
+=== Featuring ===
+Features recent content in galleries on the Teahouse front pages: recently asked questions, recently created guest profiles, and recently active hosts.
