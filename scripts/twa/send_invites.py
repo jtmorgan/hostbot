@@ -23,6 +23,7 @@ import hostbot_settings
 import MySQLdb
 from random import choice
 import re
+import traceback
 import wikitools
 
 ###FUNCTIONS###
@@ -72,10 +73,8 @@ def talkpageCheck(c, header):
 		try:
 			profile = hb_profiles.Profiles(params['output namespace'] + c[0], id = c[1])
 			text = profile.getPageText()
-# 			print text
 			for template in params['skip templates']:
 				if template in text:
-					print text
 					skip_test = True
 			allowed = allow_bots(text, hostbot_settings.username)
 			if not allowed:
@@ -99,15 +98,20 @@ def inviteGuests(cursor, invites):
 	"""
 	invite_errs = []
 	for i in invites:
-		output = hb_profiles.Profiles(params['output namespace'] + i, settings = params)		
-		quargs = ["invited", i.decode('latin-1')] #puts it back in the wonky db format to match user_name
-		invite = output.formatProfile({'user' : i})					
-		edit_summ = "{{subst:PAGENAME}}, you are invited on a Wikipedia Adventure!"
 		try:
+			output = hb_profiles.Profiles(params['output namespace'] + i, settings = params)	
+			try:	
+				quargs = ["invited", MySQLdb.escape_string(i)] #puts it back in the wonky db format to match user_name
+			except: #escape string sometimes triggers an encoding error
+				quargs = ["invited", i] 
+# 				traceback.print_exc()	
+			invite = output.formatProfile({'user' : i})					
+			edit_summ = "{{subst:PAGENAME}}, you are invited on a Wikipedia Adventure!"
 			output.publishProfile(invite, params['output namespace'] + i, edit_summ, edit_sec = "new")		
 			updateDB(cursor, "update invite status", quargs)
 		except:
 			invite_errs.append(i)
+# 			traceback.print_exc()
 	return invite_errs	
 
 def recordSkips(cursor, skips):	
@@ -116,10 +120,11 @@ def recordSkips(cursor, skips):
 	because there was an error sending or recording their invitation.
 	"""	
 	for s in skips:	
-		quargs = ["skipped", s.decode('latin-1')]		
 		try:
+			quargs = ["skipped", MySQLdb.escape_string(s)]			
 			updateDB(cursor, "update invite status", quargs)
 		except:
+# 			traceback.print_exc()
 			pass			
 
 def updateDB(cursor, query_name, quargs):
@@ -131,12 +136,13 @@ def updateDB(cursor, query_name, quargs):
 		cursor.execute(update_query)
 		conn.commit()		
 	except:
-		print "couldn't update db for " + quargs[0] + " user " + quargs[1]
+# 		traceback.print_exc()
+		pass
 
 ##MAIN##
 wiki = wikitools.Wiki(hostbot_settings.apiurl)
 wiki.login(hostbot_settings.username, hostbot_settings.password)
-conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="latin1")
+conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
 tools = hb_profiles.Toolkit()
 query = hb_queries.Query()

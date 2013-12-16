@@ -26,7 +26,7 @@ def rankProfiles():
 	"""
 	rank Eval portal profiles by number of recent edits.
 	"""
-	profile_page = profiles.Profiles(params['output path'], params['output page id'], params)
+	profile_page = hb_profiles.Profiles(params['output path'], params['output page id'], params)
 	profile_list = profile_page.getPageSectionData("2")
 	profile_list = tools.dedupeMemberList(profile_list, "index", "title")
 	quote1 = "'"
@@ -59,10 +59,10 @@ def rankProfiles():
 ###MAIN###
 conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=True, charset="utf8")
 cursor = conn.cursor()
-param = output_settings.Params()
+param = hb_output_settings.Params()
 params = param.getParams(sys.argv[1])
 params['type'] = sys.argv[1]
-tools = profiles.Toolkit()
+tools = hb_profiles.Toolkit()
 rankProfiles()
 cursor.close()
 conn.close()

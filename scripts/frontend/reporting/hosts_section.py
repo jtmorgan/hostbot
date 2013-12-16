@@ -132,7 +132,7 @@ def postSection(datetime, count, metrics):
 	page = wikitools.Page(wiki, page_namespace + page_title)
 	page_text = section % (datetime, count, metrics)
 # 	page_text = page_text.encode('utf-8')
-	page.edit(page_text, section="new", sectiontitle = "Hosts", summary="HostBot is updating monthly metrics on host participation", bot=1)
+	page.edit(page_text, section="new", summary = "Host activity", bot=1)
 
 
 ## MAIN ##

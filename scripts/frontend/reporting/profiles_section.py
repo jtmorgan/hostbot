@@ -116,7 +116,7 @@ def postSection(cur_datetime, q_tot_count, bothmonth_data):
 	page = wikitools.Page(wiki, page_namespace + page_title)
 	page_text = questions_section % (cur_datetime, q_tot_count, bothmonth_data[1], bothmonth_data[0])
 # 	page_text = page_text.encode('utf-8')
-	page.edit(page_text, section="new", sectiontitle = "Profiles", summary="HostBot is updating monthly metrics on profile creation", bot=1)
+	page.edit(page_text, section="new", summary = "Guest profiles", bot=1)
 
 
 ## MAIN ##

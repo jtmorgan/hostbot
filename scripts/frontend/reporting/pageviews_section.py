@@ -124,7 +124,7 @@ def postSection(bothmonth_data):
 	page = wikitools.Page(wiki, page_namespace + page_title)
 	page_text = section_template % (bothmonth_data[1], bothmonth_data[0])
 # 	page_text = page_text.encode('utf-8')
-	page.edit(page_text, section="new", sectiontitle = "Page views", summary="HostBot is updating monthly metrics on page views", bot=1)
+	page.edit(page_text, section="new", summary = "Page views", bot=1)
 
 
 ##MAIN##

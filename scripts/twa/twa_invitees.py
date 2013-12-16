@@ -46,28 +46,33 @@ def getSample(recent_newcomers):
 			pass
 		if invite:
 			sample_set.append(x)
-	print str(len(sample_set)) + " recent good faith newcomers without teahouse invites" 		
-	print str(len(recent_gf_newcomers)) + " recent good faith newcomers total"
-	return sample_set
+# 	print str(len(sample_set)) + " recent good faith newcomers without teahouse invites" 		
+# 	print str(len(recent_gf_newcomers)) + " recent good faith newcomers total"
 
-# 			
+	return sample_set
+		
 def updateDB(sample_set):
 	group1 = random.sample(sample_set, 50) #first, hold back invites from 100 users as control			
-	print str(len(group1)) + " control"
+# 	print str(len(group1)) + " control"
 	insertSubSample(group1, "con")
 	group2 = [x for x in sample_set if x not in group1]
-	print str(len(group2)) + " experimental"
+# 	print str(len(group2)) + " experimental"
 	insertSubSample(group2, "exp")
 
 def insertSubSample(group, condition):
 	sample_data = []
 	for user in group:
+		try:
+			user['name'] = MySQLdb.escape_string(user['name'])
+		except: #this sometimes triggers an encoding/decoding error
+			pass
 		reg = datetime.utcfromtimestamp(int(user['registration'])).strftime('%Y%m%d%H%M%S')
 		x = [user['id'], user['name'], reg, user['activity']['counts']['all'], condition, sample_datestring, sample_unixdate]
 		sample_data.append(x)
 		insert_query = query.getQuery("twa sample", query_vars = x) #needs to be a list
 		cursor.execute(insert_query)
 		conn.commit()	
+	
 
 def dumpSample(sample_set):
 	filename = str(sample_unixdate) + ".json"
@@ -91,17 +96,17 @@ f.close()
 
 recent_newcomers = data['success']
 sample_datetime = datetime.utcfromtimestamp(data['meta']['time'])
-print sample_datetime
+# print sample_datetime
 sample_datestring = tools.getSubDate(0)
-print sample_datestring
+# print sample_datestring
 sample_unixdate = data['meta']['time']
-print sample_unixdate
-# sample_set = getSample(recent_newcomers)
-# if len(sample_set) > 50:
-# 	updateDB(sample_set)
-# 	dumpSample(sample_set)	
-# else:
+# print sample_unixdate
+sample_set = getSample(recent_newcomers)
+if len(sample_set) > 50:
+	updateDB(sample_set)
+	dumpSample(sample_set)	
+else:
 # 	print "not enough" #need to make this a log instead
-# 	sys.exit("not enough people to invite")
+	sys.exit("not enough people to invite")
 cursor.close()
 conn.close()	

@@ -26,8 +26,8 @@ def updateProfiles():
 	"""
 	cursor.execute('''
 	INSERT IGNORE INTO th_up_hosts
-		(user_name, user_id, join_date, in_breakroom, featured, colleague, no_spam)
-		SELECT rev_user_text, rev_user, STR_TO_DATE(rev_timestamp, '%s'), 0, 1, 0, 0
+		(user_name, user_id, join_date)
+		SELECT rev_user_text, rev_user, STR_TO_DATE(rev_timestamp, '%s')
 		FROM enwiki_p.revision
 		WHERE rev_page = 36794919
 		AND rev_user != 0
@@ -49,11 +49,15 @@ UPDATE  th_up_hosts a
             FROM    enwiki_p.revision
             WHERE   rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 14 DAY), '%s')
             AND rev_page IN (SELECT page_id FROM th_pages)
-            GROUP   BY rev_user_text
-        ) b ON a.user_name = b.rev_user_text
-SET     a.num_edits_2wk = COALESCE(b.RecentRevs, 0);
+            GROUP   BY rev_user_text) b ON a.user_name = b.rev_user_text
+SET     a.num_edits_2wk = COALESCE(b.RecentRevs, 0)
 	''' % ("%Y%m%d%H%i%s",))
 	conn.commit()	
+
+	cursor.execute('''
+UPDATE  th_up_hosts a LEFT JOIN (SELECT  rev_user_text, MAX(rev_timestamp) LatestRev FROM enwiki_p.revision WHERE rev_page IN (SELECT page_id FROM th_pages) GROUP BY rev_user_text) b ON a.user_name = b.rev_user_text SET a.latest_edit = STR_TO_DATE(LatestRev, '%s')
+	''' % ("%Y%m%d%H%i%s",))
+	conn.commit()							
 
 ###MAIN###
 conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=True, charset="utf8")

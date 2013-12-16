@@ -18,9 +18,7 @@
 import datetime
 import MySQLdb
 import hostbot_settings
-
-conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
-cursor = conn.cursor()
+from warnings import filterwarnings
 
 ##FUNCTIONS##
 def updateQuestions(cursor):
@@ -59,8 +57,8 @@ def updateProfiles(cursor):
 def updateQnaVisitors(cursor):
 	cursor.execute('''
 	insert ignore into th_up_all_visitors_qna
-		(user_id, user_name, user_registration, user_editcount, user_email, rev_count, first_visit_rev, first_visit_date)
-	select user_id, user_name, user_registration, user_editcount, user_email, count(rev_id), min(rev_id), min(rev_timestamp)
+		(user_id, user_name, user_registration, user_editcount, rev_count, first_visit_rev, first_visit_date)
+	select user_id, user_name, user_registration, user_editcount, count(rev_id), min(rev_id), min(rev_timestamp)
 	from enwiki_p.user
 	inner join enwiki_p.revision
 	on user_id = rev_user
@@ -69,16 +67,16 @@ def updateQnaVisitors(cursor):
 	''')
 	conn.commit()
 
-	cursor.execute('''
-	update th_up_all_visitors_qna as t,
-		(select rev_user, count(rev_id) as teahouse_revs
-		from enwiki_p.revision
-		where rev_page = 34745517
-		group by rev_user) as tmp
-	set t.rev_count = tmp.teahouse_revs
-	where tmp.rev_user = t.user_id;
-	''')
-	conn.commit()
+# 	cursor.execute('''
+# 	update th_up_all_visitors_qna as t,
+# 		(select rev_user, count(rev_id) as teahouse_revs
+# 		from enwiki_p.revision
+# 		where rev_page = 34745517
+# 		group by rev_user) as tmp
+# 	set t.rev_count = tmp.teahouse_revs
+# 	where tmp.rev_user = t.user_id;
+# 	''')
+# 	conn.commit()
 
 	cursor.execute('''
 	update th_up_all_visitors_qna
@@ -90,8 +88,8 @@ def updateQnaVisitors(cursor):
 def updateGuestbookVisitors(cursor):
 	cursor.execute('''
 	insert ignore into th_up_all_visitors_intro
-		(user_id, user_name, user_registration, user_editcount, user_email, rev_count, first_visit_rev, first_visit_date)
-	select user_id, user_name, user_registration, user_editcount, user_email, count(rev_id), min(rev_id), min(rev_timestamp)
+		(user_id, user_name, user_registration, user_editcount, rev_count, first_visit_rev, first_visit_date)
+	select user_id, user_name, user_registration, user_editcount, count(rev_id), min(rev_id), min(rev_timestamp)
 	from enwiki_p.user
 	inner join enwiki_p.revision
 	on user_id = rev_user
@@ -100,16 +98,16 @@ def updateGuestbookVisitors(cursor):
 	''')
 	conn.commit()
 
-	cursor.execute('''
-	update th_up_all_visitors_intro as t,
-		(select rev_user, count(rev_id) as teahouse_revs
-		from enwiki_p.revision
-		where (rev_page = 35844019 or rev_page = 35844104)
-		group by rev_user) as tmp
-	set t.rev_count = tmp.teahouse_revs
-	where tmp.rev_user = t.user_id;
-	''')
-	conn.commit()
+# 	cursor.execute('''
+# 	update th_up_all_visitors_intro as t,
+# 		(select rev_user, count(rev_id) as teahouse_revs
+# 		from enwiki_p.revision
+# 		where (rev_page = 35844019 or rev_page = 35844104)
+# 		group by rev_user) as tmp
+# 	set t.rev_count = tmp.teahouse_revs
+# 	where tmp.rev_user = t.user_id;
+# 	''')
+# 	conn.commit()
 
 	cursor.execute('''
 	update th_up_all_visitors_intro
@@ -125,6 +123,10 @@ def updatePagelist(cursor):
 	conn.commit()
 
 ##MAIN##
+conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
+cursor = conn.cursor()
+filterwarnings('ignore', category = MySQLdb.Warning)
+
 updateQuestions(cursor)
 updateAnswers(cursor)
 updateProfiles(cursor)

@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import MySQLdb
+
 class Query:
 	"""queries for database tracking tables"""
 
@@ -42,7 +44,7 @@ class Query:
 
 	def getQuery(self, query_type, query_vars = False):
 		if query_type in self.mysql_queries:
-			query = self.mysql_queries[query_type]['string']
+			query = self.mysql_queries[query_type]['string'].encode("utf8")
 			if query_vars:
 				query = query % tuple(query_vars) #should accept a list containing any number of vars
 	
