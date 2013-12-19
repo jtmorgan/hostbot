@@ -33,7 +33,6 @@ Below is a list of editors who joined within the last 24 hours, have since made 
 ! Guest #
 ! Guest Name
 ! Edit Count
-! Email enabled?
 ! Contribs
 ! Already Invited?
 |-
@@ -49,7 +48,6 @@ Below is a list of editors who gained [[Wikipedia:User_access_levels#Autoconfirm
 ! Guest #
 ! Guest Name
 ! Edit Count
-! Email enabled?
 ! Contribs
 ! Already Invited?
 |-
@@ -118,7 +116,6 @@ SELECT
 id,
 user_name,
 user_editcount,
-email_status,
 invite_status,
 hostbot_skipped
 FROM th_up_invitees
@@ -133,12 +130,12 @@ for field in fields:
 	number = field[0]
 	user_name = unicode(field[1], 'utf-8')
 	user_editcount = field[2]
-	email_status = field[3]
-	email_string = "No"
-	if email_status is not None:
-		email_string = '[[Special:EmailUser/%s|Yes]]' % user_name
-	invite_status = field[4]
-	skipped_status = field[5]
+# 	email_status = field[3]
+# 	email_string = "No"
+# 	if email_status is not None:
+# 		email_string = '[[Special:EmailUser/%s|Yes]]' % user_name
+	invite_status = field[3]
+	skipped_status = field[4]
 	invite_string = ""
 	if invite_status == 1:
 		invite_string = "invited"
@@ -146,14 +143,13 @@ for field in fields:
 		invite_string = "skipped"
 	talk_page = '[[User_talk:%s|%s]]' % (user_name, user_name)
 	user_contribs = '[[Special:Contributions/%s|contribs]]' % user_name
-	email_user = '[[Special:EmailUser/%s|Yes]]' % user_name
+# 	email_user = '[[Special:EmailUser/%s|Yes]]' % user_name
 	table_row = u'''| %d
 | %s
 | %d
 | %s
 | %s
-| %s
-|-''' % (number, talk_page, user_editcount, email_string, user_contribs, invite_string)
+|-''' % (number, talk_page, user_editcount, user_contribs, invite_string)
 	output1.append(table_row)
 
 
@@ -163,7 +159,6 @@ cursor.execute('''
 	id,
 	user_name,
 	user_editcount,
-	email_status,
 	invite_status,
 	hostbot_skipped
 	FROM th_up_invitees
@@ -178,12 +173,12 @@ for field in fields:
 	number = field[0]
 	user_name = unicode(field[1], 'utf-8')
 	user_editcount = field[2]
-	email_status = field[3]
-	email_string = "No"
-	if email_status is not None:
-		email_string = '[[Special:EmailUser/%s|Yes]]' % user_name
-	invite_status = field[4]
-	skipped_status = field[5]
+# 	email_status = field[3]
+# 	email_string = "No"
+# 	if email_status is not None:
+# 		email_string = '[[Special:EmailUser/%s|Yes]]' % user_name
+	invite_status = field[3]
+	skipped_status = field[4]
 	invite_string = ""
 	if invite_status == 1:
 		invite_string = "invited"
@@ -196,8 +191,7 @@ for field in fields:
 | %d
 | %s
 | %s
-| %s
-|-''' % (number, talk_page, user_editcount, email_string, user_contribs, invite_string)
+|-''' % (number, talk_page, user_editcount, user_contribs, invite_string)
 	output2.append(table_row)
 
 

@@ -34,7 +34,6 @@ Below is a list of editors who joined within the last 24 hours, have since made 
 ! Guest #
 ! Guest Name
 ! Edit Count
-! Email enabled?
 ! Contribs
 ! Already Invited?
 |-
@@ -50,7 +49,6 @@ Below is a list of editors who gained [[Wikipedia:User_access_levels#Autoconfirm
 ! Guest #
 ! Guest Name
 ! Edit Count
-! Email enabled?
 ! Contribs
 ! Already Invited?
 |-
@@ -70,13 +68,12 @@ filterwarnings('ignore', category = MySQLdb.Warning)
 # insert 10-edit newbies
 cursor.execute('''
 insert ignore into th_up_invitees
-	(user_id, user_name, user_registration, user_editcount, email_status, sample_date, sample_type, invite_status, hostbot_invite, hostbot_personal, hostbot_skipped, ut_is_redirect)
+	(user_id, user_name, user_registration, user_editcount, sample_date, sample_type, invite_status, hostbot_invite, hostbot_personal, hostbot_skipped, ut_is_redirect)
 SELECT
 user_id,
 user_name,
 user_registration,
 user_editcount,
-user_email_authenticated,
 NOW(),
 1,
 0,
@@ -95,13 +92,12 @@ conn.commit()
 # insert autoconfirmed editors
 cursor.execute('''
 insert ignore into th_up_invitees
-	(user_id, user_name, user_registration, user_editcount, email_status, sample_date, sample_type, invite_status, hostbot_invite, hostbot_personal, hostbot_skipped, ut_is_redirect)
+	(user_id, user_name, user_registration, user_editcount, sample_date, sample_type, invite_status, hostbot_invite, hostbot_personal, hostbot_skipped, ut_is_redirect)
 	SELECT
 		user_id,
 		user_name,
 		user_registration,
 		user_editcount,
-		user_email_authenticated,
 		NOW(),
 		2,
 		0,
@@ -149,8 +145,7 @@ cursor.execute('''
 SELECT
 id,
 user_name,
-user_editcount,
-email_status
+user_editcount
 FROM th_up_invitees
 WHERE date(sample_date) = date(NOW())
 AND ut_is_redirect != 1
@@ -163,20 +158,19 @@ for field in fields:
 	number = field[0]
 	user_name = unicode(field[1], 'utf-8')
 	user_editcount = field[2]
-	email_status = field[3]
-	email_string = "No"
-	if email_status is not None:
-		email_string = '[[Special:EmailUser/%s|Yes]]' % user_name
+# 	email_status = field[3]
+# 	email_string = "No"
+# 	if email_status is not None:
+# 		email_string = '[[Special:EmailUser/%s|Yes]]' % user_name
 	talk_page = '[[User_talk:%s|%s]]' % (user_name, user_name)
 	user_contribs = '[[Special:Contributions/%s|contribs]]' % user_name
-	email_user = '[[Special:EmailUser/%s|Yes]]' % user_name
+# 	email_user = '[[Special:EmailUser/%s|Yes]]' % user_name
 	table_row = u'''| %d
 | %s
 | %d
 | %s
-| %s
 |
-|-''' % (number, talk_page, user_editcount, email_string, user_contribs)
+|-''' % (number, talk_page, user_editcount, user_contribs)
 	output1.append(table_row)
 
 
@@ -185,8 +179,7 @@ cursor.execute('''
 SELECT
 id,
 user_name,
-user_editcount,
-email_status
+user_editcount
 FROM th_up_invitees
 WHERE date(sample_date) = date(NOW())
 AND ut_is_redirect != 1
@@ -199,19 +192,18 @@ for field in fields:
 	number = field[0]
 	user_name = unicode(field[1], 'utf-8')
 	user_editcount = field[2]
-	email_status = field[3]
-	email_string = "No"
-	if email_status is not None:
-		email_string = '[[Special:EmailUser/%s|Yes]]' % user_name
+# 	email_status = field[3]
+# 	email_string = "No"
+# 	if email_status is not None:
+# 		email_string = '[[Special:EmailUser/%s|Yes]]' % user_name
 	talk_page = '[[User_talk:%s|%s]]' % (user_name, user_name)
 	user_contribs = '[[Special:Contributions/%s|contribs]]' % user_name
 	table_row = u'''| %d
 | %s
 | %d
 | %s
-| %s
 |
-|-''' % (number, talk_page, user_editcount, email_string, user_contribs)
+|-''' % (number, talk_page, user_editcount, user_contribs)
 	output2.append(table_row)
 
 
