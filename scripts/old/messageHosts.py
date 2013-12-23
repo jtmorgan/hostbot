@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python2.7
 
 # Copyright 2013 Jtmorgan
 
@@ -17,19 +17,17 @@
 
 import MySQLdb
 import wikitools
-import settings
+import hostbot_settings
 from datetime import datetime
 import re
 import logging
 
-
-wiki = wikitools.Wiki(settings.apiurl)
-wiki.login(settings.username, settings.password)
-conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf', use_unicode=1, charset="utf8" )
+wiki = wikitools.Wiki(hostbot_settings.apiurl)
+wiki.login(hostbot_settings.username, hostbot_settings.password)
+conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
 
-logging.basicConfig(filename='/home/jmorgan/hostbot/logs/reminders.log',level=logging.INFO)
-
+logging.basicConfig(filename='/data/project/hostbot/bot/logs/reminders.log',level=logging.INFO)
 
 ##GLOBAL VARIABLES##
 curtime = str(datetime.utcnow())
@@ -41,9 +39,7 @@ recipients = []
 # the reminder template
 message_template = u'{{subst:Wikipedia:Teahouse/Host_reminder|sign=~~~~}}'
 
-
 ##FUNCTIONS##
-
 #gets a list of today's editors to invite
 def getUsernames(cursor):
 	cursor.execute('''
@@ -58,7 +54,6 @@ def getUsernames(cursor):
 	AND no_spam = 0;
 	''')
 	rows = cursor.fetchall()
-
 	if rows:
 		return rows
 	else:
@@ -71,18 +66,16 @@ def talkpageCheck():
 		try:
 			tp = wikitools.Page(wiki, 'User talk:' + name)
 			contents = unicode(tp.getWikiText(), 'utf8')
-			allowed = allow_bots(contents, settings.username)
+			allowed = allow_bots(contents, hostbot_settings.username)
 			if not allowed:
 				logging.info('REMIND: Nobots! Reminder to User:' + name + ' not delivered ' + curtime)
 				recipients.remove(name)
 		except:
 			logging.info('REMIND: Reminder to User:' + name + ' failed on talkpageCheck at ' + curtime)
 
-
 ##checks for exclusion compliance, per http://en.wikipedia.org/wiki/Template:Bots
 def allow_bots(text, user):
 	return not re.search(r'\{\{(nobots|bots\|(allow=none|deny=.*?' + user + r'.*?|optout=all|deny=all))\}\}', text, flags=re.IGNORECASE)
-
 
 #invites guests
 def messageUsers():
@@ -94,8 +87,6 @@ def messageUsers():
 		except:
 			logging.info('REMIND: Reminder to User:' + name + ' failed at to send at ' + curtime)
 			continue
-
-
 
 ##MAIN##
 rows = getUsernames(cursor)

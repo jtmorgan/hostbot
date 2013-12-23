@@ -1,4 +1,21 @@
 = HostBot: your Wikipedia robot friend =
-[http://en.wikipedia.org/wiki/User:HostBot HostBot] is a set of Python scripts that performs repetitive tasks on and for the [http://en.wikipedia.org/wiki/Wikipedia:Teahouse Wikipedia Teahouse]. HostBot is run by [http://en.wikipedia.org/wiki/User:Jtmorgan Jonathan Morgan], and is hosted by the Wikimedia Foundation. Hostbot makes extensive use of the [http://www.mediawiki.org/wiki/API:Main_page MediaWiki API], the [http://code.google.com/p/python-wikitools/ wikitools] Python framework and may in future draw on [http://www.mediawiki.org/wiki/Manual:Pywikipediabot pywikipediabot] as well, although it does not currently do so.
+[http://en.wikipedia.org/wiki/User:HostBot HostBot] is a set of Python scripts that performs repetitive tasks on and for the [http://en.wikipedia.org/wiki/Wikipedia:Teahouse Wikipedia Teahouse]. HostBot is run by [http://en.wikipedia.org/wiki/User:Jtmorgan Jonathan Morgan], and is hosted on ]https://wikitech.wikimedia.org/wiki/Main_Page Wikimedia Labs]. Hostbot makes use of the [http://www.mediawiki.org/wiki/API:Main_page MediaWiki API], the [https://github.com/alexz-enwp/wikitools] Python framework.
 
-Information about what the Teahouse is, and how it came to be can be found [http://meta.wikimedia.org/wiki/Teahouse here]. If you're curious about the current status of the project, read up [http://meta.wikimedia.org/wiki/Research:Teahouse/Phase_2_report here] and [http://meta.wikimedia.org/wiki/Research:Teahouse/Phase_2_report/Metrics here], or post to [http://en.wikipedia.org/wiki/User_talk:Jtmorgan Jtmorgan's talk page on Wikipedia].
+Information about what the Teahouse is, and how it came to be can be found [http://meta.wikimedia.org/wiki/Teahouse here]. If you're interested in creating a Teahouse on your home wiki, please email Jonathan or post to [http://en.wikipedia.org/wiki/User_talk:Jtmorgan his talk page on Wikipedia].
+
+== Functions ==
+
+=== Talk page invitations ===
+Posts templated invitations to the talk pages of new Wikipedia editors. Currently it posts invitations to visit the Teahous and to play The Wikipedia Adventure game.
+
+=== Archiving ===
+Archives Teahouse guest profiles.
+
+=== Activity logging ===
+Logs activity on the Teahouse: questions asked and answered, profiles created, unique visitors.
+
+=== Reporting ===
+Publishes database reports to wiki pages: Teahouse invitees and monthly Teahouse activity metrics.
+
+=== Featuring ===
+Features recent content in galleries on the Teahouse front pages: recently asked questions, recently created guest profiles, and recently active hosts.

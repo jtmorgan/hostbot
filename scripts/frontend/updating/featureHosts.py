@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python2.7
 
 # Copyright 2012 Jtmorgan
 
@@ -19,27 +19,23 @@ import random
 import urllib2
 import itertools
 import wikitools
-import settings
+import hostbot_settings
 from BeautifulSoup import BeautifulStoneSoup as bss
 import MySQLdb
 import re
 import StringIO
 
-wiki = wikitools.Wiki(settings.apiurl)
-wiki.login(settings.username, settings.password)
-
-conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf', use_unicode=1, charset="utf8" )
+wiki = wikitools.Wiki(hostbot_settings.apiurl)
+wiki.login(hostbot_settings.username, hostbot_settings.password)
+conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
-
 
 ### output path components ###
 page_namespace = u'Wikipedia:'
 
-
 #the page where active host profiles are displayed
 page_section = 'Teahouse/Host_landing'
 featured_section = 'Teahouse/Host/Featured/%i'
-
 
 ### output templates ###
 page_template = '''=Hosts=
@@ -54,15 +50,11 @@ featured_template = '''{{Wikipedia:Teahouse/Host_featured
 |image=%s
 }}'''
 
-
 ### API calls ###
 profileurl = u'http://en.wikipedia.org/w/index.php?title=Wikipedia%%3ATeahouse%%2FHost+landing&action=raw&section=%s'
-
 securl = u'http://en.wikipedia.org/w/api.php?action=parse&page=Wikipedia%3ATeahouse%2FHost+landing&prop=sections&format=xml'
 
-
 ### FUNCTIONS ###
-
 def findNewHosts():
 	# gets the hosts who joined most recently
 	cursor.execute('''
@@ -87,7 +79,6 @@ def getSectionData(securl):
 	sections = usock.read()
 	usock.close()
 	soup = bss(sections, selfClosingTags = ['s'])
-
 	return soup
 
 #get the section ids of all the profiles on the Host_landing page
@@ -95,7 +86,6 @@ def getAllSections(soup):
 	all_sec = []
 	for x in soup.findAll('s',toclevel="2"):
 		all_sec.append(x['index'])
-
 	return all_sec
 
 def getSectionsToMove(soup, featured_hosts):
@@ -107,7 +97,6 @@ def getSectionsToMove(soup, featured_hosts):
 				featured = x['index']
 				feat_sec.append(featured)
 		i+=1
-
 	return feat_sec
 
 #gets the profiles for new hosts
@@ -124,7 +113,6 @@ def getFeaturedProfiles(featured_sections):
 
 		''' % section
 		feat_profiles.append(profile_text)
-
 	return feat_profiles
 
 #gets all the other profile sections, the ones we don't want to feature
@@ -142,7 +130,6 @@ def getNonFeaturedProfiles(profile_sections, featured_sections):
 
 		''' % section
 		nonfeat_profiles.append(profile_text)
-
 	return nonfeat_profiles
 
 #returns the host profiles to the page, with the newest hosts on top
@@ -172,7 +159,6 @@ def getFeaturedImages(featured_profiles):
 			feat_images.append(host_data)
 	return feat_images
 
-
 def updateFeaturedHosts(featured_images):
 	i = 1
 	for img in featured_images:
@@ -183,7 +169,6 @@ def updateFeaturedHosts(featured_images):
 # 		print report
 # 		print report_text
 		report.edit(report_text, summary="Automatic update of [[Wikipedia:Teahouse/Host/Featured|featured host gallery]] by [[User:HostBot|HostBot]]", bot=1)
-
 
 ##main##
 featured_hosts = findNewHosts()

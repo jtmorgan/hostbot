@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python2.7
 
 # Copyright 2012 Jtmorgan
 
@@ -18,20 +18,19 @@
 import MySQLdb
 from datetime import datetime
 import logging
+import hostbot_settings
 
-
-conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf', use_unicode=1, charset="utf8" )
+conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
 
-logging.basicConfig(filename='logs/reminders.log',level=logging.INFO)
+logging.basicConfig(filename='/data/project/hostbot/bot/logs/reminders.log',level=logging.INFO)
 
  ##GLOBAL VARIABLES AND TEMPLATES
 curtime = str(datetime.utcnow())
 
 #determines if anyone has signed up to stop receiving reminders. If so, adds them to "do not spam" list
-
 signup_list = []
-cursor.execute('''select rev_user, rev_user_text from enwiki.revision WHERE rev_page = 38190470 AND rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 3 DAY),'%Y%m%d%H%i%s') AND rev_user NOT IN (SELECT user_id FROM th_up_hosts WHERE colleague = 1);
+cursor.execute('''select rev_user, rev_user_text from enwiki_p.revision WHERE rev_page = 38190470 AND rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 3 DAY),'%Y%m%d%H%i%s') AND rev_user NOT IN (SELECT user_id FROM th_up_hosts WHERE colleague = 1);
 ''')
 rows = cursor.fetchall()
 if rows:

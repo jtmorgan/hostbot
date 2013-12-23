@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python2.7
 
 # Copyright 2012 Jtmorgan
 
@@ -17,11 +17,11 @@
 
 import wikitools
 import MySQLdb
-import settings
+import hostbot_settings
 
-wiki = wikitools.Wiki(settings.apiurl)
-wiki.login(settings.username, settings.password)
-conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf' )
+wiki = wikitools.Wiki(hostbot_settings.apiurl)
+wiki.login(hostbot_settings.username, hostbot_settings.password)
+conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
 
 ##OUTPUT COMPONENTS##
@@ -132,7 +132,7 @@ def postSection(datetime, count, metrics):
 	page = wikitools.Page(wiki, page_namespace + page_title)
 	page_text = section % (datetime, count, metrics)
 # 	page_text = page_text.encode('utf-8')
-	page.edit(page_text, section="new", sectiontitle = "Hosts", summary="HostBot is updating monthly metrics on host participation", bot=1)
+	page.edit(page_text, section="new", summary = "Host activity", bot=1)
 
 
 ## MAIN ##

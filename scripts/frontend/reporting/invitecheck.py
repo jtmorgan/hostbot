@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python2.7
 
 # Copyright 2012 Jtmorgan
 
@@ -18,9 +18,9 @@
 import datetime
 import MySQLdb
 import wikitools
-import settings
+import hostbot_settings
 
-report_title = settings.rootpage + '/Hosts/Database_reports#Daily_Report'
+report_title = hostbot_settings.rootpage + '/Hosts/Database_reports#Daily_Report'
 
 report_template = u'''==Daily Report==
 This list was last updated on {{subst:REVISIONMONTH}}/{{subst:REVISIONDAY}}/{{subst:REVISIONYEAR}} by {{subst:REVISIONUSER}}.
@@ -33,7 +33,6 @@ Below is a list of editors who joined within the last 24 hours, have since made 
 ! Guest #
 ! Guest Name
 ! Edit Count
-! Email enabled?
 ! Contribs
 ! Already Invited?
 |-
@@ -49,7 +48,6 @@ Below is a list of editors who gained [[Wikipedia:User_access_levels#Autoconfirm
 ! Guest #
 ! Guest Name
 ! Edit Count
-! Email enabled?
 ! Contribs
 ! Already Invited?
 |-
@@ -60,15 +58,15 @@ Below is a list of editors who gained [[Wikipedia:User_access_levels#Autoconfirm
 {{Wikipedia:Teahouse/Host navigation}}
 '''
 
-wiki = wikitools.Wiki(settings.apiurl)
-wiki.login(settings.username, settings.password)
-conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf' )
+wiki = wikitools.Wiki(hostbot_settings.apiurl)
+wiki.login(hostbot_settings.username, hostbot_settings.password)
+conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
 
 
 #adding talkpage ids for users whose talkpage was created by the invitation
 cursor.execute('''
-UPDATE jmorgan.th_up_invitees as i, enwiki.page as p
+UPDATE th_up_invitees as i, enwiki_p.page as p
 SET i.user_talkpage = p.page_id, i.ut_is_redirect = p.page_is_redirect
 WHERE date(i.sample_date) = date(NOW())
 AND i.user_talkpage is null
@@ -93,7 +91,7 @@ for row in rows:
 	cursor2 = conn.cursor()
 	cursor2.execute('''
 SELECT pl_from
-FROM enwiki.pagelinks
+FROM enwiki_p.pagelinks
 WHERE pl_namespace = 4
 AND pl_from = %s
 AND pl_title = "Teahouse"
@@ -118,7 +116,6 @@ SELECT
 id,
 user_name,
 user_editcount,
-email_status,
 invite_status,
 hostbot_skipped
 FROM th_up_invitees
@@ -133,12 +130,12 @@ for field in fields:
 	number = field[0]
 	user_name = unicode(field[1], 'utf-8')
 	user_editcount = field[2]
-	email_status = field[3]
-	email_string = "No"
-	if email_status is not None:
-		email_string = '[[Special:EmailUser/%s|Yes]]' % user_name
-	invite_status = field[4]
-	skipped_status = field[5]
+# 	email_status = field[3]
+# 	email_string = "No"
+# 	if email_status is not None:
+# 		email_string = '[[Special:EmailUser/%s|Yes]]' % user_name
+	invite_status = field[3]
+	skipped_status = field[4]
 	invite_string = ""
 	if invite_status == 1:
 		invite_string = "invited"
@@ -146,14 +143,13 @@ for field in fields:
 		invite_string = "skipped"
 	talk_page = '[[User_talk:%s|%s]]' % (user_name, user_name)
 	user_contribs = '[[Special:Contributions/%s|contribs]]' % user_name
-	email_user = '[[Special:EmailUser/%s|Yes]]' % user_name
+# 	email_user = '[[Special:EmailUser/%s|Yes]]' % user_name
 	table_row = u'''| %d
 | %s
 | %d
 | %s
 | %s
-| %s
-|-''' % (number, talk_page, user_editcount, email_string, user_contribs, invite_string)
+|-''' % (number, talk_page, user_editcount, user_contribs, invite_string)
 	output1.append(table_row)
 
 
@@ -163,7 +159,6 @@ cursor.execute('''
 	id,
 	user_name,
 	user_editcount,
-	email_status,
 	invite_status,
 	hostbot_skipped
 	FROM th_up_invitees
@@ -178,12 +173,12 @@ for field in fields:
 	number = field[0]
 	user_name = unicode(field[1], 'utf-8')
 	user_editcount = field[2]
-	email_status = field[3]
-	email_string = "No"
-	if email_status is not None:
-		email_string = '[[Special:EmailUser/%s|Yes]]' % user_name
-	invite_status = field[4]
-	skipped_status = field[5]
+# 	email_status = field[3]
+# 	email_string = "No"
+# 	if email_status is not None:
+# 		email_string = '[[Special:EmailUser/%s|Yes]]' % user_name
+	invite_status = field[3]
+	skipped_status = field[4]
 	invite_string = ""
 	if invite_status == 1:
 		invite_string = "invited"
@@ -196,8 +191,7 @@ for field in fields:
 | %d
 | %s
 | %s
-| %s
-|-''' % (number, talk_page, user_editcount, email_string, user_contribs, invite_string)
+|-''' % (number, talk_page, user_editcount, user_contribs, invite_string)
 	output2.append(table_row)
 
 
