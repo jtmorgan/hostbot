@@ -23,7 +23,7 @@ def updateActiveStatus(cursor):
 	cursor.execute('''SELECT user_id, sample_date from twa_invitees''')
 	rows = cursor.fetchall()
 	for row in rows:
-		('''UPDATE twa_invitees t, (SELECT MAX(rev_timestamp) ts FROM enwiki.revision WHERE rev_user = %d) tmp SET t.has_subsequent_edit = CASE
+		('''UPDATE twa_invitees t, (SELECT rev_user, MAX(rev_timestamp) ts FROM enwiki.revision WHERE rev_user = %d) tmp SET t.has_subsequent_edit = CASE
 		WHEN tmp.ts > %s THEN 1
 		ELSE 0
 		END
@@ -44,7 +44,7 @@ def getControls(cursor, visitors, group, invited):
 	control
 	for v in visitors:
 		cursor.execute ('''SELECT user_id, sample_date from twa_invitees where sample_group = "%s" and invited = %d and twa_played is null and sample_date = %s order by rand() limit 1''' % (group, v[1], invited))
-		r = cursor.fetchone():
+		r = cursor.fetchone()
 		user = (r[0], r[1])
 		control.append(user)
 	return control	
@@ -52,7 +52,7 @@ def getControls(cursor, visitors, group, invited):
 def makeSample(cursor, visitors, control_a, control_b):
 	all_sample = []
 	all_sample.extend(visitors, control_a, control_b)
-	all_sample_ids = [u[0] for u in all sample]	
+	all_sample_ids = [u[0] for u in all_sample]	
 	shuffle(all_sample_ids)
 	for i in all_sample_ids:
 		cursor.execute ('''INSERT IGNORE INTO twa_editors_reverts (user_id) VALUES (%d)''' % (i),)
@@ -62,10 +62,10 @@ def makeSample(cursor, visitors, control_a, control_b):
 conn = MySQLdb.connect(host = 'db1047.eqiad.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf' )
 cursor = conn.cursor()
 updateActiveStatus(cursor)
-visitors = getVisitors(cursor)
-control_a = getControls(cursor, visitors, "con", 0)
-control_b = getControls(cursor, visitors, "exp", 1)
-makeSample(cursor, visitors, control_a, control_b)
+# visitors = getVisitors(cursor)
+# control_a = getControls(cursor, visitors, "con", 0)
+# control_b = getControls(cursor, visitors, "exp", 1)
+# makeSample(cursor, visitors, control_a, control_b)
 cursor.close()
 conn.close()				
 		
