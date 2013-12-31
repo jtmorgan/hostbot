@@ -15,20 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import shelve
 import query
 
-db = shelve.open('/home/jmorgan/hostbot/data/metrics/queries.db')
-
-
-query_lib = query.Queries()
-query = query_lib.queries
+"""
+this script will load queries into the db. It performs a kind of 'on duplicate key update' functionality too, I believe
+"""
+db = shelve.open('/home/jmorgan/hostbot/data/metrics/queries.db', writeback=True)
+query_list = query.Queries()
+query = query_list.queries
 for k, v in query.iteritems():
-	db[k] = [v]
-		
+	db[k] = v
 db.close()	
-# try:
-#     db[sys.argv[1]] = sys.argv[2]
-# finally:
-#     db.close()
