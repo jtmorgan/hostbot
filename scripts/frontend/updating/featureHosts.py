@@ -15,178 +15,65 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import random
-import urllib2
-import itertools
-import wikitools
 import hostbot_settings
-from BeautifulSoup import BeautifulStoneSoup as bss
-import MySQLdb
-import re
-import StringIO
+import hb_output_settings as output_settings
+import hb_profiles as profiles
+import sys
+import hb_templates as templates
 
-wiki = wikitools.Wiki(hostbot_settings.apiurl)
-wiki.login(hostbot_settings.username, hostbot_settings.password)
-conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
-cursor = conn.cursor()
+###FUNCTIONS
+def makeGallery():
+	"""
+	Makes featured profiles for Teahouse galleries.
+	"""
+	if params['subtype'] in ['host_intro',]:
+		featured_list = getFeaturedProfiles()
+	else:
+		sys.exit("unrecognized featured content type " + params['subtype'])        
+	prepOutput(featured_list)                                
 
-### output path components ###
-page_namespace = u'Wikipedia:'
-
-#the page where active host profiles are displayed
-page_section = 'Teahouse/Host_landing'
-featured_section = 'Teahouse/Host/Featured/%i'
-
-### output templates ###
-page_template = '''=Hosts=
-{{TOC hidden}}
-
-<br/>
-</noinclude>
-%s
-'''
-featured_template = '''{{Wikipedia:Teahouse/Host_featured
-|username=%s
-|image=%s
-}}'''
-
-### API calls ###
-profileurl = u'http://en.wikipedia.org/w/index.php?title=Wikipedia%%3ATeahouse%%2FHost+landing&action=raw&section=%s'
-securl = u'http://en.wikipedia.org/w/api.php?action=parse&page=Wikipedia%3ATeahouse%2FHost+landing&prop=sections&format=xml'
-
-### FUNCTIONS ###
-def findNewHosts():
-	# gets the hosts who joined most recently
-	cursor.execute('''
-	SELECT
-	user_name
-	FROM th_up_hosts
-	WHERE featured = 1
-	AND num_edits_2wk != 0
-	AND has_profile = 1
-	ORDER BY join_date desc
-	LIMIT 25
-	''')
-	feat_list = []
-	rows = cursor.fetchall()
-	for row in rows:
-		feat_host = unicode(row[0],'utf-8')
-		feat_list.append(feat_host)
-	return feat_list
-
-def getSectionData(securl):
-	usock = urllib2.urlopen(securl)
-	sections = usock.read()
-	usock.close()
-	soup = bss(sections, selfClosingTags = ['s'])
-	return soup
-
-#get the section ids of all the profiles on the Host_landing page
-def getAllSections(soup):
-	all_sec = []
-	for x in soup.findAll('s',toclevel="2"):
-		all_sec.append(x['index'])
-	return all_sec
-
-def getSectionsToMove(soup, featured_hosts):
-	i = 0
-	feat_sec = []
-	while i< len(featured_hosts):
-		for x in soup.findAll(name='s', line=featured_hosts[i]):
-			if x:
-				featured = x['index']
-				feat_sec.append(featured)
-		i+=1
-	return feat_sec
-
-#gets the profiles for new hosts
-def getFeaturedProfiles(featured_sections):
-	feat_profiles = []
-	for sec in featured_sections:
-		hostPageURL = u'http://en.wikipedia.org/w/index.php?title=Wikipedia%%3ATeahouse%%2FHost+landing&action=raw&section=%s' % sec
-		usock = urllib2.urlopen(hostPageURL)
-		section = usock.read()
-		usock.close()
-		section = unicode(section, 'utf8')
-		section = section.strip()
-		profile_text = u'''%s
-
-		''' % section
-		feat_profiles.append(profile_text)
-	return feat_profiles
-
-#gets all the other profile sections, the ones we don't want to feature
-def getNonFeaturedProfiles(profile_sections, featured_sections):
-	nonfeat_sec = [x for x in profile_sections if x not in featured_sections]
-	nonfeat_profiles = []
-	for sec in nonfeat_sec:
-		hostPageURL = u'http://en.wikipedia.org/w/index.php?title=Wikipedia%%3ATeahouse%%2FHost+landing&action=raw&section=%s' % sec
-		usock = urllib2.urlopen(hostPageURL)
-		section = usock.read()
-		usock.close()
-		section = unicode(section, 'utf8')
-		section = section.strip()
-		profile_text = u'''%s
-
-		''' % section
-		nonfeat_profiles.append(profile_text)
-	return nonfeat_profiles
-
-#returns the host profiles to the page, with the newest hosts on top
-def returnReorderedProfiles(all_profiles):
-
-	report_title = page_namespace + page_section
-	report = wikitools.Page(wiki, report_title)
-	profiles = page_template % '\n'.join(all_profiles)
-	profiles = profiles.encode('utf-8')
-	report.edit(profiles, section=1, summary="Reordering the host profiles, with newly-joined and highly-active hosts at the top", bot=1)
-
-def getFeaturedImages(featured_profiles):
-	feat_images = []
-	for prof in featured_profiles:
-		host_data = []
-		buf = StringIO.StringIO(prof)
-		profile_text = buf.readlines()
-		buf.close()
-		for line in profile_text:
-			if re.match('\|\s*username\s*=', line):
-				user_string = line[10:]
-				host_data.insert(0,user_string)
-			if re.match('\|\s*image\s*=', line):
-				image_string = line[7:]
-				host_data.insert(1,image_string)
-		if len(host_data[1]) > 7:
-			feat_images.append(host_data)
-	return feat_images
-
-def updateFeaturedHosts(featured_images):
+def getFeaturedProfiles():
+	"""
+	Gets info about the top-billed profiles in a guide.
+	"""
+	featured_list = []
+	profile_page = profiles.Profiles(params[params['subtype']]['input page path'],id = params[params['subtype']]['input page id'], settings = params)
+	profile_list = profile_page.getPageSectionData(level = params[params['subtype']]['profile toclevel'])
+	num_featured = params[params['subtype']]['number featured'] #redundancy with below
+	profile_list = profile_list[:num_featured]
+	for profile in profile_list:
+# 		print profile
+		text = profile_page.getPageText(profile['index'])
+		profile = profile_page.scrapeInfobox(profile, text)
+		if params['subtype'] == 'host_intro':
+			if (profile['image'] and profile['title']):
+				profile['username'] = profile['title']
+				featured_list.append(profile)
+			else:
+				pass        
+		else:
+			pass
+	return featured_list                
+        
+def prepOutput(featured_list):
 	i = 1
-	for img in featured_images:
-		report_title = page_namespace + featured_section % i
-		report = wikitools.Page(wiki, page_namespace + featured_section % i)
-		report_text = featured_template % (img[0], img[1])
-		i += 1
-# 		print report
-# 		print report_text
-		report.edit(report_text, summary="Automatic update of [[Wikipedia:Teahouse/Host/Featured|featured host gallery]] by [[User:HostBot|HostBot]]", bot=1)
+	number_featured = params[params['subtype']]['number featured']
+	featured_list = tools.addDefaults(featured_list)                       
+	output = profiles.Profiles(params[params['subtype']]['output path'], settings = params) #stupid tocreate a new profile object here. and stupid to re-specify the path below
+	for f in featured_list:
+			if i <= number_featured:
+					f['profile'] = output.formatProfile(f)
+					f['profile'] = f['profile'] + '\n' + params['header template']
+					edit_summ = params['edit summary'] % (params['subtype'] + " " + params['type'])
+					output.publishProfile(f['profile'], params[params['subtype']]['output path'], edit_summ, sb_page = i)
+					i += 1
+			else:
+					break        
 
-##main##
-featured_hosts = findNewHosts()
-soup = getSectionData(securl)
-profile_sections = getAllSections(soup)
-featured_sections = getSectionsToMove(soup, featured_hosts)
-
-featured_profiles = getFeaturedProfiles(featured_sections)
-random.shuffle(featured_profiles) #shuffles the profile order for new and highly active hosts.
-nonfeatured_profiles = getNonFeaturedProfiles(profile_sections, featured_sections)
-random.shuffle(nonfeatured_profiles) #shuffles the profile order
-all_profiles = featured_profiles + nonfeatured_profiles
-
-# print featured_hosts
-# print featured_sections
-# print featured_profiles
-returnReorderedProfiles(all_profiles)
-
-#prints the featured profiles
-featured_images = getFeaturedImages(featured_profiles)
-updateFeaturedHosts(featured_images)
+###MAIN
+param = output_settings.Params()
+params = param.getParams(sys.argv[1])
+params['type'] = sys.argv[1]
+params['subtype'] = sys.argv[2]
+tools = profiles.Toolkit()
+makeGallery()    

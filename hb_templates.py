@@ -18,7 +18,12 @@
 class Template:
 	"""templates of profiles for wiki pages"""
 	def __init__(self):
-		self.profile_templates = {
+		self.profile_templates = {#do I need to make the formatTemplates method pull from subtype instead, so I can feature both hosts and guests?
+		'teahouse_gallery' : u"""
+{{{{Wikipedia:Teahouse/Host_featured
+| username = {username}
+| image = {image}
+}}}}""",		
 	'intro' : u"""=Hosts=\n{{{{TOC hidden}}}}\n<br/>\n</noinclude>
 {profiles}""",
 	'twa invites' : u"""{{{{subst:Wikipedia:TWA/Invite|signature=~~~~}}}}""",

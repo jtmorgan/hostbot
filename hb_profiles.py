@@ -21,8 +21,8 @@ import dateutil.parser
 import wikitools
 import hostbot_settings
 import MySQLdb
-import hb_output_settings
-import hb_templates
+import hb_output_settings as output_settings
+import hb_templates as templates
 import operator
 # import queries
 import re
@@ -59,9 +59,10 @@ class Profiles:
 		req = wikitools.APIRequest(self.wiki, params)
 		response = req.query()
 		if level:
-			secs_list = [{'title' : unicode(x['line']), 'index' : x['index']} for x in response['parse']['sections'] if x['level'] == level]
+			secs_list = [{'title' : unicode(x['line']), 'index' : x['index']} for x in response['parse']['sections'] if x['toclevel'] == level]
+# 			print secs_list	
 		else:
-			secs_list = [{'title' : unicode(x['line']), 'index' : x['index']} for x in response['parse']['sections']]				
+			secs_list = [{'title' : unicode(x['line']), 'index' : x['index']} for x in response['parse']['sections']]	
 		return secs_list
 
 	def getPageText(self, section = False):
@@ -101,7 +102,7 @@ class Profiles:
 		"""
 		takes in a dictionary of parameter values and plugs them into the specified template
 		"""
-		page_templates = hb_templates.Template()
+		page_templates = templates.Template()
 		tmplt = page_templates.getTemplate(self.profile_settings['type'])
 		tmplt = tmplt.format(**val).encode('utf-8')
 		return tmplt
