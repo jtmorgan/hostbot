@@ -36,7 +36,6 @@ cursor = conn.cursor()
 ##GLOBAL VARIABLES##
 curtime = str(datetime.utcnow())
 page_namespace = 'User_talk:'
-headers = { 'User-Agent' : 'HostBot (http://github.com/jtmorgan/hostbot; jtmorgan25@gmail.com)' }
 
 # lists to track who received a hostbot invite
 invite_list = []
@@ -46,7 +45,7 @@ skip_list = []
 invite_template = u'{{subst:Wikipedia:Teahouse/HostBot_Invitation|personal=I hope to see you there! [[User_talk:%s|%s]] ([[w:en:WP:Teahouse/Hosts|I\'m a Teahouse host]])%s}}'
 
 # list of hosts who have volunteered to have their usernames associated with HostBot invites
-curHosts = ['Rosiestep','Jtmorgan','SarahStierch','Ryan Vesey','Writ Keeper','Doctree','Osarius','Hajatvrc','Nathan2055','Benzband','Theopolisme','TheOriginalSoni','Ushau97','Technical 13']
+curHosts = ['Rosiestep','Jtmorgan','SarahStierch','Ryan Vesey','Writ Keeper','Doctree','Osarius','Hajatvrc','Nathan2055','Benzband','TheOriginalSoni','Ushau97','Technical 13']
 
 
 # strings associated with substituted templates that mean I should skip this guest
@@ -78,7 +77,7 @@ def select_host(curHosts):
 
 
 # checks to see if the user's talkpage has any templates that would necessitate skipping
-def talkpageCheck(guest, header):
+def talkpageCheck(guest):
 	skip_test = False
 	try:
 		tp = wikitools.Page(wiki, 'User_talk:' + guest)
@@ -134,7 +133,7 @@ for row in rows:
 	has_template = False
 	guest = row[0]
 	if row[1] is not None: # and not bad_encoding
-		has_template = talkpageCheck(guest, headers)
+		has_template = talkpageCheck(guest)
 	else:
 		pass
 	if has_template:
