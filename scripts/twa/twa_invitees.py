@@ -32,8 +32,9 @@ import wikitools
 def getSample(recent_newcomers):
 	sample_set = []
 	date_since = datetime.utcnow()-timedelta(days=1)
+# 	print date_since
 	ds_unix = calendar.timegm(date_since.timetuple())
-	recent_gf_newcomers = [x for x in recent_newcomers if x['registration'] > ds_unix and x['desirability']['ratio'] >= 4]
+	recent_gf_newcomers = [x for x in recent_newcomers if x['registration'] > ds_unix and x['desirability']['score'] >= 4]
 	for x in recent_gf_newcomers:
 		invite = True
 		if x['talk']['threads']:

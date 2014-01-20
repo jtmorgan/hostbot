@@ -45,7 +45,7 @@ skip_list = []
 invite_template = u'{{subst:Wikipedia:Teahouse/HostBot_Invitation|personal=I hope to see you there! [[User_talk:%s|%s]] ([[w:en:WP:Teahouse/Hosts|I\'m a Teahouse host]])%s}}'
 
 # list of hosts who have volunteered to have their usernames associated with HostBot invites
-curHosts = ['Rosiestep','Jtmorgan','SarahStierch','Ryan Vesey','Writ Keeper','Doctree','Osarius','Hajatvrc','Nathan2055','Benzband','TheOriginalSoni','Ushau97','Technical 13']
+curHosts = ['Rosiestep','Jtmorgan','SarahStierch','Writ Keeper','Doctree','Osarius','Nathan2055','Benzband','TheOriginalSoni','Ushau97','Technical 13']
 
 
 # strings associated with substituted templates that mean I should skip this guest

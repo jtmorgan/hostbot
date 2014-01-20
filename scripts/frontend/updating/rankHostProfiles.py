@@ -24,10 +24,11 @@ import sys
 ###FUNCTIONS###
 def rankProfiles():
 	"""
-	rank Eval portal profiles by number of recent edits.
+	rank Teahouse profiles by number of recent edits.
 	"""
 	profile_page = hb_profiles.Profiles(params['output path'], params['output page id'], params)
-	profile_list = profile_page.getPageSectionData("2")
+	profile_list = profile_page.getPageSectionData(level = 2)
+# 	print profile_list
 	profile_list = tools.dedupeMemberList(profile_list, "index", "title")
 	quote1 = "'"
 	quote2 = "'"
