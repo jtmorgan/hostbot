@@ -29,23 +29,23 @@ import wikitools
 ###FUNCTIONS###
 def updateBlockStatus(cursor):
 	"""
-	Excludes recently blocked users from invitation to TWA, 
-	in the event that any newcomers have been blocked since 
+	Excludes recently blocked users from invitation to TWA,
+	in the event that any newcomers have been blocked since
 	the Snuggle data was downloaded and processed.
 	"""
 	update_query = query.getQuery("twa blocked")
 	cursor.execute(update_query)
-	conn.commit()	
-	
+	conn.commit()
+
 def updateTalkpageStatus(cursor):
 	"""
-	Inserts the id of the user's talkpage into the database, 
-	in the event that any newcomers have had their talkpage created since 
+	Inserts the id of the user's talkpage into the database,
+	in the event that any newcomers have had their talkpage created since
 	the Snuggle data was downloaded and processed.
 	"""
 	update_query = query.getQuery("twa talkpage")
 	cursor.execute(update_query)
-	conn.commit()		
+	conn.commit()
 
 def getUsernames(cursor):
 	"""
@@ -56,16 +56,17 @@ def getUsernames(cursor):
 	cursor.execute(select_query)
 	rows = cursor.fetchall()
 	candidates = [(row[0],row[1]) for row in rows]
+# 	candidates = candidates[:5]
 	return candidates
 
-# 
+#
 def talkpageCheck(c, header):
 	"""
 	Skips invitation if the user's talkpage has any of the following strings.
-	These include keywords embedded in templates for level 4 user warnings, 
+	These include keywords embedded in templates for level 4 user warnings,
 	other serious warnings, and Teahouse invitations:
-	
-	'uw-vandalism4', 'uw-socksuspect', 'Socksuspectnotice', 'Uw-socksuspect', 
+
+	'uw-vandalism4', 'uw-socksuspect', 'Socksuspectnotice', 'Uw-socksuspect',
 	'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4'
 	"""
 	skip_test = False
@@ -87,7 +88,7 @@ def talkpageCheck(c, header):
 
 def allow_bots(text, user):
 	"""
-	Assures exclusion compliance, 
+	Assures exclusion compliance,
 	per http://en.wikipedia.org/wiki/Template:Bots
 	"""
 	return not re.search(r'\{\{(nobots|bots\|(allow=none|deny=.*?' + user + r'.*?|optout=all|deny=all))\}\}', text, flags=re.IGNORECASE)
@@ -99,42 +100,42 @@ def inviteGuests(cursor, invites):
 	invite_errs = []
 	for i in invites:
 		try:
-			output = hb_profiles.Profiles(params['output namespace'] + i, settings = params)	
-			try:	
+			output = hb_profiles.Profiles(params['output namespace'] + i, settings = params)
+			try:
 				quargs = ["invited", MySQLdb.escape_string(i)] #puts it back in the wonky db format to match user_name
 			except: #escape string sometimes triggers an encoding error
-				quargs = ["invited", i] 
-# 				traceback.print_exc()	
-			invite = output.formatProfile({'user' : i})					
-			edit_summ = "{{subst:PAGENAME}}, you are invited on a Wikipedia Adventure!"
-			output.publishProfile(invite, params['output namespace'] + i, edit_summ, edit_sec = "new")		
+				quargs = ["invited", i]
+# 				traceback.print_exc()
+			invite = output.formatProfile({'user' : i})
+			edit_summ = i + ", you are invited on a Wikipedia Adventure!"
+			output.publishProfile(invite, params['output namespace'] + i, edit_summ, edit_sec = "new")
 			updateDB(cursor, "update invite status", quargs)
 		except:
 			invite_errs.append(i)
 # 			traceback.print_exc()
-	return invite_errs	
+	return invite_errs
 
-def recordSkips(cursor, skips):	
+def recordSkips(cursor, skips):
 	"""
 	Records users who were skipped because of talkpage templates, or
 	because there was an error sending or recording their invitation.
-	"""	
-	for s in skips:	
+	"""
+	for s in skips:
 		try:
-			quargs = ["skipped", MySQLdb.escape_string(s)]			
+			quargs = ["skipped", MySQLdb.escape_string(s)]
 			updateDB(cursor, "update invite status", quargs)
 		except:
 # 			traceback.print_exc()
-			pass			
+			pass
 
 def updateDB(cursor, query_name, quargs):
 	"""
 	Updates the database: was the user invited, or skipped?
-	"""	
+	"""
 	try:
 		update_query = query.getQuery(query_name, query_vars = quargs)
 		cursor.execute(update_query)
-		conn.commit()		
+		conn.commit()
 	except:
 # 		traceback.print_exc()
 		pass

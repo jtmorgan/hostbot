@@ -34,7 +34,7 @@ def getSample(recent_newcomers):
 	date_since = datetime.utcnow()-timedelta(days=1)
 # 	print date_since
 	ds_unix = calendar.timegm(date_since.timetuple())
-	recent_gf_newcomers = [x for x in recent_newcomers if x['registration'] > ds_unix and x['desirability']['score'] >= 4]
+	recent_gf_newcomers = [x for x in recent_newcomers if x['registration'] > ds_unix and x['desirability']['ratio'] >= 4]
 	for x in recent_gf_newcomers:
 		invite = True
 		if x['talk']['threads']:
@@ -47,17 +47,20 @@ def getSample(recent_newcomers):
 			pass
 		if invite:
 			sample_set.append(x)
-# 	print str(len(sample_set)) + " recent good faith newcomers without teahouse invites" 		
-# 	print str(len(recent_gf_newcomers)) + " recent good faith newcomers total"
+	print str(len(sample_set)) + " recent good faith newcomers without teahouse invites" 		
+	print str(len(recent_gf_newcomers)) + " recent good faith newcomers total"
 
 	return sample_set
 		
 def updateDB(sample_set):
 	group1 = random.sample(sample_set, 50) #first, hold back invites from 100 users as control			
-# 	print str(len(group1)) + " control"
+	print str(len(group1)) + " control"
 	insertSubSample(group1, "con")
 	group2 = [x for x in sample_set if x not in group1]
-# 	print str(len(group2)) + " experimental"
+	if len(group2) > 300:
+		print str(len(group2)) + " potential experimental set"
+		group2 = random.sample(group2, 300) 
+		print str(len(group2)) + " experimental sample"
 	insertSubSample(group2, "exp")
 
 def insertSubSample(group, condition):
@@ -97,11 +100,11 @@ f.close()
 
 recent_newcomers = data['success']
 sample_datetime = datetime.utcfromtimestamp(data['meta']['time'])
-# print sample_datetime
+print sample_datetime
 sample_datestring = tools.getSubDate(0)
-# print sample_datestring
+print sample_datestring
 sample_unixdate = data['meta']['time']
-# print sample_unixdate
+print sample_unixdate
 sample_set = getSample(recent_newcomers)
 if len(sample_set) > 50:
 	updateDB(sample_set)
