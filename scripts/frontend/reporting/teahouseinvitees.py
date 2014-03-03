@@ -158,13 +158,8 @@ for field in fields:
 	number = field[0]
 	user_name = unicode(field[1], 'utf-8')
 	user_editcount = field[2]
-# 	email_status = field[3]
-# 	email_string = "No"
-# 	if email_status is not None:
-# 		email_string = '[[Special:EmailUser/%s|Yes]]' % user_name
 	talk_page = '[[User_talk:%s|%s]]' % (user_name, user_name)
 	user_contribs = '[[Special:Contributions/%s|contribs]]' % user_name
-# 	email_user = '[[Special:EmailUser/%s|Yes]]' % user_name
 	table_row = u'''| %d
 | %s
 | %d
@@ -192,10 +187,6 @@ for field in fields:
 	number = field[0]
 	user_name = unicode(field[1], 'utf-8')
 	user_editcount = field[2]
-# 	email_status = field[3]
-# 	email_string = "No"
-# 	if email_status is not None:
-# 		email_string = '[[Special:EmailUser/%s|Yes]]' % user_name
 	talk_page = '[[User_talk:%s|%s]]' % (user_name, user_name)
 	user_contribs = '[[Special:Contributions/%s|contribs]]' % user_name
 	table_row = u'''| %d

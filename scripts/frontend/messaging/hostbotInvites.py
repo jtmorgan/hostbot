@@ -105,8 +105,9 @@ def inviteGuests(cursor):
 		invite_page = wikitools.Page(wiki, invite_title)
 		invite_text = invite_template % (host, host, '|signature=~~~~')
 		invite_text = invite_text.encode('utf-8')
+		edit_summ = invitee + ", you are invited to the Teahouse"
 		try:
-			invite_page.edit(invite_text, section="new", summary="{{subst:PAGENAME}}, you are invited to the Teahouse", bot=1)
+			invite_page.edit(invite_text, section="new", summary=edit_summ, bot=1)
 		except:
 			continue
 		try:

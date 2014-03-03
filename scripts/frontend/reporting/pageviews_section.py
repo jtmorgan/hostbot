@@ -54,8 +54,8 @@ pageview_url = 'http://stats.grok.se/json/en/%s%s/Wikipedia:Teahouse'
 
 # months = []
 
-#this is a manually curated list. Need to add the same dates for 2013, or this script will break.
-null_dates = ["2012-02-29","2012-02-30","2012-02-31","2012-04-31","2012-06-31","2012-09-31","2012-11-31","2013-02-29","2013-02-30","2013-02-31","2013-04-31","2013-06-31","2013-09-31","2013-11-31"]
+#this is a manually curated list. Need to add the same dates for 2014, or this script will break.
+null_dates = ["2012-02-29","2012-02-30","2012-02-31","2012-04-31","2012-06-31","2012-09-31","2012-11-31","2013-02-29","2013-02-30","2013-02-31","2013-04-31","2013-06-31","2013-09-31","2013-11-31","2014-02-29","2014-02-30","2014-02-31",]
 
 ##FUNCTIONS##
 #gets the numeric month and year, and num days in month
