@@ -47,20 +47,20 @@ def getSample(recent_newcomers):
 			pass
 		if invite:
 			sample_set.append(x)
-	print str(len(sample_set)) + " recent good faith newcomers without teahouse invites" 		
-	print str(len(recent_gf_newcomers)) + " recent good faith newcomers total"
+# 	print str(len(sample_set)) + " recent good faith newcomers without teahouse invites"
+# 	print str(len(recent_gf_newcomers)) + " recent good faith newcomers total"
 
 	return sample_set
-		
+
 def updateDB(sample_set):
-	group1 = random.sample(sample_set, 50) #first, hold back invites from 100 users as control			
-	print str(len(group1)) + " control"
+	group1 = random.sample(sample_set, 50) #first, hold back invites from 100 users as control
+# 	print str(len(group1)) + " control"
 	insertSubSample(group1, "con")
 	group2 = [x for x in sample_set if x not in group1]
 	if len(group2) > 300:
-		print str(len(group2)) + " potential experimental set"
-		group2 = random.sample(group2, 300) 
-		print str(len(group2)) + " experimental sample"
+# 		print str(len(group2)) + " potential experimental set"
+		group2 = random.sample(group2, 300)
+# 		print str(len(group2)) + " experimental sample"
 	insertSubSample(group2, "exp")
 
 def insertSubSample(group, condition):
@@ -75,15 +75,15 @@ def insertSubSample(group, condition):
 		sample_data.append(x)
 		insert_query = query.getQuery("twa sample", query_vars = x) #needs to be a list
 		cursor.execute(insert_query)
-		conn.commit()	
-	
+		conn.commit()
+
 
 def dumpSample(sample_set):
 	filename = str(sample_unixdate) + ".json"
 	path = "/data/project/hostbot/bot/data/twa/"
 	with open(path + filename, 'w') as outfile:
-		json.dump(sample_set, outfile)	
-	
+		json.dump(sample_set, outfile)
+
 ##MAIN##
 wiki = wikitools.Wiki(hostbot_settings.apiurl)
 wiki.login(hostbot_settings.username, hostbot_settings.password)
@@ -100,17 +100,17 @@ f.close()
 
 recent_newcomers = data['success']
 sample_datetime = datetime.utcfromtimestamp(data['meta']['time'])
-print sample_datetime
+# print sample_datetime
 sample_datestring = tools.getSubDate(0)
-print sample_datestring
+# print sample_datestring
 sample_unixdate = data['meta']['time']
-print sample_unixdate
+# print sample_unixdate
 sample_set = getSample(recent_newcomers)
 if len(sample_set) > 50:
 	updateDB(sample_set)
-	dumpSample(sample_set)	
+	dumpSample(sample_set)
 else:
 # 	print "not enough" #need to make this a log instead
 	sys.exit("not enough people to invite")
 cursor.close()
-conn.close()	
+conn.close()
