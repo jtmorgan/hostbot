@@ -9,7 +9,7 @@ indexurl = 'http://en.wikipedia.org/w/index.php'
 # db details
 host = 'enwiki.labsdb'
 dbname = 'mybotdb'
-defaultcnf = '/home/labsusername/.my.cnf'
+defaultcnf = '/data/project/labsusername/.my.cnf'
 
 # Teahouse settings
 rootpage = 'Wikipedia:Teahouse'

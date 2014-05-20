@@ -89,7 +89,7 @@ AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging wh
 ''')
 conn.commit()
 
-# insert autoconfirmed editors
+insert autoconfirmed editors
 cursor.execute('''
 insert ignore into th_up_invitees
 	(user_id, user_name, user_registration, user_editcount, sample_date, sample_type, invite_status, hostbot_invite, hostbot_personal, hostbot_skipped, ut_is_redirect)
@@ -140,7 +140,7 @@ WHERE date(sample_date) = date(NOW());
 conn.commit()
 
 
-# builds output list for 10-edit newbies
+#builds output list for 10-edit newbies
 cursor.execute('''
 SELECT
 id,
@@ -169,7 +169,7 @@ for field in fields:
 	output1.append(table_row)
 
 
-# builds output list for autoconfirmed users
+#builds output list for autoconfirmed users
 cursor.execute('''
 SELECT
 id,
@@ -198,7 +198,7 @@ for field in fields:
 	output2.append(table_row)
 
 
-# prints reports
+#prints reports
 report = wikitools.Page(wiki, report_title)
 report_text = report_template % ('\n'.join(output1), '\n'.join(output2))
 report_text = report_text.encode('utf-8')
