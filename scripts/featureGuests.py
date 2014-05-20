@@ -70,11 +70,14 @@ def copySectionText(sections, url, string):
 def updateFeatured(guest_profiles):
 	i = 1
 	for profile in guest_profiles:
-		report_title = page_namespace + page_section % i
-		report = wikitools.Page(wiki, report_title)
-		report_text = report_template % profile
-		i += 1
-		report.edit(report_text, summary="Automatic update of [[Wikipedia:Teahouse/Host/Featured|featured guest gallery]] by [[User:HostBot|HostBot]]", bot=1)
+		while i <= 10:
+			report_title = page_namespace + page_section % i
+			report = wikitools.Page(wiki, report_title)
+			report_text = report_template % profile
+			report.edit(report_text, summary="Automatic update of [[Wikipedia:Teahouse/Host/Featured|featured guest gallery]] by [[User:HostBot|HostBot]]", bot=1)
+			i += 1
+			
+		
 
 ##MAIN##
 soup = getSectionData(securl, left)
