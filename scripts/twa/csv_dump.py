@@ -21,6 +21,7 @@ import hostbot_settings
 import MySQLdb
 import wikitools
 
+###needs to be made agnostic, so can accept th or twa invitees
 ##FUNCTIONS##
 
 def dumpCsv(cursor, curdate, f):
