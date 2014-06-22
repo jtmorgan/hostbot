@@ -27,6 +27,41 @@ class Template:
 	'intro' : u"""=Hosts=\n{{{{TOC hidden}}}}\n<br/>\n</noinclude>
 {profiles}""",
 	'twa invites' : u"""{{{{subst:Wikipedia:TWA/Invite|signature=~~~~}}}}""",
+	'teahouse_invitee_report' : u'''==Daily Report==
+This list was last updated on {{subst:REVISIONMONTH}}/{{subst:REVISIONDAY}}/{{subst:REVISIONYEAR}} by {{subst:REVISIONUSER}}.
+
+===Highly active new editors===
+Below is a list of editors who joined within the last 24 hours, have since made more than 10 edits, and were not blocked at the time the report was generated.
+
+{| class="wikitable sortable plainlinks"
+|-
+! Guest #
+! Guest Name
+! Edit Count
+! Contribs
+! Already Invited?
+|-
+%s
+|}
+
+
+===New Autoconfirmed Editors===
+Below is a list of editors who gained [[Wikipedia:User_access_levels#Autoconfirmed_users|autoconfirmed status]] today, who were not previously invited to Teahouse after their first day, and were not blocked at the time the report was generated.
+
+{| class="wikitable sortable plainlinks"
+|-
+! Guest #
+! Guest Name
+! Edit Count
+! Contribs
+! Already Invited?
+|-
+%s
+|}
+
+{{Wikipedia:Teahouse/Layout-end}}
+{{Wikipedia:Teahouse/Host navigation}}
+''',
 }
 
 	def getTemplate(self, member):

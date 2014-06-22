@@ -16,48 +16,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
-import MySQLdb
-import wikitools
+import hb_queries
+import hb_templates
 import hostbot_settings
+import MySQLdb
 from warnings import filterwarnings
+import wikitools
 
 report_title = hostbot_settings.rootpage + '/Hosts/Database_reports#Daily_Report'
 
-report_template = u'''==Daily Report==
-This list was last updated on {{subst:REVISIONMONTH}}/{{subst:REVISIONDAY}}/{{subst:REVISIONYEAR}} by {{subst:REVISIONUSER}}.
-
-===Highly active new editors===
-Below is a list of editors who joined within the last 24 hours, have since made more than 10 edits, and were not blocked at the time the report was generated.
-
-{| class="wikitable sortable plainlinks"
-|-
-! Guest #
-! Guest Name
-! Edit Count
-! Contribs
-! Already Invited?
-|-
-%s
-|}
-
-
-===New Autoconfirmed Editors===
-Below is a list of editors who gained [[Wikipedia:User_access_levels#Autoconfirmed_users|autoconfirmed status]] today, who were not previously invited to Teahouse after their first day, and were not blocked at the time the report was generated.
-
-{| class="wikitable sortable plainlinks"
-|-
-! Guest #
-! Guest Name
-! Edit Count
-! Contribs
-! Already Invited?
-|-
-%s
-|}
-
-{{Wikipedia:Teahouse/Layout-end}}
-{{Wikipedia:Teahouse/Host navigation}}
-'''
+report_template = #fixme
 
 wiki = wikitools.Wiki(hostbot_settings.apiurl)
 wiki.login(hostbot_settings.username, hostbot_settings.password)
@@ -66,91 +34,25 @@ cursor = conn.cursor()
 filterwarnings('ignore', category = MySQLdb.Warning)
 
 # insert 10-edit newbies
-cursor.execute('''
-insert ignore into th_up_invitees
-	(user_id, user_name, user_registration, user_editcount, sample_date, sample_type, invite_status, hostbot_invite, hostbot_personal, hostbot_skipped, ut_is_redirect)
-SELECT
-user_id,
-user_name,
-user_registration,
-user_editcount,
-NOW(),
-1,
-0,
-0,
-0,
-0,
-0
-FROM enwiki_p.user
-WHERE user_registration > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 1 DAY),'%Y%m%d%H%i%s')
-AND user_editcount > 10
-AND user_id NOT IN (SELECT ug_user FROM enwiki_p.user_groups WHERE ug_group = 'bot')
-AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging where log_type = "block" and log_action = "block" and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s')) AND user_id NOT IN (SELECT user_id FROM twa_up_invitees WHERE invited = 1);
-''')
+cursor.execute("th 10 edit newbies") #call queries
 conn.commit()
 
 #insert autoconfirmed editors
-cursor.execute('''
-insert ignore into th_up_invitees
-	(user_id, user_name, user_registration, user_editcount, sample_date, sample_type, invite_status, hostbot_invite, hostbot_personal, hostbot_skipped, ut_is_redirect)
-	SELECT
-		user_id,
-		user_name,
-		user_registration,
-		user_editcount,
-		NOW(),
-		2,
-		0,
-		0,
-		0,
-		0,
-		0
-			from enwiki_p.user
-				where user_editcount > 10
-				and user_registration
-					between DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 5 DAY),'%Y%m%d%H%i%s')
-					and DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 4 DAY),'%Y%m%d%H%i%s')
-					AND user_id NOT IN (SELECT ug_user FROM enwiki_p.user_groups WHERE ug_group = 'bot')
-					AND user_name not in
-						(SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging
-							where log_type = "block"
-							and log_action = "block"
-							and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 5 DAY),'%Y%m%d%H%i%s')) AND user_id NOT IN (SELECT user_id FROM twa_up_invitees WHERE invited = 1);
-''')
+cursor.execute("th autoconfirmed newbies")
 conn.commit()
 
-
 #adds in talkpage ids for later link checks
-cursor.execute('''
-UPDATE th_up_invitees as i, enwiki_p.page as p
-SET i.user_talkpage = p.page_id, i.ut_is_redirect = p.page_is_redirect
-WHERE date(i.sample_date) = date(NOW())
-AND p.page_namespace = 3
-AND REPLACE(i.user_name, " ", "_") = p.page_title;
-''')
+cursor.execute("th sample talkpages")
 conn.commit()
 
 
 #updates the sample type. Used to divide users into experimental and control groups. Now its all experimental, baby.
-cursor.execute('''
-UPDATE th_up_invitees
-SET sample_group = "exp"
-WHERE date(sample_date) = date(NOW());
-''')
+cursor.execute("update th sample type")
 conn.commit()
 
 
 #builds output list for 10-edit newbies
-cursor.execute('''
-SELECT
-id,
-user_name,
-user_editcount
-FROM th_up_invitees
-WHERE date(sample_date) = date(NOW())
-AND ut_is_redirect != 1
-AND sample_type = 1;
-''')
+cursor.execute("get 10 edit newbie list")
 
 output1 = []
 fields = cursor.fetchall()
@@ -170,16 +72,7 @@ for field in fields:
 
 
 #builds output list for autoconfirmed users
-cursor.execute('''
-SELECT
-id,
-user_name,
-user_editcount
-FROM th_up_invitees
-WHERE date(sample_date) = date(NOW())
-AND ut_is_redirect != 1
-AND sample_type = 2;
-''')
+cursor.execute("get autoconfirmed newbie list")
 
 output2 = []
 fields = cursor.fetchall()
@@ -199,6 +92,9 @@ for field in fields:
 
 
 #prints reports
+queries = hb_queries.Query()
+templates = hb_queries.Query()
+
 report = wikitools.Page(wiki, report_title)
 report_text = report_template % ('\n'.join(output1), '\n'.join(output2))
 report_text = report_text.encode('utf-8')
