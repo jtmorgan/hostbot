@@ -92,7 +92,26 @@ class Query:
 	WHERE date(sample_date) = date(NOW())
 	AND ut_is_redirect != 1
 	AND sample_type = 2""",
-				},										
+				},		
+'teahouse invitees' : {
+	'string' : u"""SELECT user_name, user_talkpage
+	FROM th_up_invitees
+	WHERE date(sample_date) = date(NOW())
+	AND invite_status = 0
+	AND ut_is_redirect != 1""",
+				},	
+'update teahouse invite status' : {
+	'string' : u"""update twa_up_invitees set %s = 1 where user_name = '%s'""",
+				},	
+'teahouse add talkpage' : {
+	'string' : u"""UPDATE th_up_invitees as i, enwiki_p.page as p
+	SET i.user_talkpage = p.page_id, i.ut_is_redirect = p.page_is_redirect
+	WHERE date(i.sample_date) = date(NOW())
+	AND p.page_namespace = 3
+	AND REPLACE(i.user_name, " ", "_") = p.page_title""",
+				},	
+'teahouse add blocked' : {
+	'string' : u"""UPDATE th_up_invitees AS t SET t.blocked = 1 WHERE REPLACE(t.user_name," ","_") IN (SELECT l.log_title FROM enwiki_p.logging AS l WHERE l.log_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 3 DAY),'%Y%m%d%H%i%s') AND l.log_type = "block" and l.log_action = "block")""",	#not currently used. table lacks blocked field																							
 }				
 
 	def getQuery(self, query_type, query_vars = False):

@@ -161,7 +161,7 @@ for c in candidates:
 	else:
 		invites.append(c[0])
 invite_errs = inviteGuests(cursor, invites)
-skips.extend(invite_errs) #if I couldn't invite for some reason, add to skip list
+skips.extend(invite_errs)
 recordSkips(cursor, skips)
 
 cursor.close()

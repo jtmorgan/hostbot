@@ -21,25 +21,21 @@ import hostbot_settings
 import MySQLdb
 from warnings import filterwarnings
 
-def updateInviteeTable(#query):
-# cursor.execute("th 10 edit newbies") #call queries
-# conn.commit()
-# cursor.execute("th autoconfirmed newbies")
-# conn.commit()
-# cursor.execute("th sample talkpages")
-# conn.commit()
-# cursor.execute("update th sample type")
-# conn.commit()
+def updateInviteeTable(q_string):
+	update_query = query.getQuery(q_string)
+	cursor.execute(update_query)
+	conn.commit()
 
 ##MAIN##
 queries = hb_queries.Query()
 conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
 filterwarnings('ignore', category = MySQLdb.Warning)
-updateInviteeTable(#query) # insert 10-edit newbies
-updateInviteeTable(#query) #insert autoconfirmed editors
-updateInviteeTable(#query) #adds in talkpage ids for later link checks
-updateInviteeTable(#query) #updates the sample type. for a/b tests
+
+updateInviteeTable("th 10 edit newbies") # insert 10-edit newbies
+updateInviteeTable("th autoconfirmed newbies") #insert autoconfirmed editors
+# updateInviteeTable("th sample talkpages") #adds in talkpage ids for later link checks
+updateInviteeTable("update th sample type") #updates the sample type. for a/b tests
 
 cursor.close()
 conn.close()

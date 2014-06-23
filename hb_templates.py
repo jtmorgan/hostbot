@@ -27,7 +27,7 @@ class Template:
 	'intro' : u"""=Hosts=\n{{{{TOC hidden}}}}\n<br/>\n</noinclude>
 {profiles}""",
 	'twa invites' : u"""{{{{subst:Wikipedia:TWA/Invite|signature=~~~~}}}}""",
-	'teahouse_invitee_report' : u'''==Daily Report==
+	'th_invitee_report' : u'''==Daily Report==
 This list was last updated on {{subst:REVISIONMONTH}}/{{subst:REVISIONDAY}}/{{subst:REVISIONYEAR}} by {{subst:REVISIONUSER}}.
 
 ===Highly active new editors===
@@ -62,6 +62,7 @@ Below is a list of editors who gained [[Wikipedia:User_access_levels#Autoconfirm
 {{Wikipedia:Teahouse/Layout-end}}
 {{Wikipedia:Teahouse/Host navigation}}
 ''',
+	'th invite templates' : u"{{subst:Wikipedia:Teahouse/HostBot_Invitation|personal=I hope to see you there! ([[w:en:WP:Teahouse/Hosts|I\'m a Teahouse host]])%s}}",
 }
 
 	def getTemplate(self, member):
