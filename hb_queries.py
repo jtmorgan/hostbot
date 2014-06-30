@@ -32,12 +32,9 @@ class Query:
 'twa talkpage' : {
 	'string' : u"""UPDATE twa_up_invitees AS t, enwiki_p.page AS p SET t.user_talkpage = p.page_id WHERE p.page_namespace = 3 and p.page_is_redirect = 0 AND REPLACE(t.user_name," ","_") = p.page_title""",
 				},						
-'update invite status' : {
+'update twa invite status' : {
 	'string' : u"""update twa_up_invitees set %s = 1 where user_name = '%s'""",
 				},	
-'username encoding test select' : {
-	'string' : u"""select user_name FROM twa_up_invitees WHERE user_id = 20195519""",
-				},
 'th 10 edit newbies' : {
 	'string' : u"""insert ignore into th_up_invitees
 	(user_id, user_name, user_registration, user_editcount, sample_date, sample_type, invite_status, hostbot_invite, hostbot_personal, hostbot_skipped, ut_is_redirect)
@@ -67,52 +64,42 @@ class Query:
 				and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 5 DAY),'%Y%m%d%H%i%s')) 
 			AND user_id NOT IN (SELECT user_id FROM twa_up_invitees WHERE invited = 1)""",															
 				},
-'add th sample talkpages' : {
-	'string' : u"""UPDATE th_up_invitees as i, enwiki_p.page as p
-	SET i.user_talkpage = p.page_id, i.ut_is_redirect = p.page_is_redirect
-	WHERE date(i.sample_date) = date(NOW())
-	AND p.page_namespace = 3
-	AND REPLACE(i.user_name, " ", "_") = p.page_title""",
-				},
 'update th sample type' : {
 	'string' : u"""UPDATE th_up_invitees
-	SET sample_group = "exp"
-	WHERE date(sample_date) = date(NOW())""",
+		SET sample_group = "exp"
+		WHERE date(sample_date) = date(NOW())""",
 				},
-'get 10 edit newbie list' : {
+'get 10 edit newbies' : {
 	'string' : u"""SELECT id, user_name, user_editcount
-	FROM th_up_invitees
-	WHERE date(sample_date) = date(NOW())
-	AND ut_is_redirect != 1
-	AND sample_type = 1""",
+		FROM th_up_invitees
+		WHERE date(sample_date) = date(NOW())
+		AND ut_is_redirect != 1
+		AND sample_type = 1""",
 				},
-'get autoconfirmed newbie list' : {
+'get autoconfirmed newbies' : {
 	'string' : u"""SELECT id, user_name, user_editcount
-	FROM th_up_invitees
-	WHERE date(sample_date) = date(NOW())
-	AND ut_is_redirect != 1
-	AND sample_type = 2""",
+		FROM th_up_invitees
+		WHERE date(sample_date) = date(NOW())
+		AND ut_is_redirect != 1
+		AND sample_type = 2""",
 				},		
-'teahouse invitees' : {
+'th invitees' : {
 	'string' : u"""SELECT user_name, user_talkpage
-	FROM th_up_invitees
-	WHERE date(sample_date) = date(NOW())
-	AND invite_status = 0
-	AND ut_is_redirect != 1""",
+		FROM th_up_invitees_experiment
+		WHERE date(sample_date) = date(NOW())
+		AND invite_status IS NULL
+		AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL)""",
 				},	
-'update teahouse invite status' : {
-	'string' : u"""update twa_up_invitees set %s = 1 where user_name = '%s'""",
+'update th invite status' : {
+	'string' : u"""update th_up_invitees_experiment set invite_status = %d, hostbot_invite = %d, hostbot_skipped = %d where user_name = '%s'""",
 				},	
-'teahouse add talkpage' : {
-	'string' : u"""UPDATE th_up_invitees as i, enwiki_p.page as p
-	SET i.user_talkpage = p.page_id, i.ut_is_redirect = p.page_is_redirect
-	WHERE date(i.sample_date) = date(NOW())
-	AND p.page_namespace = 3
-	AND REPLACE(i.user_name, " ", "_") = p.page_title""",
+'th add talkpage' : {
+	'string' : u"""UPDATE th_up_invitees_experiment as i, enwiki_p.page as p
+		SET i.user_talkpage = p.page_id, i.ut_is_redirect = p.page_is_redirect
+		WHERE date(i.sample_date) = date(NOW())
+		AND p.page_namespace = 3
+		AND REPLACE(i.user_name, " ", "_") = p.page_title""",
 				},	
-'teahouse add blocked' : {
-	'string' : u"""UPDATE th_up_invitees AS t SET t.blocked = 1 WHERE REPLACE(t.user_name," ","_") IN (SELECT l.log_title FROM enwiki_p.logging AS l WHERE l.log_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 3 DAY),'%Y%m%d%H%i%s') AND l.log_type = "block" and l.log_action = "block")""",	#not currently used. table lacks blocked field																							
-				},
 }				
 
 	def getQuery(self, query_type, query_vars = False):

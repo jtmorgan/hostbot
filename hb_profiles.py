@@ -24,7 +24,7 @@ import MySQLdb
 import hb_output_settings as output_settings
 import hb_templates as templates
 import operator
-import queries
+import hb_queries
 import re
 import time
 
@@ -113,15 +113,15 @@ class Profiles:
 		"""
 		if sb_page:
 			path += str(sb_page)
-# 		print path
-# 		print val
-# 		print edit_summ
-# 		print edit_sec
-		output = wikitools.Page(self.wiki, path)
-		if edit_sec:
-			output.edit(val, section=edit_sec, summary=edit_summ, bot=1)
-		else:
-			output.edit(val, summary=edit_summ, bot=1)
+		print path
+		print val
+		print edit_summ
+		print edit_sec
+# 		output = wikitools.Page(self.wiki, path)
+# 		if edit_sec:
+# 			output.edit(val, section=edit_sec, summary=edit_summ, bot=1)
+# 		else:
+# 			output.edit(val, summary=edit_summ, bot=1)
 
 
 

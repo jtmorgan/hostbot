@@ -27,115 +27,78 @@ import traceback
 import wikitools
 
 ###FUNCTIONS###
-# def updateBlockStatus(cursor):
-# 	"""
-# 	Excludes recently blocked users from invitation to TH,
-# 	in the event that any newcomers have been blocked since
-# 	the Snuggle data was downloaded and processed.
-# 	"""
-# 	update_query = query.getQuery("teahouse check blocked")
-# 	cursor.execute(update_query)
-# 	conn.commit()
-
-def updateTalkpageStatus(cursor):
+def updateTalkpageStatus(cursor, qstring):
 	"""
 	Inserts the id of the user's talkpage into the database,
 	in the event that any newcomers have had their talkpage created since
 	the Snuggle data was downloaded and processed.
 	"""
-	update_query = query.getQuery("teahouse add talkpage")
-	cursor.execute(update_query)
+	cursor.execute(qstring)
 	conn.commit()
 
-def getUsernames(cursor):
+def getUsernames(cursor, qstring):
 	"""
 	Returns a list of usernames of candidates for invitation:
 	newcomers who joined in the past two days and who have not been blocked.
 	"""
-	select_query = query.getQuery("teahouse invitees")
-	cursor.execute(select_query)
+	cursor.execute(qstring)
 	rows = cursor.fetchall()
 	candidates = [(row[0],row[1]) for row in rows]
-# 	candidates = candidates[:5]
+	candidates = candidates[:5]
 	return candidates
 
-#
-def talkpageCheck(c, header):
+def inviteGuests(c, params):
 	"""
-	Skips invitation if the user's talkpage has any of the following strings.
-	These include keywords embedded in templates for level 4 user warnings,
-	other serious warnings, and Teahouse invitations.
+	Invites todays invitees.
 	"""
-	skip_test = False
+	invited = False
+	skip = False
+# 	try:
+	output = hb_profiles.Profiles(params['output namespace'] + c[0], id = c[1], settings = params)
 	if c[1] is not None:
-		try:
-			profile = hb_profiles.Profiles(params['output namespace'] + c[0], id = c[1])
-			text = profile.getPageText()
-			for template in params['skip templates']:
-				if template in text:
-					skip_test = True
-			allowed = allow_bots(text, hostbot_settings.username)
-			if not allowed:
-				skip_test = True
-		except:
-			print "error on talkpage check" #should not print output!
-	else:
-		pass
-	return skip_test
-
-def allow_bots(text, user):
+		print c[1]
+		talkpage_text = profile.getPageText()
+		for template in params['skip templates']:
+			if template in talkpage_text:
+				skip = True
+		allowed = allowBots(talkpage_text, "HostBot")
+		if not allowed:
+			skip = True
+	if not skip:							
+		invite = output.formatProfile({'user' : c})
+		edit_summ = c + params["edit summary"]
+		output.publishProfile(invite, params['output namespace'] + c, edit_summ, edit_sec = "new")
+		invited = True
+# 	except:
+# 		print "something went wrong in InviteGuests"	
+	return invited
+	
+def allowBots(text, user):
 	"""
 	Assures exclusion compliance,
 	per http://en.wikipedia.org/wiki/Template:Bots
 	"""
-	return not re.search(r'\{\{(nobots|bots\|(allow=none|deny=.*?' + user + r'.*?|optout=all|deny=all))\}\}', text, flags=re.IGNORECASE)
+	return not re.search(r'\{\{(nobots|bots\|(allow=none|deny=.*?' + user + r'.*?|optout=all|deny=all))\}\}', text, flags=re.IGNORECASE)	
 
-def inviteGuests(cursor, invites):
-	"""
-	Invites todays invitees.
-	"""
-	invite_errs = []
-	for i in invites:
-		try:
-			output = hb_profiles.Profiles(params['output namespace'] + i, settings = params)
-			try:
-				quargs = ["invited", MySQLdb.escape_string(i)] #puts it back in the wonky db format to match user_name
-			except: #escape string sometimes triggers an encoding error
-				quargs = ["invited", i]
-# 				traceback.print_exc()
-			invite = output.formatProfile({'user' : i})
-			edit_summ = i + params["edit summary"]
-			output.publishProfile(invite, params['output namespace'] + i, edit_summ, edit_sec = "new")
-			updateDB(cursor, "update teahouse invite status", quargs)
-		except:
-			invite_errs.append(i)
-# 			traceback.print_exc()
-	return invite_errs
-
-def recordSkips(cursor, skips):
-	"""
-	Records users who were skipped because of talkpage templates, or
-	because there was an error sending or recording their invitation.
-	"""
-	for s in skips:
-		try:
-			quargs = ["skipped", MySQLdb.escape_string(s)]
-			updateDB(cursor, "update teahouse invite status", quargs)
-		except:
-# 			traceback.print_exc()
-			pass
-
-def updateDB(cursor, query_name, quargs):
+def updateInviteStatus(cursor, qname, invited, c):
 	"""
 	Updates the database: was the user invited, or skipped?
 	"""
-	try:
-		update_query = query.getQuery(query_name, query_vars = quargs)
-		cursor.execute(update_query)
-		conn.commit()
-	except:
-# 		traceback.print_exc()
-		pass
+	if invited:
+		try:
+			qvars = [1, 1, 0, MySQLdb.escape_string(c[0])] #puts it back in the wonky db format to match user_name
+		except: #escape string sometimes triggers an encoding error
+			qvars = [1, 1, 0, c[0]]
+# 				traceback.print_exc()	
+	else:
+		try:
+			qvars = [0, 0, 1, MySQLdb.escape_string(c[0])] #puts it back in the wonky db format to match user_name
+		except: #escape string sometimes triggers an encoding error
+			qvars = [0, 0, 1, c[0]]
+# 				traceback.print_exc()
+	query = queries.getQuery(qname, qvars)
+	cursor.execute(query)
+	conn.commit()
 
 ##MAIN##
 wiki = wikitools.Wiki(hostbot_settings.apiurl)
@@ -143,23 +106,19 @@ wiki.login(hostbot_settings.username, hostbot_settings.password)
 conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
 tools = hb_profiles.Toolkit()
-query = hb_queries.Query()
+queries = hb_queries.Query()
 param = hb_output_settings.Params()
-params = param.getParams('teahouse invites')
+params = param.getParams('th invites')
+invitees = []
 
-# updateBlockStatus(cursor)
-updateTalkpageStatus(cursor)
-invites, skips = [], []
-candidates = getUsernames(cursor)
+updateTalkpageStatus(cursor, queries.getQuery("th add talkpage"))
+candidates = getUsernames(cursor, queries.getQuery("th invitees"))
 for c in candidates:
-	skip = talkpageCheck(c, params['headers'])
-	if skip:
-		skips.append(c[0])
-	else:
-		invites.append(c[0])
-invite_errs = inviteGuests(cursor, invites)
-skips.extend(invite_errs)
-recordSkips(cursor, skips)
+# 	try:
+	invited = inviteGuests(c, params)
+# 	updateInviteStatus(cursor, "update th invite status", invited, c)
+# 	except:
+# 		print "something went wrong with " + c[0]					
 
 cursor.close()
 conn.close()

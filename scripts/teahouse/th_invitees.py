@@ -33,11 +33,9 @@ def getInvitees():
 		where log_type = "block" and log_action = "block" 
 		and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 1 DAY),'%Y%m%d%H%i%s'))"""
 		
-	cursor.execute(q_string)	
+	cursor.execute(q_string)
+	conn.commit()	
 		
-		
-
-
 ##MAIN##
 conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
