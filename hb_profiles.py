@@ -98,12 +98,12 @@ class Profiles:
 					continue #should I ignore profiles that don't have, say summaries?
 		return member
 
-	def formatProfile(self, val):
+	def formatProfile(self, val, choose = False):
 		"""
 		takes in a dictionary of parameter values and plugs them into the specified template
 		"""
 		page_templates = templates.Template()
-		tmplt = page_templates.getTemplate(self.profile_settings['type'])
+		tmplt = page_templates.getTemplate(self.profile_settings['type'], choose)
 		tmplt = tmplt.format(**val).encode('utf-8')
 		return tmplt
 

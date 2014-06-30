@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from random import choice
+
 class Template:
 	"""templates of profiles for wiki pages"""
 	def __init__(self):
@@ -62,10 +64,13 @@ Below is a list of editors who gained [[Wikipedia:User_access_levels#Autoconfirm
 {{Wikipedia:Teahouse/Layout-end}}
 {{Wikipedia:Teahouse/Host navigation}}
 ''',
-	'th invite templates' : u"{{subst:Wikipedia:Teahouse/HostBot_Invitation|personal=I hope to see you there! ([[w:en:WP:Teahouse/Hosts|I\'m a Teahouse host]])%s}}",
+	'th invite templates' : [u"{{subst:Wikipedia:Teahouse/HostBot_Invitation|personal=I hope to see you there! ([[w:en:WP:Teahouse/Hosts|I\'m a Teahouse host]]){inviter:s}}}", u"{{subst:Wikipedia:Teahouse/HostBot_Invitation|personal=I hope WE see you there! ([[w:en:WP:Teahouse/Hosts|I\'m a Teahouse host]]){inviter:s}}}",],
 }
 
-	def getTemplate(self, member):
-		tmplt = self.profile_templates[member]
+	def getTemplate(self, member, choose = False):
+		if choose:
+		 	tmplt = choice(self.profile_templates[member])
+		else:
+			tmplt = self.profile_templates[member]
 		return tmplt
 

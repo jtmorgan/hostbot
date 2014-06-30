@@ -44,8 +44,10 @@ def getUsernames(cursor, qstring):
 	cursor.execute(qstring)
 	rows = cursor.fetchall()
 	candidates = [(row[0],row[1]) for row in rows]
-	candidates = candidates[:5]
+# 	candidates = candidates[:50]
+# 	candidates.append(('Bgkavinga', 34905179))
 	return candidates
+
 
 def inviteGuests(c, params):
 	"""
@@ -57,7 +59,7 @@ def inviteGuests(c, params):
 	output = hb_profiles.Profiles(params['output namespace'] + c[0], id = c[1], settings = params)
 	if c[1] is not None:
 		print c[1]
-		talkpage_text = profile.getPageText()
+		talkpage_text = output.getPageText()
 		for template in params['skip templates']:
 			if template in talkpage_text:
 				skip = True
@@ -65,9 +67,9 @@ def inviteGuests(c, params):
 		if not allowed:
 			skip = True
 	if not skip:							
-		invite = output.formatProfile({'user' : c})
-		edit_summ = c + params["edit summary"]
-		output.publishProfile(invite, params['output namespace'] + c, edit_summ, edit_sec = "new")
+		invite = output.formatProfile({'user' : c[0], 'inviter' : choice(params['inviters']),}, True)
+		edit_summ = c[0] + params["edit summary"]
+		output.publishProfile(invite, params['output namespace'] + c[0], edit_summ, edit_sec = "new")
 		invited = True
 # 	except:
 # 		print "something went wrong in InviteGuests"	
@@ -116,7 +118,7 @@ candidates = getUsernames(cursor, queries.getQuery("th invitees"))
 for c in candidates:
 # 	try:
 	invited = inviteGuests(c, params)
-# 	updateInviteStatus(cursor, "update th invite status", invited, c)
+	updateInviteStatus(cursor, "update th invite status", invited, c)
 # 	except:
 # 		print "something went wrong with " + c[0]					
 
