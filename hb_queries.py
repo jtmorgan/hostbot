@@ -112,6 +112,7 @@ class Query:
 				},	
 'teahouse add blocked' : {
 	'string' : u"""UPDATE th_up_invitees AS t SET t.blocked = 1 WHERE REPLACE(t.user_name," ","_") IN (SELECT l.log_title FROM enwiki_p.logging AS l WHERE l.log_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 3 DAY),'%Y%m%d%H%i%s') AND l.log_type = "block" and l.log_action = "block")""",	#not currently used. table lacks blocked field																							
+				},
 }				
 
 	def getQuery(self, query_type, query_vars = False):

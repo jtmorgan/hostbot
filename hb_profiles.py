@@ -24,7 +24,7 @@ import MySQLdb
 import hb_output_settings as output_settings
 import hb_templates as templates
 import operator
-# import queries
+import queries
 import re
 import time
 

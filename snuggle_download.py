@@ -16,10 +16,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import hostbot_settings
+import sys
 import urllib2
 
 url = hostbot_settings.snuggleurl
 data = urllib2.urlopen(url)
-localdata = open('/data/project/hostbot/bot/data/twa/snuggle.json', 'w')
+output_path = sys.argv[1]
+localdata = open(output_path, 'w')
 localdata.write(data.read())
 localdata.close()

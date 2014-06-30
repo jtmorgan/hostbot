@@ -15,27 +15,35 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import datetime #necessary?
-import hb_queries
 import hostbot_settings
 import MySQLdb
 from warnings import filterwarnings
 
-def updateInviteeTable(q_string):
-	update_query = query.getQuery(q_string)
-	cursor.execute(update_query)
-	conn.commit()
+
+def getInvitees():
+	"""insert today's potential invitees into the database"""
+	q_string = """insert ignore into th_up_invitees_experiment
+	(user_id, user_name, user_registration, user_editcount, sample_date, sample_type)
+	SELECT user_id, user_name, user_registration, user_editcount, NOW(), 1
+	FROM enwiki_p.user
+	WHERE user_registration > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 1 DAY),'%Y%m%d%H%i%s')
+	AND user_editcount >= 5
+	AND user_id NOT IN (SELECT ug_user FROM enwiki_p.user_groups WHERE ug_group = 'bot')
+	AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging 
+		where log_type = "block" and log_action = "block" 
+		and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 1 DAY),'%Y%m%d%H%i%s'))"""
+		
+	cursor.execute(q_string)	
+		
+		
+
 
 ##MAIN##
-queries = hb_queries.Query()
 conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
 filterwarnings('ignore', category = MySQLdb.Warning)
 
-updateInviteeTable("th 10 edit newbies") # insert 10-edit newbies
-updateInviteeTable("th autoconfirmed newbies") #insert autoconfirmed editors
-# updateInviteeTable("th sample talkpages") #adds in talkpage ids for later link checks
-updateInviteeTable("update th sample type") #updates the sample type. for a/b tests
+getInvitees()
 
 cursor.close()
 conn.close()
