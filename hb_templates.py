@@ -64,7 +64,7 @@ Below is a list of editors who gained [[Wikipedia:User_access_levels#Autoconfirm
 {{Wikipedia:Teahouse/Layout-end}}
 {{Wikipedia:Teahouse/Host navigation}}
 ''',
-	'th invite templates' : [u"{{subst:Wikipedia:Teahouse/HostBot_Invitation|personal=I hope to see you there! ([[w:en:WP:Teahouse/Hosts|I\'m a Teahouse host]]){inviter:s}}}", u"{{subst:Wikipedia:Teahouse/HostBot_Invitation|personal=I hope WE see you there! ([[w:en:WP:Teahouse/Hosts|I\'m a Teahouse host]]){inviter:s}}}",],
+	'th invite templates' : [u"{{{{subst:Wikipedia:Teahouse/HostBot_Invitation|personal=I hope to see you there! {{{{noping|{inviter:s}}}}} ([[w:en:WP:Teahouse/Hosts|I\'m a Teahouse host]])|signature=~~~~}}}}", u"{{{{subst:Wikipedia:Teahouse/HostBot_Invitation|personal=I hope to see you there! {{{{noping|{inviter:s}}}}} ([[w:en:WP:Teahouse/Hosts|I\'m a Teahouse host]])|signature=~~~~}}}}"],
 }
 
 	def getTemplate(self, member, choose = False):

@@ -75,8 +75,9 @@ class Profiles:
 			'prop': 'revisions',
 			'titles': self.page_path,
 			'rvprop' : 'content',
-			'rvsection' : section,
 		}
+		if section:
+			params['rvsection'] = section
 		req = wikitools.APIRequest(self.wiki, params)
 		response = req.query()
 		text = response['query']['pages'][self.page_id]['revisions'][0]['*']
@@ -113,15 +114,15 @@ class Profiles:
 		"""
 		if sb_page:
 			path += str(sb_page)
-		print path
-		print val
-		print edit_summ
-		print edit_sec
-# 		output = wikitools.Page(self.wiki, path)
-# 		if edit_sec:
-# 			output.edit(val, section=edit_sec, summary=edit_summ, bot=1)
-# 		else:
-# 			output.edit(val, summary=edit_summ, bot=1)
+# 		print path
+# 		print val
+# 		print edit_summ
+# 		print edit_sec
+		output = wikitools.Page(self.wiki, path)
+		if edit_sec:
+			output.edit(val, section=edit_sec, summary=edit_summ, bot=1)
+		else:
+			output.edit(val, summary=edit_summ, bot=1)
 
 
 

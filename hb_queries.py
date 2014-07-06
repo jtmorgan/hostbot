@@ -98,7 +98,8 @@ class Query:
 		SET i.user_talkpage = p.page_id, i.ut_is_redirect = p.page_is_redirect
 		WHERE date(i.sample_date) = date(NOW())
 		AND p.page_namespace = 3
-		AND REPLACE(i.user_name, " ", "_") = p.page_title""",
+		AND REPLACE(i.user_name, " ", "_") = p.page_title
+		AND i.user_talkpage IS NULL""",
 				},	
 }				
 

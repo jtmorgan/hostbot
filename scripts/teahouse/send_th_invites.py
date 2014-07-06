@@ -44,8 +44,7 @@ def getUsernames(cursor, qstring):
 	cursor.execute(qstring)
 	rows = cursor.fetchall()
 	candidates = [(row[0],row[1]) for row in rows]
-# 	candidates = candidates[:50]
-# 	candidates.append(('Bgkavinga', 34905179))
+	candidates = candidates[:30]
 	return candidates
 
 
@@ -55,24 +54,21 @@ def inviteGuests(c, params):
 	"""
 	invited = False
 	skip = False
-# 	try:
 	output = hb_profiles.Profiles(params['output namespace'] + c[0], id = c[1], settings = params)
 	if c[1] is not None:
-		print c[1]
 		talkpage_text = output.getPageText()
 		for template in params['skip templates']:
 			if template in talkpage_text:
 				skip = True
+# 				print "http://en.wikipedia.org/wiki/User_talk:" + c[0] + " " + template	
 		allowed = allowBots(talkpage_text, "HostBot")
 		if not allowed:
 			skip = True
-	if not skip:							
+	if skip == False:							
 		invite = output.formatProfile({'user' : c[0], 'inviter' : choice(params['inviters']),}, True)
 		edit_summ = c[0] + params["edit summary"]
 		output.publishProfile(invite, params['output namespace'] + c[0], edit_summ, edit_sec = "new")
 		invited = True
-# 	except:
-# 		print "something went wrong in InviteGuests"	
 	return invited
 	
 def allowBots(text, user):
@@ -111,16 +107,15 @@ tools = hb_profiles.Toolkit()
 queries = hb_queries.Query()
 param = hb_output_settings.Params()
 params = param.getParams('th invites')
-invitees = []
 
 updateTalkpageStatus(cursor, queries.getQuery("th add talkpage"))
 candidates = getUsernames(cursor, queries.getQuery("th invitees"))
 for c in candidates:
-# 	try:
-	invited = inviteGuests(c, params)
-	updateInviteStatus(cursor, "update th invite status", invited, c)
-# 	except:
-# 		print "something went wrong with " + c[0]					
-
+	try:
+		invited = inviteGuests(c, params)
+		updateInviteStatus(cursor, "update th invite status", invited, c)
+	except:
+		print "something went wrong with " + c[0]					
+updateTalkpageStatus(cursor, queries.getQuery("th add talkpage"))
 cursor.close()
 conn.close()
