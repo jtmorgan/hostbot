@@ -99,13 +99,14 @@ class Profiles:
 					continue #should I ignore profiles that don't have, say summaries?
 		return member
 
-	def formatProfile(self, val, choose = False):
+	def formatProfile(self, val):
 		"""
 		takes in a dictionary of parameter values and plugs them into the specified template
 		"""
 		page_templates = templates.Template()
-		tmplt = page_templates.getTemplate(self.profile_settings['type'], choose)
+		tmplt = page_templates.getTemplate(self.profile_settings['type'])
 		tmplt = tmplt.format(**val).encode('utf-8')
+# 		print tmplt
 		return tmplt
 
 	def publishProfile(self, val, path, edit_summ, sb_page = False, edit_sec = False):
@@ -114,15 +115,15 @@ class Profiles:
 		"""
 		if sb_page:
 			path += str(sb_page)
-# 		print path
-# 		print val
+		print path
+		print val
 # 		print edit_summ
 # 		print edit_sec
 		output = wikitools.Page(self.wiki, path)
-		if edit_sec:
-			output.edit(val, section=edit_sec, summary=edit_summ, bot=1)
-		else:
-			output.edit(val, summary=edit_summ, bot=1)
+# 		if edit_sec:
+# 			output.edit(val, section=edit_sec, summary=edit_summ, bot=1)
+# 		else:
+# 			output.edit(val, summary=edit_summ, bot=1)
 
 
 

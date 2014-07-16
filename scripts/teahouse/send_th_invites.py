@@ -44,11 +44,11 @@ def getUsernames(cursor, qstring):
 	cursor.execute(qstring)
 	rows = cursor.fetchall()
 	candidates = [(row[0],row[1]) for row in rows]
-	candidates = candidates[:30]
+# 	candidates = candidates[:10]
 	return candidates
 
 
-def inviteGuests(c, params):
+def inviteGuests(c, params, message_text):
 	"""
 	Invites todays invitees.
 	"""
@@ -60,34 +60,35 @@ def inviteGuests(c, params):
 		for template in params['skip templates']:
 			if template in talkpage_text:
 				skip = True
-# 				print "http://en.wikipedia.org/wiki/User_talk:" + c[0] + " " + template	
+# 				print "http://en.wikipedia.org/wiki/User_talk:" + c[0] + " " + template
 		allowed = allowBots(talkpage_text, "HostBot")
 		if not allowed:
 			skip = True
-	if skip == False:							
-		invite = output.formatProfile({'user' : c[0], 'inviter' : choice(params['inviters']),}, True)
+	if skip == False:
+		invite = output.formatProfile({'inviter' : choice(params['inviters']), 'message' : message_text})
+# 		print invite
 		edit_summ = c[0] + params["edit summary"]
 		output.publishProfile(invite, params['output namespace'] + c[0], edit_summ, edit_sec = "new")
 		invited = True
 	return invited
-	
+
 def allowBots(text, user):
 	"""
 	Assures exclusion compliance,
 	per http://en.wikipedia.org/wiki/Template:Bots
 	"""
-	return not re.search(r'\{\{(nobots|bots\|(allow=none|deny=.*?' + user + r'.*?|optout=all|deny=all))\}\}', text, flags=re.IGNORECASE)	
+	return not re.search(r'\{\{(nobots|bots\|(allow=none|deny=.*?' + user + r'.*?|optout=all|deny=all))\}\}', text, flags=re.IGNORECASE)
 
-def updateInviteStatus(cursor, qname, invited, c):
+def updateInviteStatus(cursor, qname, invited, c, message_type):
 	"""
 	Updates the database: was the user invited, or skipped?
 	"""
 	if invited:
 		try:
-			qvars = [1, 1, 0, MySQLdb.escape_string(c[0])] #puts it back in the wonky db format to match user_name
+			qvars = [message_type, 1, 1, 0, MySQLdb.escape_string(c[0])] #puts it back in the wonky db format to match user_name
 		except: #escape string sometimes triggers an encoding error
-			qvars = [1, 1, 0, c[0]]
-# 				traceback.print_exc()	
+			qvars = [message_type, 1, 1, 0, c[0]]
+# 				traceback.print_exc()
 	else:
 		try:
 			qvars = [0, 0, 1, MySQLdb.escape_string(c[0])] #puts it back in the wonky db format to match user_name
@@ -112,10 +113,12 @@ updateTalkpageStatus(cursor, queries.getQuery("th add talkpage"))
 candidates = getUsernames(cursor, queries.getQuery("th invitees"))
 for c in candidates:
 	try:
-		invited = inviteGuests(c, params)
-		updateInviteStatus(cursor, "update th invite status", invited, c)
+		message = choice(params['messages']) #select which message will be used
+# 		print message[1]
+		invited = inviteGuests(c, params, message[1]) #send the message text
+		updateInviteStatus(cursor, "update th invite status", invited, c, message[0]) #record the message type
 	except:
-		print "something went wrong with " + c[0]					
+		print "something went wrong with " + c[0]
 updateTalkpageStatus(cursor, queries.getQuery("th add talkpage"))
 cursor.close()
 conn.close()

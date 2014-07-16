@@ -25,16 +25,16 @@ class Query:
 				},
 'twa invites' : {
 	'string' : u"""SELECT user_name, user_talkpage FROM twa_up_invitees WHERE  DATE(DATE_FORMAT(sample_date,'%Y%m%d%H%i%s')) = DATE(NOW()) AND invited = 0 AND blocked = 0 AND skipped = 0 AND sample_group = 'exp'""",
-				},	
+				},
 'twa blocked' : {
 	'string' : u"""UPDATE twa_up_invitees AS t SET t.blocked = 1 WHERE REPLACE(t.user_name," ","_") IN (SELECT l.log_title FROM enwiki_p.logging AS l WHERE l.log_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 3 DAY),'%Y%m%d%H%i%s') AND l.log_type = "block" and l.log_action = "block")""",
 				},
 'twa talkpage' : {
 	'string' : u"""UPDATE twa_up_invitees AS t, enwiki_p.page AS p SET t.user_talkpage = p.page_id WHERE p.page_namespace = 3 and p.page_is_redirect = 0 AND REPLACE(t.user_name," ","_") = p.page_title""",
-				},						
+				},
 'update twa invite status' : {
 	'string' : u"""update twa_up_invitees set %s = 1 where user_name = '%s'""",
-				},	
+				},
 'th 10 edit newbies' : {
 	'string' : u"""insert ignore into th_up_invitees
 	(user_id, user_name, user_registration, user_editcount, sample_date, sample_type, invite_status, hostbot_invite, hostbot_personal, hostbot_skipped, ut_is_redirect)
@@ -43,9 +43,9 @@ class Query:
 	WHERE user_registration > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 1 DAY),'%Y%m%d%H%i%s')
 	AND user_editcount > 10
 	AND user_id NOT IN (SELECT ug_user FROM enwiki_p.user_groups WHERE ug_group = 'bot')
-	AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging 
-		where log_type = "block" and log_action = "block" 
-		and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s')) 
+	AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging
+		where log_type = "block" and log_action = "block"
+		and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s'))
 	AND user_id NOT IN (SELECT user_id FROM twa_up_invitees WHERE invited = 1)""",
 				},
 'th autoconfirmed newbies' : {
@@ -61,8 +61,8 @@ class Query:
 			AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging
 				where log_type = "block"
 				and log_action = "block"
-				and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 5 DAY),'%Y%m%d%H%i%s')) 
-			AND user_id NOT IN (SELECT user_id FROM twa_up_invitees WHERE invited = 1)""",															
+				and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 5 DAY),'%Y%m%d%H%i%s'))
+			AND user_id NOT IN (SELECT user_id FROM twa_up_invitees WHERE invited = 1)""",
 				},
 'update th sample type' : {
 	'string' : u"""UPDATE th_up_invitees
@@ -82,17 +82,23 @@ class Query:
 		WHERE date(sample_date) = date(NOW())
 		AND ut_is_redirect != 1
 		AND sample_type = 2""",
-				},		
+				},
 'th invitees' : {
 	'string' : u"""SELECT user_name, user_talkpage
 		FROM th_up_invitees_experiment
 		WHERE date(sample_date) = date(NOW())
 		AND invite_status IS NULL
 		AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL)""",
-				},	
+				},
+# 'th invitees' : {
+# 	'string' : u"""SELECT user_name, user_talkpage
+# 		FROM th_up_invitees_experiment
+# 		WHERE date(sample_date) = date(NOW())
+# 		AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL)""",
+# 				},
 'update th invite status' : {
-	'string' : u"""update th_up_invitees_experiment set invite_status = %d, hostbot_invite = %d, hostbot_skipped = %d where user_name = '%s'""",
-				},	
+	'string' : u"""update th_up_invitees_experiment set sample_group = %s, invite_status = %d, hostbot_invite = %d, hostbot_skipped = %d where user_name = '%s'""",
+				},
 'th add talkpage' : {
 	'string' : u"""UPDATE th_up_invitees_experiment as i, enwiki_p.page as p
 		SET i.user_talkpage = p.page_id, i.ut_is_redirect = p.page_is_redirect
@@ -100,15 +106,15 @@ class Query:
 		AND p.page_namespace = 3
 		AND REPLACE(i.user_name, " ", "_") = p.page_title
 		AND i.user_talkpage IS NULL""",
-				},	
-}				
+				},
+}
 
 	def getQuery(self, query_type, query_vars = False):
 		if query_type in self.mysql_queries:
 			query = self.mysql_queries[query_type]['string'].encode("utf8")
 			if query_vars:
 				query = query % tuple(query_vars) #should accept a list containing any number of vars
-	
+
 			else:
 				pass
 			return query
