@@ -115,15 +115,15 @@ class Profiles:
 		"""
 		if sb_page:
 			path += str(sb_page)
-		print path
-		print val
+# 		print path
+# 		print val
 # 		print edit_summ
 # 		print edit_sec
 		output = wikitools.Page(self.wiki, path)
-# 		if edit_sec:
-# 			output.edit(val, section=edit_sec, summary=edit_summ, bot=1)
-# 		else:
-# 			output.edit(val, summary=edit_summ, bot=1)
+		if edit_sec:
+			output.edit(val, section=edit_sec, summary=edit_summ, bot=1)
+		else:
+			output.edit(val, summary=edit_summ, bot=1)
 
 
 

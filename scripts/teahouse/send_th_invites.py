@@ -91,9 +91,9 @@ def updateInviteStatus(cursor, qname, invited, c, message_type):
 # 				traceback.print_exc()
 	else:
 		try:
-			qvars = [0, 0, 1, MySQLdb.escape_string(c[0])] #puts it back in the wonky db format to match user_name
+			qvars = ["not invited", 0, 0, 1, MySQLdb.escape_string(c[0])] #puts it back in the wonky db format to match user_name
 		except: #escape string sometimes triggers an encoding error
-			qvars = [0, 0, 1, c[0]]
+			qvars = ["not invited", 0, 0, 1, c[0]]
 # 				traceback.print_exc()
 	query = queries.getQuery(qname, qvars)
 	cursor.execute(query)
@@ -116,6 +116,7 @@ for c in candidates:
 		message = choice(params['messages']) #select which message will be used
 # 		print message[1]
 		invited = inviteGuests(c, params, message[1]) #send the message text
+# 		print message[0]
 		updateInviteStatus(cursor, "update th invite status", invited, c, message[0]) #record the message type
 	except:
 		print "something went wrong with " + c[0]

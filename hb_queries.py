@@ -97,7 +97,7 @@ class Query:
 # 		AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL)""",
 # 				},
 'update th invite status' : {
-	'string' : u"""update th_up_invitees_experiment set sample_group = %s, invite_status = %d, hostbot_invite = %d, hostbot_skipped = %d where user_name = '%s'""",
+	'string' : u"""update th_up_invitees_experiment set sample_group = '%s', invite_status = %d, hostbot_invite = %d, hostbot_skipped = %d where user_name = '%s'""",
 				},
 'th add talkpage' : {
 	'string' : u"""UPDATE th_up_invitees_experiment as i, enwiki_p.page as p

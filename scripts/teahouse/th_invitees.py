@@ -27,15 +27,16 @@ def getInvitees():
 	SELECT user_id, user_name, user_registration, user_editcount, NOW(), 1
 	FROM enwiki_p.user
 	WHERE user_registration > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s')
-	AND user_editcount >= 10
+	AND user_editcount >= 5
 	AND user_id NOT IN (SELECT ug_user FROM enwiki_p.user_groups WHERE ug_group = 'bot')
-	AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging 
-		where log_type = "block" and log_action = "block" 
-		and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s'))"""
-		
+	AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging
+		where log_type = "block" and log_action = "block"
+		and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s'))
+		limit 300"""
+
 	cursor.execute(q_string)
-	conn.commit()	
-		
+	conn.commit()
+
 ##MAIN##
 conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
