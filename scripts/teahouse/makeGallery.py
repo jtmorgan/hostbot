@@ -26,11 +26,11 @@ def makeGallery():
 	"""
 	Makes featured profiles for Teahouse galleries.
 	"""
-	if params['subtype'] in ['host_intro',]:
+	if params['subtype'] in ['featured_hosts', 'featured_guests_left', 'featured_guests_right',]:
 		featured_list = getFeaturedProfiles()
 	else:
-		sys.exit("unrecognized featured content type " + params['subtype'])        
-	prepOutput(featured_list)                                
+		sys.exit("unrecognized featured content type " + params['subtype'])
+	prepOutput(featured_list)
 
 def getFeaturedProfiles():
 	"""
@@ -45,35 +45,33 @@ def getFeaturedProfiles():
 # 		print profile
 		text = profile_page.getPageText(profile['index'])
 		profile = profile_page.scrapeInfobox(profile, text)
-		if params['subtype'] == 'host_intro':
-			if (profile['image'] and profile['title']):
-				profile['username'] = profile['title']
-				featured_list.append(profile)
-			else:
-				pass        
+		if (profile['image'] and profile['title']):
+			profile['username'] = profile['title']
+			featured_list.append(profile)
 		else:
 			pass
-	return featured_list                
-        
+	return featured_list
+
 def prepOutput(featured_list):
-	i = 1
+	first_subpage = params[params['subtype']]['first subpage']
 	number_featured = params[params['subtype']]['number featured']
-	featured_list = tools.addDefaults(featured_list)                       
+	featured_list = tools.addDefaults(featured_list)
 	output = profiles.Profiles(params[params['subtype']]['output path'], settings = params) #stupid tocreate a new profile object here. and stupid to re-specify the path below
+	i = first_subpage
 	for f in featured_list:
-			if i <= number_featured:
-					f['profile'] = output.formatProfile(f)
-					f['profile'] = f['profile'] + '\n' + params['header template']
-					edit_summ = params['edit summary'] % (params['subtype'] + " " + params['type'])
-					output.publishProfile(f['profile'], params[params['subtype']]['output path'], edit_summ, sb_page = i)
-					i += 1
-			else:
-					break        
+		if i <= first_subpage + (number_featured - 1):
+			f['profile'] = output.formatProfile(f)
+			f['profile'] = f['profile'] + '\n' + params['header template']
+			edit_summ = params['edit summary']
+			output.publishProfile(f['profile'], params[params['subtype']]['output path'], edit_summ, sb_page = i)
+			i += 1
+		else:
+				break
 
 ###MAIN
 param = output_settings.Params()
-params = param.getParams(sys.argv[1])
-params['type'] = sys.argv[1]
+params = param.getParams(sys.argv[1]) #pulls the type from the config
+params['type'] = sys.argv[2] #workaround. type and subtype should be different
 params['subtype'] = sys.argv[2]
 tools = profiles.Toolkit()
-makeGallery()    
+makeGallery()
