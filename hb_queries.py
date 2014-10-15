@@ -84,8 +84,8 @@ class Query:
 		AND sample_type = 2""",
 				},
 'th invitees' : {
-	'string' : u"""SELECT user_name, user_talkpage
-		FROM th_up_invitees_experiment
+	'string' : u"""SELECT user_name, user_id, user_talkpage
+		FROM th_up_invitees_experiment_2
 		WHERE date(sample_date) = date(NOW())
 		AND invite_status IS NULL
 		AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL)""",
@@ -97,10 +97,10 @@ class Query:
 # 		AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL)""",
 # 				},
 'update th invite status' : {
-	'string' : u"""update th_up_invitees_experiment set sample_group = '%s', invite_status = %d, hostbot_invite = %d, hostbot_skipped = %d where user_name = '%s'""",
+	'string' : u"""update th_up_invitees_experiment_2 set sample_group = '%s', invite_status = %d,  hostbot_skipped = %d where user_name = '%s'""",
 				},
 'th add talkpage' : {
-	'string' : u"""UPDATE th_up_invitees_experiment as i, enwiki_p.page as p
+	'string' : u"""UPDATE th_up_invitees_experiment_2 as i, enwiki_p.page as p
 		SET i.user_talkpage = p.page_id, i.ut_is_redirect = p.page_is_redirect
 		WHERE date(i.sample_date) = date(NOW())
 		AND p.page_namespace = 3

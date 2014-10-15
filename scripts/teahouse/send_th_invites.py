@@ -21,105 +21,107 @@ import hb_profiles
 import hb_queries
 import hostbot_settings
 import MySQLdb
-from random import choice
-import re
+import random
 import traceback
 import wikitools
 
 ###FUNCTIONS###
-def updateTalkpageStatus(cursor, qstring):
-	"""
-	Inserts the id of the user's talkpage into the database,
-	in the event that any newcomers have had their talkpage created since
-	the Snuggle data was downloaded and processed.
-	"""
-	cursor.execute(qstring)
-	conn.commit()
 
-def getUsernames(cursor, qstring):
+
+def getSample(cursor, qstring):
 	"""
-	Returns a list of usernames of candidates for invitation:
-	newcomers who joined in the past two days and who have not been blocked.
+	Returns a list of usernames and ids of candidates for invitation:
+	newcomers who joined in the past two days, 
+	who have made at least 5 edits, and who have not been blocked.
 	"""
 	cursor.execute(qstring)
 	rows = cursor.fetchall()
-	candidates = [(row[0],row[1]) for row in rows]
+	sample_set = [(row[0],row[1], row[2]) for row in rows]
 # 	candidates = candidates[:10]
-	return candidates
+	return sample_set
 
-
-def inviteGuests(c, params, message_text):
+def runSample(user_list, message, send_invite = True):
+	for c in user_list:
+		invited = False
+		output = hb_profiles.Profiles(params['output namespace'] + c[0], id = c[2], settings = params)
+		invitable = talkpageCheck(c[2], output)
+		if send_invite:
+			invited = inviteGuests(c, output, message[1])
+		updateDB(c[1], "update th invite status", message[0], int(invited), int(invitable))	
+				
+def inviteGuests(c, output, message_text):
 	"""
-	Invites todays invitees.
+	Invites todays newcomers.
 	"""
 	invited = False
-	skip = False
-	output = hb_profiles.Profiles(params['output namespace'] + c[0], id = c[1], settings = params)
-	if c[1] is not None:
+	invite = output.formatProfile({'inviter' : random.choice(params['inviters']), 'message' : message_text})
+	edit_summ = c[0] + params["edit summary"]
+	try:
+		output.publishProfile(invite, params['output namespace'] + c[0], edit_summ, edit_sec = "new")
+		invited = True
+	except:
+		print "something went wrong trying to invite " + c[0]	
+	return invited
+
+def talkpageCheck(talkpage_id, output):
+	"""checks talk pages"""
+	invitable = True
+	if talkpage_id is not None:
 		talkpage_text = output.getPageText()
 		for template in params['skip templates']:
 			if template in talkpage_text:
-				skip = True
-# 				print "http://en.wikipedia.org/wiki/User_talk:" + c[0] + " " + template
-		allowed = allowBots(talkpage_text, "HostBot")
-		if not allowed:
-			skip = True
-	if skip == False:
-		invite = output.formatProfile({'inviter' : choice(params['inviters']), 'message' : message_text})
-# 		print invite
-		edit_summ = c[0] + params["edit summary"]
-		output.publishProfile(invite, params['output namespace'] + c[0], edit_summ, edit_sec = "new")
-		invited = True
-	return invited
+				invitable = False		
+	return invitable	
 
-def allowBots(text, user):
-	"""
-	Assures exclusion compliance,
-	per http://en.wikipedia.org/wiki/Template:Bots
-	"""
-	return not re.search(r'\{\{(nobots|bots\|(allow=none|deny=.*?' + user + r'.*?|optout=all|deny=all))\}\}', text, flags=re.IGNORECASE)
-
-def updateInviteStatus(cursor, qname, invited, c, message_type):
+def updateDB(user_id, qstring, sample_group, invited, invitable):
 	"""
 	Updates the database: was the user invited, or skipped?
 	"""
-	if invited:
-		try:
-			qvars = [message_type, 1, 1, 0, MySQLdb.escape_string(c[0])] #puts it back in the wonky db format to match user_name
-		except: #escape string sometimes triggers an encoding error
-			qvars = [message_type, 1, 1, 0, c[0]]
-# 				traceback.print_exc()
-	else:
-		try:
-			qvars = ["not invited", 0, 0, 1, MySQLdb.escape_string(c[0])] #puts it back in the wonky db format to match user_name
-		except: #escape string sometimes triggers an encoding error
-			qvars = ["not invited", 0, 0, 1, c[0]]
-# 				traceback.print_exc()
-	query = queries.getQuery(qname, qvars)
-	cursor.execute(query)
-	conn.commit()
+	try:
+		qvars = [sample_group, invited, invitable, user_id]
+		query = queries.getQuery(qstring, qvars)
+		cursor.execute(query)
+		conn.commit()	
+	except:
+		print "something went wrong with " + str(user_id)	
+
 
 ##MAIN##
 wiki = wikitools.Wiki(hostbot_settings.apiurl)
 wiki.login(hostbot_settings.username, hostbot_settings.password)
 conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
-tools = hb_profiles.Toolkit()
+# tools = hb_profiles.Toolkit()
 queries = hb_queries.Query()
 param = hb_output_settings.Params()
 params = param.getParams('th invites')
 
-updateTalkpageStatus(cursor, queries.getQuery("th add talkpage"))
-candidates = getUsernames(cursor, queries.getQuery("th invitees"))
-for c in candidates:
-	try:
-		message = choice(params['messages']) #select which message will be used
-# 		print message[1]
-		invited = inviteGuests(c, params, message[1]) #send the message text
-# 		print message[0]
-		updateInviteStatus(cursor, "update th invite status", invited, c, message[0]) #record the message type
-	except:
-		print "something went wrong with " + c[0]
-updateTalkpageStatus(cursor, queries.getQuery("th add talkpage"))
+cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
+conn.commit()
+
+sample_set = getSample(cursor, queries.getQuery("th invitees"))
+controls = random.sample(sample_set, 50) #hold back invites from 50 users
+candidates = [x for x in sample_set if x not in controls]
+runSample(controls, ("control",""), send_invite = False)
+runSample(candidates, random.choice(params['messages']))
+
+# for c in control:
+# 	invited = False
+# 	output = hb_profiles.Profiles(params['output namespace'] + c[0], id = c[2], settings = params)
+# 	invitable = talkpageCheck(c[2], output)
+# 	updateDB(c[1], "update th invite status", "control", int(invited), int(invitable))
+# 
+# for c in candidates:
+# 	invited = False
+# 	output = hb_profiles.Profiles(params['output namespace'] + c[0], id = c[2], settings = params)
+# 	message = random.choice(params['messages'])	
+# 	invitable = talkpageCheck(c[2], output)
+# 		if invitable:
+# 			invited = inviteGuests(c, output, message[1])
+# 			updateDB(c[1], "update th invite status", message[0], int(invited), int(invitable))		
+
+cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
+conn.commit()
+
 cursor.close()
 conn.close()
