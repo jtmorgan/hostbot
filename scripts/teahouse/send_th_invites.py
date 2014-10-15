@@ -31,37 +31,39 @@ import wikitools
 def getSample(cursor, qstring):
 	"""
 	Returns a list of usernames and ids of candidates for invitation:
-	newcomers who joined in the past two days, 
+	newcomers who joined in the past two days,
 	who have made at least 5 edits, and who have not been blocked.
 	"""
 	cursor.execute(qstring)
 	rows = cursor.fetchall()
 	sample_set = [(row[0],row[1], row[2]) for row in rows]
-# 	candidates = candidates[:10]
+	sample_set = sample_set[:100]
 	return sample_set
 
-def runSample(user_list, message, send_invite = True):
-	for c in user_list:
+def runSample(sub_sample, send_invite):
+	for s in sub_sample:
+		output = hb_profiles.Profiles(params['output namespace'] + s[0], id = s[2], settings = params)
 		invited = False
-		output = hb_profiles.Profiles(params['output namespace'] + c[0], id = c[2], settings = params)
-		invitable = talkpageCheck(c[2], output)
+		invitable = talkpageCheck(s[2], output)
 		if send_invite:
-			invited = inviteGuests(c, output, message[1])
-		updateDB(c[1], "update th invite status", message[0], int(invited), int(invitable))	
-				
-def inviteGuests(c, output, message_text):
+			message = random.choice(params['messages'])
+			if invitable:
+				inviteGuests(s, output, message[1])
+				invited = True
+		else:
+			message = ("control","")
+		updateDB(s[1], "update th invite status", message[0], int(invited), int(invitable))
+
+def inviteGuests(s, output, message_text):
 	"""
 	Invites todays newcomers.
 	"""
-	invited = False
 	invite = output.formatProfile({'inviter' : random.choice(params['inviters']), 'message' : message_text})
-	edit_summ = c[0] + params["edit summary"]
+	edit_summ = s[0] + params["edit summary"]
 	try:
-		output.publishProfile(invite, params['output namespace'] + c[0], edit_summ, edit_sec = "new")
-		invited = True
+		output.publishProfile(invite, params['output namespace'] + s[0], edit_summ, edit_sec = "new")
 	except:
-		print "something went wrong trying to invite " + c[0]	
-	return invited
+		print "something went wrong trying to invite " + s[0]
 
 def talkpageCheck(talkpage_id, output):
 	"""checks talk pages"""
@@ -70,8 +72,8 @@ def talkpageCheck(talkpage_id, output):
 		talkpage_text = output.getPageText()
 		for template in params['skip templates']:
 			if template in talkpage_text:
-				invitable = False		
-	return invitable	
+				invitable = False
+	return invitable
 
 def updateDB(user_id, qstring, sample_group, invited, invitable):
 	"""
@@ -81,9 +83,9 @@ def updateDB(user_id, qstring, sample_group, invited, invitable):
 		qvars = [sample_group, invited, invitable, user_id]
 		query = queries.getQuery(qstring, qvars)
 		cursor.execute(query)
-		conn.commit()	
+		conn.commit()
 	except:
-		print "something went wrong with " + str(user_id)	
+		print "something went wrong with " + str(user_id)
 
 
 ##MAIN##
@@ -102,26 +104,11 @@ conn.commit()
 sample_set = getSample(cursor, queries.getQuery("th invitees"))
 controls = random.sample(sample_set, 50) #hold back invites from 50 users
 candidates = [x for x in sample_set if x not in controls]
-runSample(controls, ("control",""), send_invite = False)
-runSample(candidates, random.choice(params['messages']))
+runSample(controls, False)
+runSample(candidates, True)
 
-# for c in control:
-# 	invited = False
-# 	output = hb_profiles.Profiles(params['output namespace'] + c[0], id = c[2], settings = params)
-# 	invitable = talkpageCheck(c[2], output)
-# 	updateDB(c[1], "update th invite status", "control", int(invited), int(invitable))
-# 
-# for c in candidates:
-# 	invited = False
-# 	output = hb_profiles.Profiles(params['output namespace'] + c[0], id = c[2], settings = params)
-# 	message = random.choice(params['messages'])	
-# 	invitable = talkpageCheck(c[2], output)
-# 		if invitable:
-# 			invited = inviteGuests(c, output, message[1])
-# 			updateDB(c[1], "update th invite status", message[0], int(invited), int(invitable))		
-
-cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
-conn.commit()
+# cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
+# conn.commit()
 
 cursor.close()
 conn.close()
