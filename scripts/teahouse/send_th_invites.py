@@ -37,22 +37,22 @@ def getSample(cursor, qstring):
 	cursor.execute(qstring)
 	rows = cursor.fetchall()
 	sample_set = [(row[0],row[1], row[2]) for row in rows]
-	sample_set = sample_set[:100]
+# 	sample_set = sample_set[:20]
 	return sample_set
 
 def runSample(sub_sample, send_invite):
 	for s in sub_sample:
 		output = hb_profiles.Profiles(params['output namespace'] + s[0], id = s[2], settings = params)
 		invited = False
-		invitable = talkpageCheck(s[2], output)
+		skip = talkpageCheck(s[2], output)
 		if send_invite:
 			message = random.choice(params['messages'])
-			if invitable:
+			if not skip:
 				inviteGuests(s, output, message[1])
 				invited = True
 		else:
 			message = ("control","")
-		updateDB(s[1], "update th invite status", message[0], int(invited), int(invitable))
+		updateDB(s[1], "update th invite status", message[0], int(invited), int(skip))
 
 def inviteGuests(s, output, message_text):
 	"""
@@ -67,13 +67,13 @@ def inviteGuests(s, output, message_text):
 
 def talkpageCheck(talkpage_id, output):
 	"""checks talk pages"""
-	invitable = True
+	skip = False
 	if talkpage_id is not None:
 		talkpage_text = output.getPageText()
 		for template in params['skip templates']:
 			if template in talkpage_text:
-				invitable = False
-	return invitable
+				skip = True
+	return skip
 
 def updateDB(user_id, qstring, sample_group, invited, invitable):
 	"""
@@ -98,6 +98,7 @@ queries = hb_queries.Query()
 param = hb_output_settings.Params()
 params = param.getParams('th invites')
 
+# cursor.execute(queries.getQuery("generate TH invitee list"))
 cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
 conn.commit()
 
@@ -107,8 +108,8 @@ candidates = [x for x in sample_set if x not in controls]
 runSample(controls, False)
 runSample(candidates, True)
 
-# cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
-# conn.commit()
+cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
+conn.commit()
 
 cursor.close()
 conn.close()

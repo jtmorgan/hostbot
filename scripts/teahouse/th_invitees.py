@@ -32,6 +32,7 @@ def getInvitees():
 	AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging
 		where log_type = "block" and log_action = "block"
 		and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s'))
+	LIMIT 300
 	"""
 
 	cursor.execute(q_string)
