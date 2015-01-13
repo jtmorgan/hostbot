@@ -103,9 +103,10 @@ cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user'
 conn.commit()
 
 sample_set = getSample(cursor, queries.getQuery("th invitees"))
-controls = random.sample(sample_set, 50) #hold back invites from 50 users
-candidates = [x for x in sample_set if x not in controls]
-runSample(controls, False)
+# controls = random.sample(sample_set, 50) #hold back invites from 50 users
+candidates = [x for x in sample_set]
+# candidates = [x for x in sample_set if x not in controls]
+# runSample(controls, False)
 runSample(candidates, True)
 
 cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
