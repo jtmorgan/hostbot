@@ -27,7 +27,7 @@ def getInvitees():
 	SELECT user_id, user_name, user_registration, user_editcount, NOW(), 1
 	FROM enwiki_p.user
 	WHERE user_registration > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s')
-	AND user_editcount >= 5
+	AND user_editcount >= 10
 	AND user_id NOT IN (SELECT ug_user FROM enwiki_p.user_groups WHERE ug_group = 'bot')
 	AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging
 		where log_type = "block" and log_action = "block"

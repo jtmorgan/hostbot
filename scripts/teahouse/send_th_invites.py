@@ -37,7 +37,7 @@ def getSample(cursor, qstring):
 	cursor.execute(qstring)
 	rows = cursor.fetchall()
 	sample_set = [(row[0],row[1], row[2]) for row in rows]
-# 	sample_set = sample_set[:20]
+# 	sample_set = sample_set[:5]
 	return sample_set
 
 def runSample(sub_sample, send_invite):
@@ -102,9 +102,9 @@ params = param.getParams('th invites')
 cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
 conn.commit()
 
-sample_set = getSample(cursor, queries.getQuery("th invitees"))
+candidates = getSample(cursor, queries.getQuery("th invitees"))
 # controls = random.sample(sample_set, 50) #hold back invites from 50 users
-candidates = [x for x in sample_set]
+# candidates = [x for x in sample_set]
 # candidates = [x for x in sample_set if x not in controls]
 # runSample(controls, False)
 runSample(candidates, True)
