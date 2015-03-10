@@ -22,6 +22,7 @@ import hb_queries
 import hostbot_settings
 import MySQLdb
 import random
+import sys
 import traceback
 import wikitools
 
@@ -96,14 +97,15 @@ cursor = conn.cursor()
 # tools = hb_profiles.Toolkit()
 queries = hb_queries.Query()
 param = hb_output_settings.Params()
-params = param.getParams('th invites')
+params = param.getParams(sys.argv[1]) #now passing in 'which' invites so I can run it for both TH and Co-op
 
 # cursor.execute(queries.getQuery("generate TH invitee list"))
 cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
 conn.commit()
 
 candidates = getSample(cursor, queries.getQuery("th invitees"))
-# controls = random.sample(sample_set, 50) #hold back invites from 50 users
+if sys.argv[1] == 'coop invites':
+    candidates = random.sample(candidates, 50) #pull 50 users out randomly
 # candidates = [x for x in sample_set]
 # candidates = [x for x in sample_set if x not in controls]
 # runSample(controls, False)
