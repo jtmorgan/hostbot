@@ -22,14 +22,21 @@ import hostbot_settings
 conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
 
-#gets all questions from between 1 and 2 weeks ago
+#gets all questions within past 2 weeks
 cursor.execute('''
-SELECT rev_id, rev_user_text, rev_timestamp, rev_comment
+SELECT rev_id, rev_user_text, rev_timestamp, rev_comment, post_date
 	from th_up_questions AS q
 	where q.post_date BETWEEN DATE_SUB(NOW(), INTERVAL 14 DAY) AND DATE_SUB(NOW(), INTERVAL 1 DAY)
 ''')
 
-#gets all questioner responses, host answers, and first answer date
+#get all questions with previous "New question: " edit comment prefix
+# cursor.execute('''
+# SELECT rev_id, rev_user_text, rev_timestamp, rev_comment, post_date
+# 	from th_up_questions AS q
+# 	where q.post_date < "2013-09-07 17:22:59"
+# ''')
+
+#update questioner responses, host answers, and first answer date columns
 rows = cursor.fetchall()
 for row in rows:
 	rev = row[0]
@@ -37,31 +44,25 @@ for row in rows:
 	user = MySQLdb.escape_string(user)
 	time = row[2]
 	comment = row[3]
+	datetime = row[4]
 	comment = MySQLdb.escape_string(comment)
-	com_substr = comment[:-12]
-	user = MySQLdb.escape_string(user)
-# 	cursor2 = conn.cursor()
-# 	Try:
+	com_substr = comment[:-12] #removes " new section" from comment string
+# 	com_substr = comment[14:] #removes "New question: " from comment string
+# 	com_substr = "/* " + com_substr + " */"
+
 	cursor.execute ('''
 			update th_up_questions as q, (select count(rev_id) as reps, rev_timestamp from th_up_answers where rev_comment like "%s" and rev_user_text = '%s' and str_to_date(rev_timestamp, '%s') > DATE_FORMAT(DATE_ADD('%s', INTERVAL 5 MINUTE), '%s')) as tmp set q.questioner_replies = tmp.reps where q.rev_id = %d
 		''' % (com_substr + "%", user, "%Y%m%d%H%i%s", time, "%Y%m%d%H%i%s", rev))
-			
-# 		''' % ("/* " + com_substr + " */%", user, "%Y%m%d%H%i%s", time, "%Y%m%d%H%i%s", rev))
 	conn.commit()
 	cursor.execute ('''update th_up_questions as q,
-					(select MIN(rev_timestamp) as first_resp, count(rev_id)
+					(select MIN(q_date) as first_resp, count(rev_id)
 							as asrs
 						from th_up_answers
 							where rev_comment like "%s"
-								and rev_user_text != '%s')
-						as tmp set q.answers = tmp.asrs, q.first_answer_date = str_to_date(tmp.first_resp, '%s') where q.rev_id = %s;
-	''' % (com_substr + "%", user, "%Y%m%d%H%i%s", rev))
-# 	''' % ("/* " + com_substr + " */%", user, "%Y%m%d%H%i%s", rev))
-
+								and rev_user_text != '%s'and q_date between '%s' and DATE_ADD('%s', INTERVAL 7 DAY))
+						as tmp set q.answers = tmp.asrs, q.first_answer_date = tmp.first_resp where q.rev_id = %s;
+	''' % (com_substr + "%", user, datetime, datetime, rev))
 	conn.commit()
-# 	cursor2.close()
 
 cursor.close()
 conn.close()
-
-

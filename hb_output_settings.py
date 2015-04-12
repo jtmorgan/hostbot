@@ -77,7 +77,7 @@ class Params:
 				'skip templates' : ['uw-vandalism4', 'uw-socksuspect', 'Socksuspectnotice', 'Uw-socksuspect', 'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4'],
 				'headers' : { 'User-Agent' : 'HostBot (http://github.com/jtmorgan/hostbot; jmorgan@wikimedia.org)', },
 				},
-			'th invites' : {
+			'th_invites' : {
 				'type' : 'th invite templates',
 				'output namespace' : 'User_talk:',
 				'output section' : 'new',
@@ -88,7 +88,7 @@ class Params:
 				'skip templates' : ['uw-vandalism4', 'final warning', '{{sock|', 'uw-unsourced4', 'uw-socksuspect', 'Socksuspectnotice', 'only warning','without further warning', 'Uw-socksuspect', 'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4'],
 				'headers' : { 'User-Agent' : 'HostBot (http://github.com/jtmorgan/hostbot; jmorgan@wikimedia.org)', },
 				},
-			'coop invites' : {
+			'coop_invites' : {
 				'type' : 'coop invite templates',
 				'output namespace' : 'User_talk:',
 				'output section' : 'new',

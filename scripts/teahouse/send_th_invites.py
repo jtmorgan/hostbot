@@ -104,8 +104,8 @@ cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user'
 conn.commit()
 
 candidates = getSample(cursor, queries.getQuery("th invitees"))
-if sys.argv[1] == 'coop invites':
-    candidates = random.sample(candidates, 50) #pull 50 users out randomly
+if sys.argv[1] == 'coop_invites': #args passed in via jsub and cron need to be a single string
+    candidates = random.sample(candidates, 25) #pull 50 users out randomly
 # candidates = [x for x in sample_set]
 # candidates = [x for x in sample_set if x not in controls]
 # runSample(controls, False)
