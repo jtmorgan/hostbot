@@ -7,3 +7,6 @@ old
 "Icon\r"
 *.pyc
 hcde_skillshare
+config.json
+time.log
+log/
