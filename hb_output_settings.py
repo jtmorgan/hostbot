@@ -67,16 +67,6 @@ class Params:
 				'output section' : 1,
 				'edit summary' : 'Reordering %ss, putting recently active participants at the top',
 				},
-			'twa invites' : {
-				'type' : 'twa invites',
-				'output namespace' : 'User_talk:',
-				'output section' : 'new',
-				'edit summary' : '"Automatic invitation to visit [[WP:TWA]] sent by [[User:HostBot|HostBot]]',
-				'output section title' : '== {{subst:PAGENAME}}, you are invited on a Wikipedia Adventure ==',
-				'inviter' : '[[User:Ocaasi|Ocaasi]]',
-				'skip templates' : ['uw-vandalism4', 'uw-socksuspect', 'Socksuspectnotice', 'Uw-socksuspect', 'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4'],
-				'headers' : { 'User-Agent' : 'HostBot (http://github.com/jtmorgan/hostbot; jmorgan@wikimedia.org)', },
-				},
 			'th_invites' : {
 				'type' : 'th invite templates',
 				'output namespace' : 'User_talk:',
@@ -99,8 +89,18 @@ class Params:
 				'skip templates' : ['uw-vandalism4', 'final warning', '{{sock|', 'uw-unsourced4', 'uw-socksuspect', 'Socksuspectnotice', 'only warning','without further warning', 'Uw-socksuspect', 'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4'],
 				'headers' : { 'User-Agent' : 'HostBot (http://github.com/jtmorgan/hostbot; jmorgan@wikimedia.org)', },
 				},
-			'profile defaults' : []
-			,
+			'twa invites' : {
+				'type' : 'twa invite templates',
+				'output namespace' : 'User_talk:',
+				'output section' : 'new',
+				'edit summary' : ', you are invited on a[[WP:TWA|Wikipedia Adventure]]!',
+				'output section title' : '== {{subst:PAGENAME}}, you are invited on a Wikipedia Adventure ==',
+				'inviters' : ['Ocaasi',],
+				'messages' : [('twa', ""),],
+				'skip templates' : ['uw-vandalism4', 'final warning', '{{sock|', 'uw-unsourced4', 'uw-socksuspect', 'Socksuspectnotice', 'only warning','without further warning', 'Uw-socksuspect', 'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4'],
+				'headers' : { 'User-Agent' : 'HostBot (http://github.com/jtmorgan/hostbot; jmorgan@wikimedia.org)', },
+				},						
+			'profile defaults' : [],
 			}
 
 	def getParams(self, profile_type):

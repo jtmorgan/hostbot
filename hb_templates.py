@@ -18,7 +18,7 @@
 class Template:
 	"""templates of profiles for wiki pages"""
 	def __init__(self):
-		self.profile_templates = {#do I need to make the formatTemplates method pull from subtype instead, so I can feature both hosts and guests?
+		self.profile_templates = {
 		'featured_hosts' : u"""
 {{{{Wikipedia:Teahouse/Host_featured
 | username = {username}
@@ -38,46 +38,11 @@ class Template:
 }}}}""",
 	'intro' : u"""=Hosts=\n{{{{TOC hidden}}}}\n<br/>\n</noinclude>
 {profiles}""",
-	'twa invites' : u"""{{{{subst:Wikipedia:TWA/Invite|signature=~~~~}}}}""",
-	'th_invitee_report' : u'''==Daily Report==
-This list was last updated on {{subst:REVISIONMONTH}}/{{subst:REVISIONDAY}}/{{subst:REVISIONYEAR}} by {{subst:REVISIONUSER}}.
-
-===Highly active new editors===
-Below is a list of editors who joined within the last 24 hours, have since made more than 10 edits, and were not blocked at the time the report was generated.
-
-{| class="wikitable sortable plainlinks"
-|-
-! Guest #
-! Guest Name
-! Edit Count
-! Contribs
-! Already Invited?
-|-
-%s
-|}
-
-
-===New Autoconfirmed Editors===
-Below is a list of editors who gained [[Wikipedia:User_access_levels#Autoconfirmed_users|autoconfirmed status]] today, who were not previously invited to Teahouse after their first day, and were not blocked at the time the report was generated.
-
-{| class="wikitable sortable plainlinks"
-|-
-! Guest #
-! Guest Name
-! Edit Count
-! Contribs
-! Already Invited?
-|-
-%s
-|}
-
-{{Wikipedia:Teahouse/Layout-end}}
-{{Wikipedia:Teahouse/Host navigation}}
-''',
 	'th invite templates' : u"{{{{subst:Wikipedia:Teahouse/HostBot_Invitation|message={message:s}|personal=I hope to see you there! {{{{noping|{inviter:s}}}}} ([[w:en:WP:Teahouse/Hosts|I\'m a Teahouse host]])|signature=~~~~}}}}",
 	'coop invite templates' : u"{{{{subst:Co-op_invite|personal={{{{noping|{inviter:s}}}}} ([[Wikipedia:Co-op/{inviter:s}|I\'m a Co-op mentor]])|signature=~~~~}}}}",
+	'twa invite templates' : u"""{{{{subst:Wikipedia:TWA/Invite|personal=I hope to see you there! {{{{noping|{inviter:s}}}}} ([[Wikipedia_talk:TWA/Portal|Give feedback]])|signature=~~~~}}}}""",
+	
 }
-
 	def getTemplate(self, member):
 		tmplt = self.profile_templates[member]
 		return tmplt

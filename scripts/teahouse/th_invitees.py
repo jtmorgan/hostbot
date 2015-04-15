@@ -15,26 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import hb_queries
 import hostbot_settings
 import MySQLdb
 from warnings import filterwarnings
 
 
-def getInvitees():
+def getInvitees(q_string):
 	"""insert today's potential invitees into the database"""
-	q_string = """insert ignore into th_up_invitees_experiment_2
-	(user_id, user_name, user_registration, user_editcount, sample_date, sample_type)
-	SELECT user_id, user_name, user_registration, user_editcount, NOW(), 1
-	FROM enwiki_p.user
-	WHERE user_registration > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s')
-	AND user_editcount >= 10
-	AND user_id NOT IN (SELECT ug_user FROM enwiki_p.user_groups WHERE ug_group = 'bot')
-	AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging
-		where log_type = "block" and log_action = "block"
-		and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s'))
-	LIMIT 300
-	"""
-
 	cursor.execute(q_string)
 	conn.commit()
 
@@ -43,7 +31,8 @@ conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbnam
 cursor = conn.cursor()
 filterwarnings('ignore', category = MySQLdb.Warning)
 
-getInvitees()
+getInvitees("ten edit newbies")
+getInvitees("autoconfirmed newbies")
 
 cursor.close()
 conn.close()
