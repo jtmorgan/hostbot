@@ -40,7 +40,7 @@ class Template:
 {profiles}""",
 	'th invite templates' : u"{{{{subst:Wikipedia:Teahouse/HostBot_Invitation|message={message:s}|personal=I hope to see you there! {{{{noping|{inviter:s}}}}} ([[w:en:WP:Teahouse/Hosts|I\'m a Teahouse host]])|signature=~~~~}}}}",
 	'coop invite templates' : u"{{{{subst:Co-op_invite|personal={{{{noping|{inviter:s}}}}} ([[Wikipedia:Co-op/{inviter:s}|I\'m a Co-op mentor]])|signature=~~~~}}}}",
-	'twa invite templates' : u"""{{{{subst:Wikipedia:TWA/Invite|personal=I hope to see you there! {{{{noping|{inviter:s}}}}} ([[Wikipedia_talk:TWA/Portal|Give feedback]])|signature=~~~~}}}}""",
+	'twa invite templates' : u"""{{{{subst:Wikipedia:TWA/Invite|personal=I hope to see you there! {{{{noping|{inviter:s}}}}}|signature=~~~~}}}}""",
 	
 }
 	def getTemplate(self, member):

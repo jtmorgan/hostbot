@@ -21,20 +21,21 @@ import MySQLdb
 from warnings import filterwarnings
 
 
-def getInvitees(q_string):
+def getInvitees(q_string, cursor):
 	"""insert today's potential invitees into the database"""
 	cursor.execute(q_string)
 	conn.commit()
 
-##MAIN##
-conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
-cursor = conn.cursor()
-filterwarnings('ignore', category = MySQLdb.Warning)
+if __name__ == "__main__":
+    conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
+    cursor = conn.cursor()
+    filterwarnings('ignore', category = MySQLdb.Warning)
+    queries = hb_queries.Query()
 
-getInvitees("ten edit newbies")
-getInvitees("autoconfirmed newbies")
+    getInvitees(queries.getQuery("ten edit newbies"), cursor)
+    getInvitees(queries.getQuery("autoconfirmed newbies"), cursor)
 
-cursor.close()
-conn.close()
+    cursor.close()
+    conn.close()
 
 

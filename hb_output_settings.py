@@ -68,6 +68,7 @@ class Params:
 				'edit summary' : 'Reordering %ss, putting recently active participants at the top',
 				},
 			'th_invites' : {
+			    'select query' : 'th invitees',			
 				'type' : 'th invite templates',
 				'output namespace' : 'User_talk:',
 				'output section' : 'new',
@@ -79,6 +80,7 @@ class Params:
 				'headers' : { 'User-Agent' : 'HostBot (http://github.com/jtmorgan/hostbot; jmorgan@wikimedia.org)', },
 				},
 			'coop_invites' : {
+			    'select query' : 'coop invitees',			
 				'type' : 'coop invite templates',
 				'output namespace' : 'User_talk:',
 				'output section' : 'new',
@@ -89,7 +91,8 @@ class Params:
 				'skip templates' : ['uw-vandalism4', 'final warning', '{{sock|', 'uw-unsourced4', 'uw-socksuspect', 'Socksuspectnotice', 'only warning','without further warning', 'Uw-socksuspect', 'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4'],
 				'headers' : { 'User-Agent' : 'HostBot (http://github.com/jtmorgan/hostbot; jmorgan@wikimedia.org)', },
 				},
-			'twa invites' : {
+			'twa_invites' : {
+			    'select query' : 'th invitees',
 				'type' : 'twa invite templates',
 				'output namespace' : 'User_talk:',
 				'output section' : 'new',
