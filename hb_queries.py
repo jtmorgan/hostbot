@@ -36,22 +36,7 @@ class Query:
     'string' : u"""insert ignore into th_up_invitees_experiment_2
 	(user_id, user_name, user_registration, user_editcount, sample_date, sample_type)
 	SELECT user_id, user_name, user_registration, user_editcount, NOW(), 2 from enwiki_p.user where user_editcount > 10 and user_registration between DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 5 DAY),'%Y%m%d%H%i%s') and DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 4 DAY),'%Y%m%d%H%i%s') AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging where log_type = "block" and log_action = "block" and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 5 DAY),'%Y%m%d%H%i%s'))""",
-		        },		        
-'twa sample' : {
-	'string' : u"""INSERT IGNORE INTO twa_up_invitees (user_id, user_name, user_registration, edit_count, sample_group, sample_date, dump_unixtime, invited, blocked, skipped) VALUES (%d, "%s", "%s", %d, "%s", "%s", %f, 0, 0, 0)""",
-				},
-'twa invites' : {
-	'string' : u"""SELECT user_name, user_talkpage FROM twa_up_invitees WHERE  DATE(DATE_FORMAT(sample_date,'%Y%m%d%H%i%s')) = DATE(NOW()) AND invited = 0 AND blocked = 0 AND skipped = 0 AND sample_group = 'exp'""",
-				},
-'twa blocked' : {
-	'string' : u"""UPDATE twa_up_invitees AS t SET t.blocked = 1 WHERE REPLACE(t.user_name," ","_") IN (SELECT l.log_title FROM enwiki_p.logging AS l WHERE l.log_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 3 DAY),'%Y%m%d%H%i%s') AND l.log_type = "block" and l.log_action = "block")""",
-				},
-'twa talkpage' : {
-	'string' : u"""UPDATE twa_up_invitees AS t, enwiki_p.page AS p SET t.user_talkpage = p.page_id WHERE p.page_namespace = 3 and p.page_is_redirect = 0 AND REPLACE(t.user_name," ","_") = p.page_title""",
-				},
-'update twa invite status' : {
-	'string' : u"""update twa_up_invitees set %s = 1 where user_name = '%s'""",
-				},
+		        },
 'th invitees' : {
 	'string' : u"""SELECT user_name, user_id, user_talkpage
 		FROM th_up_invitees_experiment_2
@@ -67,7 +52,7 @@ class Query:
 		AND sample_type = 2
 		AND invite_status IS NULL
 		AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL)""",
-				},				
+				},
 'update th invite status' : {
 	'string' : u"""update th_up_invitees_experiment_2 set sample_group = '%s', invite_status = %d,  hostbot_skipped = %d where user_id = %d""",
 				},
