@@ -147,7 +147,7 @@ def parse_timestamp(t):
 
 def getprofiletalkpage(profile):
     """Get the talk page for a profile (a sub-page of the Co-op)."""
-    talkpage = talkprefix + profile.lstrip(prefix)
+    talkpage = profile.replace(prefix, talkprefix, 1)
     return talkpage
 
 
