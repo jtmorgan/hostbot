@@ -22,6 +22,7 @@ import hb_queries
 import hostbot_settings
 import MySQLdb
 import random
+import sys
 import traceback
 import wikitools
 
@@ -37,7 +38,7 @@ def getSample(cursor, qstring):
 	cursor.execute(qstring)
 	rows = cursor.fetchall()
 	sample_set = [(row[0],row[1], row[2]) for row in rows]
-# 	sample_set = sample_set[:20]
+# 	sample_set = sample_set[:5]
 	return sample_set
 
 def runSample(sub_sample, send_invite):
@@ -96,16 +97,18 @@ cursor = conn.cursor()
 # tools = hb_profiles.Toolkit()
 queries = hb_queries.Query()
 param = hb_output_settings.Params()
-params = param.getParams('th invites')
+params = param.getParams(sys.argv[1]) #now passing in 'which' invites so I can run it for both TH and Co-op
 
 # cursor.execute(queries.getQuery("generate TH invitee list"))
 cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
 conn.commit()
 
-sample_set = getSample(cursor, queries.getQuery("th invitees"))
-controls = random.sample(sample_set, 50) #hold back invites from 50 users
-candidates = [x for x in sample_set if x not in controls]
-runSample(controls, False)
+candidates = getSample(cursor, queries.getQuery(params['select query']))
+if sys.argv[1] == 'twa_invites': #args passed in via jsub and cron need to be a single string
+    candidates = random.sample(candidates, 50) #pull 50 users out randomly
+# candidates = [x for x in sample_set]
+# candidates = [x for x in sample_set if x not in controls]
+# runSample(controls, False)
 runSample(candidates, True)
 
 cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database

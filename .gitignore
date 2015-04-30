@@ -1,9 +1,12 @@
 data
 logs
 *.DS_Store
-*settings.py
+hostbot_settings*
 old
 *.InterarchyMirrorCacheData
 "Icon\r"
 *.pyc
 hcde_skillshare
+config.json
+time.log
+log/

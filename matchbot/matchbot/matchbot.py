@@ -181,7 +181,6 @@ def getlearners(prevruntimestamp, site):
         try:
             newlearners = mbapi.getnewmembers(category, site,
                                               prevruntimestamp)
-            mblog.logerror(newlearners)
             for userdict in newlearners:
                 # Check that the page is actually in the Co-op
                 if userdict['profile'].startswith(prefix):
@@ -192,8 +191,6 @@ def getlearners(prevruntimestamp, site):
             mblog.logerror('Could not fetch new profiles in {}'.format(
                 category), exc_info=True)
             logged_errors = True
-    mblog.logerror(learners)
-    mblog.logerror(learners == newlearners)
     return learners
 
 
@@ -214,7 +211,6 @@ def getlearnerinfo(learners, site):
                 userdict['profile']), exc_info=True)
             logged_errors = True
             continue
-    mblog.logerror(learners)
     return learners
 
 
