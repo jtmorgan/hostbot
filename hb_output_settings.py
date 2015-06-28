@@ -74,7 +74,7 @@ class Params:
 				'output section' : 'new',
 				'edit summary' : ', you are invited to the Teahouse!',
 				'output section title' : '== {{subst:PAGENAME}}, you are invited to the Teahouse ==',
-				'inviters' : ['Rosiestep','Jtmorgan','Missvain','AmaryllisGardener','Doctree','Osarius','Soni','Technical 13', 'I JethroBT', 'Dathus', '78.26', 'Worm That Turned', 'ChamithN', 'Lightbreather', 'Samwalton9',],
+				'inviters' : ['Rosiestep','Jtmorgan','Missvain','AmaryllisGardener','Doctree','Osarius','Soni', 'I JethroBT', 'Dathus', '78.26', 'Worm That Turned', 'ChamithN', 'Lightbreather', 'Samwalton9',],
 				'messages' : [('generic', "Thanks for contributing to Wikipedia. Be our guest at [[WP:Teahouse|the Teahouse]]! The Teahouse is a friendly space where new editors can ask questions about contributing to Wikipedia and get help from peers and experienced editors."),],
 				'skip templates' : ['uw-vandalism4', 'final warning', '{{sock|', 'uw-unsourced4', 'uw-socksuspect', 'Socksuspectnotice', 'only warning','without further warning', 'Uw-socksuspect', 'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4'],
 				'headers' : { 'User-Agent' : 'HostBot (http://github.com/jtmorgan/hostbot; jmorgan@wikimedia.org)', },
