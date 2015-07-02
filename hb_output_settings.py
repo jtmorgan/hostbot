@@ -92,7 +92,7 @@ class Params:
 				'headers' : { 'User-Agent' : 'HostBot (http://github.com/jtmorgan/hostbot; jmorgan@wikimedia.org)', },
 				},
 			'twa_invites' : {
-			    'select query' : 'th invitees',
+			    'select query' : 'twa invitees',
 				'type' : 'twa invite templates',
 				'output namespace' : 'User_talk:',
 				'output section' : 'new',

@@ -97,15 +97,19 @@ cursor = conn.cursor()
 # tools = hb_profiles.Toolkit()
 queries = hb_queries.Query()
 param = hb_output_settings.Params()
-params = param.getParams(sys.argv[1]) #now passing in 'which' invites so I can run it for both TH and Co-op
+params = param.getParams(sys.argv[1]) #now passing in 'which' invites so I can run it for TH, TWA, and Co-op
 
 # cursor.execute(queries.getQuery("generate TH invitee list"))
 cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
 conn.commit()
 
 candidates = getSample(cursor, queries.getQuery(params['select query']))
-if sys.argv[1] == 'twa_invites': #args passed in via jsub and cron need to be a single string
-    candidates = random.sample(candidates, 50) #pull 50 users out randomly
+if sys.argv[1] in ('th_invites', 'twa_invites'): #args passed in via jsub and cron need to be a single string
+    candidates = random.sample(candidates, 100) #pull 100 users out randomly
+elif sys.argv[1] == 'coop_invites':
+    candidates = random.sample(candidates, 15)
+else:
+    pass
 # candidates = [x for x in sample_set]
 # candidates = [x for x in sample_set if x not in controls]
 # runSample(controls, False)

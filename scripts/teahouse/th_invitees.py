@@ -32,6 +32,7 @@ if __name__ == "__main__":
     filterwarnings('ignore', category = MySQLdb.Warning)
     queries = hb_queries.Query()
 
+    getInvitees(queries.getQuery("five edit newbies"), cursor)
     getInvitees(queries.getQuery("ten edit newbies"), cursor)
     getInvitees(queries.getQuery("autoconfirmed newbies"), cursor)
 

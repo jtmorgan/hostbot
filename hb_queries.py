@@ -20,6 +20,18 @@ class Query:
 
 	def __init__(self):
 		self.mysql_queries = {
+'five edit newbies' : {
+    'string' : u"""insert ignore into th_up_invitees_experiment_2
+	(user_id, user_name, user_registration, user_editcount, sample_date, sample_type)
+	SELECT user_id, user_name, user_registration, user_editcount, NOW(), 3
+	FROM enwiki_p.user
+	WHERE user_registration > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s')
+	AND user_editcount BETWEEN 5 AND 9
+	AND user_id NOT IN (SELECT ug_user FROM enwiki_p.user_groups WHERE ug_group = 'bot')
+	AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging
+		where log_type = "block" and log_action = "block"
+		and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s'))""",
+		        },
 'ten edit newbies' : {
     'string' : u"""insert ignore into th_up_invitees_experiment_2
 	(user_id, user_name, user_registration, user_editcount, sample_date, sample_type)
@@ -31,11 +43,11 @@ class Query:
 	AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging
 		where log_type = "block" and log_action = "block"
 		and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s'))""",
-		        },
+		        },		        
 'autoconfirmed newbies' : {
     'string' : u"""insert ignore into th_up_invitees_experiment_2
 	(user_id, user_name, user_registration, user_editcount, sample_date, sample_type)
-	SELECT user_id, user_name, user_registration, user_editcount, NOW(), 2 from enwiki_p.user where user_editcount > 10 and user_registration between DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 5 DAY),'%Y%m%d%H%i%s') and DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 4 DAY),'%Y%m%d%H%i%s') AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging where log_type = "block" and log_action = "block" and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 5 DAY),'%Y%m%d%H%i%s'))""",
+	SELECT user_id, user_name, user_registration, user_editcount, NOW(), 2 from enwiki_p.user where user_editcount >= 10 and user_registration between DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 5 DAY),'%Y%m%d%H%i%s') and DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 4 DAY),'%Y%m%d%H%i%s') AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging where log_type = "block" and log_action = "block" and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 5 DAY),'%Y%m%d%H%i%s'))""",
 		        },
 'th invitees' : {
 	'string' : u"""SELECT user_name, user_id, user_talkpage
@@ -45,6 +57,14 @@ class Query:
 		AND invite_status IS NULL
 		AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL)""",
 				},
+'twa invitees' : {
+	'string' : u"""SELECT user_name, user_id, user_talkpage
+		FROM th_up_invitees_experiment_2
+		WHERE date(sample_date) = date(NOW())
+		AND sample_type = 3
+		AND invite_status IS NULL
+		AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL)""",
+				},				
 'coop invitees' : {
 	'string' : u"""SELECT user_name, user_id, user_talkpage
 		FROM th_up_invitees_experiment_2
