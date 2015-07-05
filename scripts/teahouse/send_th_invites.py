@@ -26,14 +26,9 @@ import sys
 import traceback
 import wikitools
 
-###FUNCTIONS###
-
-
 def getSample(cursor, qstring):
 	"""
-	Returns a list of usernames and ids of candidates for invitation:
-	newcomers who joined in the past two days,
-	who have made at least 5 edits, and who have not been blocked.
+	Returns a list of usernames and ids of candidates for invitation
 	"""
 	cursor.execute(qstring)
 	rows = cursor.fetchall()
@@ -89,34 +84,33 @@ def updateDB(user_id, qstring, sample_group, invited, invitable):
 		print "something went wrong with " + str(user_id)
 
 
-##MAIN##
-wiki = wikitools.Wiki(hostbot_settings.apiurl)
-wiki.login(hostbot_settings.username, hostbot_settings.password)
-conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
-cursor = conn.cursor()
-# tools = hb_profiles.Toolkit()
-queries = hb_queries.Query()
-param = hb_output_settings.Params()
-params = param.getParams(sys.argv[1]) #now passing in 'which' invites so I can run it for TH, TWA, and Co-op
+if __name__ == "__main__":
+    wiki = wikitools.Wiki(hostbot_settings.apiurl)
+    wiki.login(hostbot_settings.username, hostbot_settings.password)
+    conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
+    cursor = conn.cursor()
+    queries = hb_queries.Query()
+    param = hb_output_settings.Params()
+    params = param.getParams(sys.argv[1]) #now passing in 'which' invites so I can run it for TH, TWA, and Co-op
 
-# cursor.execute(queries.getQuery("generate TH invitee list"))
-cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
-conn.commit()
+    # cursor.execute(queries.getQuery("generate TH invitee list"))
+    cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
+    conn.commit()
 
-candidates = getSample(cursor, queries.getQuery(params['select query']))
-if sys.argv[1] in ('th_invites', 'twa_invites'): #args passed in via jsub and cron need to be a single string
-    candidates = random.sample(candidates, 100) #pull 100 users out randomly
-elif sys.argv[1] == 'coop_invites':
-    candidates = random.sample(candidates, 15)
-else:
-    pass
-# candidates = [x for x in sample_set]
-# candidates = [x for x in sample_set if x not in controls]
-# runSample(controls, False)
-runSample(candidates, True)
+    candidates = getSample(cursor, queries.getQuery(params['select query']))
+    if sys.argv[1] in ('th_invites', 'twa_invites'): #args passed in via jsub and cron need to be a single string
+        candidates = random.sample(candidates, 100) #pull 100 users out randomly
+    elif sys.argv[1] == 'coop_invites':
+        candidates = random.sample(candidates, 15)
+    else:
+        pass
+    # candidates = [x for x in sample_set]
+    # candidates = [x for x in sample_set if x not in controls]
+    # runSample(controls, False)
+    runSample(candidates, True)
 
-cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
-conn.commit()
+    cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
+    conn.commit()
 
-cursor.close()
-conn.close()
+    cursor.close()
+    conn.close()
