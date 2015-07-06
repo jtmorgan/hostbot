@@ -99,9 +99,11 @@ if __name__ == "__main__":
 
     candidates = getSample(cursor, queries.getQuery(params['select query']))
     if sys.argv[1] in ('th_invites', 'twa_invites'): #args passed in via jsub and cron need to be a single string
-        candidates = random.sample(candidates, 100) #pull 100 users out randomly
+        if len(candidates) > 100: #should be parameterized
+            candidates = random.sample(candidates, 100) #pull 100 users out randomly
     elif sys.argv[1] == 'coop_invites':
-        candidates = random.sample(candidates, 15)
+        if len(candidates) > 15: #should be parameterized
+            candidates = random.sample(candidates, 15)
     else:
         pass
     # candidates = [x for x in sample_set]
