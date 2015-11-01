@@ -47,7 +47,7 @@ def runSample(sub_sample, send_invite):
 				inviteGuests(s, output, message[1])
 				invited = True
 		else:
-			message = ("control","")
+			message = ("th control","")
 		updateDB(s[1], "update th invite status", message[0], int(invited), int(skip))
 
 def inviteGuests(s, output, message_text):
@@ -91,25 +91,28 @@ if __name__ == "__main__":
     cursor = conn.cursor()
     queries = hb_queries.Query()
     param = hb_output_settings.Params()
-    params = param.getParams(sys.argv[1]) #now passing in 'which' invites so I can run it for TH, TWA, and Co-op
+    params = param.getParams(sys.argv[1])
 
-    # cursor.execute(queries.getQuery("generate TH invitee list"))
     cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
     conn.commit()
 
     candidates = getSample(cursor, queries.getQuery(params['select query']))
-    if sys.argv[1] in ('th_invites', 'twa_invites'): #args passed in via jsub and cron need to be a single string
-        if len(candidates) > 100: #should be parameterized
-            candidates = random.sample(candidates, 100) #pull 100 users out randomly
-    elif sys.argv[1] == 'coop_invites':
-        if len(candidates) > 15: #should be parameterized
-            candidates = random.sample(candidates, 15)
+    if sys.argv[1] in ('th_invites', 'twa_invites'):
+    #START experiment 11/2
+        candidate_count = len(candidates)
+        invitee_count = int(candidate_count/2)
+        invitees = random.sample(candidates, invitee_count)
+        controls = [x for x in candidates if x not in invitees]
+    #END BLOCK experiment 11/2    
+#         if len(candidates) > 100:
+#             candidates = random.sample(candidates, 100) #pull 100 users out randomly
+#     elif sys.argv[1] == 'coop_invites':
+#         if len(candidates) > 15: #should be parameterized
+#             candidates = random.sample(candidates, 15)
     else:
         pass
-    # candidates = [x for x in sample_set]
-    # candidates = [x for x in sample_set if x not in controls]
-    # runSample(controls, False)
-    runSample(candidates, True)
+    runSample(controls, False)
+    runSample(invitees, True)
 
     cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
     conn.commit()
