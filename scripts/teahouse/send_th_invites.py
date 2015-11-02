@@ -33,7 +33,7 @@ def getSample(cursor, qstring):
 	cursor.execute(qstring)
 	rows = cursor.fetchall()
 	sample_set = [(row[0],row[1], row[2]) for row in rows]
-# 	sample_set = sample_set[:5]
+# 	sample_set = sample_set[:10]
 	return sample_set
 
 def runSample(sub_sample, send_invite):
