@@ -99,20 +99,23 @@ if __name__ == "__main__":
     candidates = getSample(cursor, queries.getQuery(params['select query']))
     if sys.argv[1] in ('th_invites', 'twa_invites'):
     #START experiment 11/2
-        candidate_count = len(candidates)
-        invitee_count = int(candidate_count/2)
-        invitees = random.sample(candidates, invitee_count)
-        controls = [x for x in candidates if x not in invitees]
-    #END BLOCK experiment 11/2    
-#         if len(candidates) > 100:
-#             candidates = random.sample(candidates, 100) #pull 100 users out randomly
-#     elif sys.argv[1] == 'coop_invites':
-#         if len(candidates) > 15: #should be parameterized
-#             candidates = random.sample(candidates, 15)
+#         candidate_count = len(candidates)
+#         invitee_count = int(candidate_count/2)
+#         invitees = random.sample(candidates, invitee_count)
+#         controls = [x for x in candidates if x not in invitees]
+    #END BLOCK experiment 12/14    
+        if len(candidates) > 150:
+            candidates = random.sample(candidates, 150) #pull 150 users out randomly
+    elif sys.argv[1] == 'coop_invites':
+        if len(candidates) > 15: #should be parameterized
+            candidates = random.sample(candidates, 15)
     else:
         pass
-    runSample(controls, False)
-    runSample(invitees, True)
+    #START experiment 11/2        
+#     runSample(controls, False)
+#     runSample(invitees, True)
+    #END BLOCK experiment 12/14    
+    runSample(candidates, True)
 
     cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
     conn.commit()
