@@ -106,9 +106,6 @@ if __name__ == "__main__":
     #END BLOCK experiment 12/14    
         if len(candidates) > 150:
             candidates = random.sample(candidates, 150) #pull 150 users out randomly
-    elif sys.argv[1] == 'coop_invites':
-        if len(candidates) > 15: #should be parameterized
-            candidates = random.sample(candidates, 15)
     else:
         pass
     #START experiment 11/2        

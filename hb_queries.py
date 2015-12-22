@@ -85,14 +85,6 @@ class Query:
 		AND invite_status IS NULL
 		AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL)""",
 				},				
-'coop invitees' : {
-	'string' : u"""SELECT user_name, user_id, user_talkpage
-		FROM th_up_invitees_experiment_2
-		WHERE date(sample_date) = date(NOW())
-		AND sample_type = 2
-		AND invite_status IS NULL
-		AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL)""",
-				},
 'update th invite status' : {
 	'string' : u"""update th_up_invitees_experiment_2 set sample_group = '%s', invite_status = %d,  hostbot_skipped = %d where user_id = %d""",
 				},
