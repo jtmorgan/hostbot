@@ -95,7 +95,7 @@ class Query:
 		AND p.page_namespace = 3
 		AND REPLACE(i.user_name, " ", "_") = p.page_title
 		AND i.user_talkpage IS NULL""",
-				},
+				},#add query to check inviter block and activity status
 }
 
 	def getQuery(self, query_type, query_vars = False):
