@@ -75,7 +75,7 @@ class Params:
 				'edit summary' : ', you are invited to the Teahouse!',
 				'output section title' : '== {{subst:PAGENAME}}, you are invited to the Teahouse ==',
 				'inviters' : ['Rosiestep','Jtmorgan','Missvain','Naypta','AmaryllisGardener','Doctree','Osarius','Soni', 'I JethroBT', 'Dathus', '78.26', 'Worm That Turned', 'ChamithN', 'Samwalton9',],
-				'messages' : [('th exp', "Thanks for contributing to Wikipedia. Be our guest at [[WP:Teahouse|the Teahouse]]! The Teahouse is a friendly space where new editors can ask questions about contributing to Wikipedia and get help from peers and experienced editors."),],
+				'messages' : [('th exp', ""),], #not currently using the message text
 				'skip templates' : ['uw-vandalism4', 'final warning', '{{sock|', 'uw-unsourced4', 'uw-socksuspect', 'Socksuspectnotice', 'only warning','without further warning', 'Uw-socksuspect', 'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4'],
 				'headers' : { 'User-Agent' : 'HostBot (http://github.com/jtmorgan/hostbot; jmorgan@wikimedia.org)', },
 				},

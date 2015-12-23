@@ -38,7 +38,7 @@ class Template:
 }}}}""",
 	'intro' : u"""=Hosts=\n{{{{TOC hidden}}}}\n<br/>\n</noinclude>
 {profiles}""",
-	'th invite templates' : u"{{{{subst:Wikipedia:Teahouse/HostBot_Invitation|message={message:s}|personal=I hope to see you there! {{{{noping|{inviter:s}}}}} ([[w:en:WP:Teahouse/Hosts|I\'m a Teahouse host]])|signature=~~~~}}}}",
+	'th invite templates' : u"{{{{subst:Wikipedia:Teahouse/HostBot_Invitation|personal=The Teahouse is a friendly space where new editors can ask questions about contributing to Wikipedia and get help from experienced editors like {{{{noping|{inviter:s}}}}} ([[User_talk:{inviter:s}|talk]]). |bot={{{{noping|HostBot}}}}|timestamp=~~~~~}}}}",
 	'twa invite templates' : u"""{{{{subst:Wikipedia:TWA/Invite|personal=I hope to see you there! {{{{noping|{inviter:s}}}}}|signature=~~~~}}}}""",
 	
 }
