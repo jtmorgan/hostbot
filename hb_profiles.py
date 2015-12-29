@@ -26,7 +26,6 @@ import hb_templates as templates
 import operator
 import hb_queries
 import re
-import requests
 import time
 
 class Profiles:
