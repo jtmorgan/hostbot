@@ -51,13 +51,40 @@ class Query:
         return edit_timestamp
         return api_data
  
+     def getBlockStatus(user_name):
+        """
+        Find out whether the user is currently blocked from editing
+        See: https://www.mediawiki.org/wiki/API:Usercontribs 
+        https://en.wikipedia.org/w/api.php?action=query&list=users&ususers=Lightbreather&usprop=blockinfo 
+        """
+        parameters = {
+            "action" : "query",
+            "list" : "users",
+            "ususers" : user_name,
+            "usprop" : "blockinfo",
+            "format": "json",
+            }  
+        blocked = False
+        api_req = requests.get(self.api_url, params=parameters)
+        # print api_req.url
+
+        api_data = api_req.json()
+        # print api_data
+        if api_data["query"]["users"][0]["blockinfo"]:
+            blocked = True
+        else:
+            pass    
+        # print blocked
+        return blocked
+                  
  #https://github.com/jtmorgan/grantsbot/blob/ec5497770b5fa284058aab9715af6be3c7c193c6/profiles.py#L267
  #https://github.com/makoshark/harrypotter-wikipedia-cdsw/blob/master/build_hpwp_dataset.py
  #https://en.wikipedia.org/w/api.php/?ucprop=timestamp&ucuser=Jtmorgan&list=usercontribs&action=query&ucshow=top&uclimit=1&ucdir=older
  #https://www.mediawiki.org/wiki/API:Users
- #https://en.wikipedia.org/w/api.php?action=query&list=users&ususers=Lightbreather&usprop=blockinfo%7Cgroups%7Ceditcount%7Cregistration%7Cemailable%7Cgender
-    ts = getLatestEditDate("Jtmorgan")
-    print ts
+ 
+#     ts = getLatestEditDate("Jtmorgan")
+    blocked = getBlockStatus("Lightbreather")
+    print blocked
 
 
 
