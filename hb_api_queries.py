@@ -15,20 +15,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from datetime import datetime, timedelta
+import dateutil.parser
+import hb_output_settings
 import requests
+import sys
 
 class Query:
 
-	def __init__(self):
+    def __init__(self):
         self.api_url = "http://en.wikipedia.org/w/api.php/"
-        
-        
-    def getLatestEditDate(user_name):
+             
+    def getLatestEditDate(self, user_name):
         """
         Get the date of the user's most recent edit
-        See: https://www.mediawiki.org/wiki/API:Usercontribs  
+        See: https://www.mediawiki.org/wiki/API:Usercontribs
+        Example: https://en.wikipedia.org/w/api.php/?ucprop=timestamp&ucuser=Jtmorgan&list=usercontribs&action=query&ucshow=top&uclimit=1&ucdir=older  
         """
-        
+                
         parameters = {
             "action" : "query",
             "list" : "usercontribs",
@@ -40,22 +44,18 @@ class Query:
             "format": "json",
             }
 
-
         api_req = requests.get(self.api_url, params=parameters)
         # print api_req.url
-
         api_data = api_req.json()
-        # print api_data
         edit_timestamp = api_data["query"]["usercontribs"][0]["timestamp"]
-        # print edit_timestamp
-        return edit_timestamp
-        return api_data
- 
-     def getBlockStatus(user_name):
+        latest_edit_date = dateutil.parser.parse(edit_timestamp, ignoretz=True).date()
+        return latest_edit_date
+
+    def getBlockStatus(self, user_name):
         """
         Find out whether the user is currently blocked from editing
-        See: https://www.mediawiki.org/wiki/API:Usercontribs 
-        https://en.wikipedia.org/w/api.php?action=query&list=users&ususers=Lightbreather&usprop=blockinfo 
+        See: https://www.mediawiki.org/wiki/API:Users
+        Example: https://en.wikipedia.org/w/api.php?action=query&list=users&ususers=Willy_on_Wheels~enwiki&usprop=blockinfo 
         """
         parameters = {
             "action" : "query",
@@ -69,22 +69,48 @@ class Query:
         # print api_req.url
 
         api_data = api_req.json()
-        # print api_data
-        if api_data["query"]["users"][0]["blockinfo"]:
+        if "blockid" in api_data["query"]["users"][0].keys():
             blocked = True
         else:
             pass    
         # print blocked
         return blocked
-                  
- #https://github.com/jtmorgan/grantsbot/blob/ec5497770b5fa284058aab9715af6be3c7c193c6/profiles.py#L267
- #https://github.com/makoshark/harrypotter-wikipedia-cdsw/blob/master/build_hpwp_dataset.py
- #https://en.wikipedia.org/w/api.php/?ucprop=timestamp&ucuser=Jtmorgan&list=usercontribs&action=query&ucshow=top&uclimit=1&ucdir=older
- #https://www.mediawiki.org/wiki/API:Users
+    
+    def meetsEditDateThreshold(self, latest_edit_date, threshold):
+        meets_threshold = False
+        cur_date = datetime.utcnow().date()
+        threshold_date = cur_date - timedelta(days=threshold)
+        if latest_edit_date >= threshold_date:
+            meets_threshold = True
+        else:
+            pass
+        return meets_threshold        
+                            
+    def determineInviterEligibility(self, inviter, threshold):
+        is_eligible = False
+        is_blocked = self.getBlockStatus(inviter)
+        latest_edit_date = self.getLatestEditDate(inviter)
+        is_active = self.meetsEditDateThreshold(latest_edit_date, threshold)
+        if is_active and not is_blocked:
+            is_eligible = True
+        else:
+            pass
+        return is_eligible        
  
-#     ts = getLatestEditDate("Jtmorgan")
-    blocked = getBlockStatus("Lightbreather")
-    print blocked
+if __name__ == "__main__":
+    """
+    Run this script directly if you want to test it.
+    Pass in the date threshold fron the command line.
+    """
+    param = hb_output_settings.Params()
+    params = param.getParams("th_invites")
+    sub_date = int(sys.argv[1])
+    q = Query()
+    potential_inviters = params['inviters'] 
+    eligible_inviters = [x for x in potential_inviters if q.determineInviterEligibility(x, sub_date)]
+    print potential_inviters
+    print eligible_inviters        
+    
 
 
 

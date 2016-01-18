@@ -84,7 +84,10 @@ class Query:
 		AND sample_type = 3
 		AND invite_status IS NULL
 		AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL)""",
-				},				
+				},
+'test invitees' : {#only use when hostbot_settings url is set to testwiki
+	'string' : u"""select user_name, user_id, NULL from testwiki_p.user u join testwiki_p.page p on u.user_name = p.page_title where u.user_name like "Jmtest%" and p.page_namespace = 2""",
+				},								
 'update th invite status' : {
 	'string' : u"""update th_up_invitees_experiment_2 set sample_group = '%s', invite_status = %d,  hostbot_skipped = %d where user_id = %d""",
 				},

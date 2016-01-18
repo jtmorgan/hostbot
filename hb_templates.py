@@ -40,6 +40,7 @@ class Template:
 {profiles}""",
 	'th invite templates' : u"{{{{subst:Wikipedia:Teahouse/HostBot_Invitation|personal=The Teahouse is a friendly space where new editors can ask questions about contributing to Wikipedia and get help from experienced editors like {{{{noping|{inviter:s}}}}} ([[User_talk:{inviter:s}|talk]]). |bot={{{{noping|HostBot}}}}|timestamp=~~~~~}}}}",
 	'twa invite templates' : u"""{{{{subst:Wikipedia:TWA/Invite|personal=I hope to see you there! {{{{noping|{inviter:s}}}}}|signature=~~~~}}}}""",
+	'test invite templates' : u"{{{{subst:User:HostBot/Invitation|personal=The Teahouse is a friendly space where new editors can ask questions about contributing to Wikipedia and get help from experienced editors like {{{{noping|{inviter:s}}}}} ([[User_talk:{inviter:s}|talk]]). |bot={{{{noping|HostBot}}}}|timestamp=~~~~~}}}}", #only use when hostbot_settings urls set to testwiki	
 	
 }
 	def getTemplate(self, member):

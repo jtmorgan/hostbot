@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from datetime import datetime
+import hb_api_queries
 import hb_output_settings
 import hb_profiles
 import hb_queries
@@ -36,25 +37,30 @@ def getSample(cursor, qstring):
 # 	sample_set = sample_set[:10]
 	return sample_set
 
-def runSample(sub_sample, send_invite):
+def getEligibleInviters(potential_inviters):
+    inviters = [x for x in potential_inviters if elig_check.determineInviterEligibility(x, 30)]
+    return inviters
+    
+def runSample(sub_sample, inviters, send_invite):
 	for s in sub_sample:
 		output = hb_profiles.Profiles(params['output namespace'] + s[0], id = s[2], settings = params)
 		invited = False
 		skip = talkpageCheck(s[2], output)
+		skip = False
 		if send_invite:
 			message = random.choice(params['messages'])
 			if not skip:
-				inviteGuests(s, output, message[1])
+				inviteGuests(s, output, message[1], random.choice(inviters))
 				invited = True
 		else:
 			message = ("th control","")
 		updateDB(s[1], "update th invite status", message[0], int(invited), int(skip))
 
-def inviteGuests(s, output, message_text):
+def inviteGuests(s, output, message_text, inviter):
 	"""
 	Invites todays newcomers.
 	"""
-	invite = output.formatProfile({'inviter' : random.choice(params['inviters']), 'message' : message_text})
+	invite = output.formatProfile({'inviter' : inviter, 'message' : message_text})
 	edit_summ = s[0] + params["edit summary"]
 	try:
 		output.publishProfile(invite, params['output namespace'] + s[0], edit_summ, edit_sec = "new")
@@ -83,7 +89,6 @@ def updateDB(user_id, qstring, sample_group, invited, invitable):
 	except:
 		print "something went wrong with " + str(user_id)
 
-
 if __name__ == "__main__":
     wiki = wikitools.Wiki(hostbot_settings.apiurl)
     wiki.login(hostbot_settings.username, hostbot_settings.password)
@@ -92,27 +97,20 @@ if __name__ == "__main__":
     queries = hb_queries.Query()
     param = hb_output_settings.Params()
     params = param.getParams(sys.argv[1])
-
+    elig_check = hb_api_queries.Query()
     cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
     conn.commit()
 
     candidates = getSample(cursor, queries.getQuery(params['select query']))
-    if sys.argv[1] in ('th_invites', 'twa_invites'):
-    #START experiment 11/2
-#         candidate_count = len(candidates)
-#         invitee_count = int(candidate_count/2)
-#         invitees = random.sample(candidates, invitee_count)
-#         controls = [x for x in candidates if x not in invitees]
-    #END BLOCK experiment 12/14    
+    if sys.argv[1] in ('th_invites', 'twa_invites', 'test_invites'):  
         if len(candidates) > 150:
             candidates = random.sample(candidates, 150) #pull 150 users out randomly
     else:
         pass
-    #START experiment 11/2        
-#     runSample(controls, False)
-#     runSample(invitees, True)
-    #END BLOCK experiment 12/14    
-    runSample(candidates, True)
+        
+    inviters = getEligibleInviters(params['inviters'])  
+#     print inviters  
+    runSample(candidates, inviters, True)
 
     cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
     conn.commit()

@@ -79,6 +79,18 @@ class Params:
 				'skip templates' : ['uw-vandalism4', 'final warning', '{{sock|', 'uw-unsourced4', 'uw-socksuspect', 'Socksuspectnotice', 'only warning','without further warning', 'Uw-socksuspect', 'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4'],
 				'headers' : { 'User-Agent' : 'HostBot (http://github.com/jtmorgan/hostbot; jmorgan@wikimedia.org)', },
 				},
+			'test_invites' : { #only use if hostbot_settings urls are set to testwiki
+			    'select query' : 'test invitees',
+				'type' : 'test invite templates',
+				'output namespace' : 'User_talk:',
+				'output section' : 'new',
+				'edit summary' : ', you are invited to the Teahouse!',
+				'output section title' : '== {{subst:PAGENAME}}, you are invited to the Teahouse ==',
+				'inviters' : ['Rosiestep','Jtmorgan','Missvain','Naypta','AmaryllisGardener','Doctree','Osarius','Soni', 'I JethroBT', 'Dathus', '78.26', 'Worm That Turned', 'ChamithN', 'Samwalton9',],
+				'messages' : [('th exp', ""),], #not currently using the message text
+				'skip templates' : ['uw-vandalism4', 'final warning', '{{sock|', 'uw-unsourced4', 'uw-socksuspect', 'Socksuspectnotice', 'only warning','without further warning', 'Uw-socksuspect', 'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4'],
+				'headers' : { 'User-Agent' : 'HostBot (http://github.com/jtmorgan/hostbot; jmorgan@wikimedia.org)', },
+				},				
 			'twa_invites' : {
 			    'select query' : 'twa invitees',
 				'type' : 'twa invite templates',
