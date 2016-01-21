@@ -46,7 +46,6 @@ def runSample(sub_sample, inviters, send_invite):
 		output = hb_profiles.Profiles(params['output namespace'] + s[0], id = s[2], settings = params)
 		invited = False
 		skip = talkpageCheck(s[2], output)
-		skip = False
 		if send_invite:
 			message = random.choice(params['messages'])
 			if not skip:
