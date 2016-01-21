@@ -38,7 +38,7 @@ def getSample(cursor, qstring):
 	return sample_set
 
 def getEligibleInviters(potential_inviters):
-    inviters = [x for x in potential_inviters if elig_check.determineInviterEligibility(x, 30)]
+    inviters = [x for x in potential_inviters if elig_check.determineInviterEligibility(x, 21)]
     return inviters
     
 def runSample(sub_sample, inviters, send_invite):
