@@ -30,9 +30,11 @@ def flowenabled(title, site):
     pagedict = query['query']['pages']
     for page in pagedict:
         if page == '-1':
-#            return None
-######## HACK BECAUSE CREATING FLOW BOARDS IS NOT ENABLED #########
-            return False
+#### BEGIN WORKAROUND: WHEN FLOW BOARDS ARE NOT ENABLED, EMPTY PAGES ARE
+#                      TREATED LIKE THEY ARE ALREADY NORMAL TALK PAGES
+#            return None  # un-comment this to reverse workaround
+            return False  # delete this to reverse workaround
+#### END WORKAROUND
         else:
             return (u'enabled' in pagedict[page]['flowinfo']['flow'])
 
