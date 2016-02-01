@@ -34,13 +34,13 @@ def getSample(cursor, qstring):
 	cursor.execute(qstring)
 	rows = cursor.fetchall()
 	sample_set = [(row[0],row[1], row[2]) for row in rows]
-# 	sample_set = sample_set[:10]
+# 	sample_set = sample_set[:5]
 	return sample_set
 
 def getEligibleInviters(potential_inviters):
     inviters = [x for x in potential_inviters if elig_check.determineInviterEligibility(x, 21)]
     return inviters
-    
+
 def runSample(sub_sample, inviters, send_invite):
 	for s in sub_sample:
 		output = hb_profiles.Profiles(params['output namespace'] + s[0], id = s[2], settings = params)
@@ -101,14 +101,14 @@ if __name__ == "__main__":
     conn.commit()
 
     candidates = getSample(cursor, queries.getQuery(params['select query']))
-    if sys.argv[1] in ('th_invites', 'twa_invites', 'test_invites'):  
+    if sys.argv[1] in ('th_invites', 'twa_invites', 'test_invites'):
         if len(candidates) > 150:
             candidates = random.sample(candidates, 150) #pull 150 users out randomly
     else:
         pass
-        
-    inviters = getEligibleInviters(params['inviters'])  
-#     print inviters  
+
+    inviters = getEligibleInviters(params['inviters'])
+#     print inviters
     runSample(candidates, inviters, True)
 
     cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
