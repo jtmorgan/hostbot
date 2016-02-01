@@ -15,110 +15,45 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from datetime import datetime
-import hb_output_settings
-import hb_profiles
-import hb_queries
 import hostbot_settings
-import MySQLdb
-from random import choice
-import re
-import traceback
-import wikitools
-
-###FUNCTIONS###
-def updateTalkpageStatus(cursor, qstring):
-	"""
-	Inserts the id of the user's talkpage into the database,
-	in the event that any newcomers have had their talkpage created since
-	the Snuggle data was downloaded and processed.
-	"""
-	cursor.execute(qstring)
-	conn.commit()
-
-def getUsernames(cursor, qstring):
-	"""
-	Returns a list of usernames of candidates for invitation:
-	newcomers who joined in the past two days and who have not been blocked.
-	"""
-	cursor.execute(qstring)
-	rows = cursor.fetchall()
-	candidates = [(row[0],row[1]) for row in rows]
-# 	candidates = candidates[:2]
-	return candidates
+import requests
+from requests_oauthlib import OAuth1
 
 
-def inviteGuests(c, params):
-	"""
-	Invites todays invitees.
-	"""
-	invited = False
-	skip = False
-# 	try:
-	output = hb_profiles.Profiles(params['output namespace'] + c[0], id = c[1], settings = params)
-	if c[1] is not None:
-		talkpage_text = output.getPageText()
-		for template in params['skip templates']:
-			if template in talkpage_text:
-				skip = True
-				print "http://en.wikipedia.org/wiki/User_talk:" + c[0] + " " + template	
-# 		allowed = allowBots(talkpage_text, "HostBot")
-# 		if not allowed:
-# 			skip = True
-# 	if skip == False:							
-# 		invite = output.formatProfile({'user' : c[0], 'inviter' : choice(params['inviters']),}, True)
-# 		edit_summ = c[0] + params["edit summary"]
-# 		output.publishProfile(invite, params['output namespace'] + c[0], edit_summ, edit_sec = "new")
-# 		invited = True
-# 	except:
-# 		print "something went wrong in InviteGuests"	
-	return invited
-	
-def allowBots(text, user):
-	"""
-	Assures exclusion compliance,
-	per http://en.wikipedia.org/wiki/Template:Bots
-	"""
-	return not re.search(r'\{\{(nobots|bots\|(allow=none|deny=.*?' + user + r'.*?|optout=all|deny=all))\}\}', text, flags=re.IGNORECASE)	
+if __name__ == "__main__":
+    #dev
+# Set up your auth -- do this once
+    auth1 = OAuth1(unicode("b5d87cbe96174f9435689a666110159c"),
+        client_secret=unicode(hostbot_settings.client_secret),
+        resource_owner_key=unicode("ca1b222d687be9ac33cfb49676f5bfd2"),
+        resource_owner_secret=unicode(hostbot_settings.resource_owner_secret))
 
-def updateInviteStatus(cursor, qname, invited, c):
-	"""
-	Updates the database: was the user invited, or skipped?
-	"""
-	if invited:
-		try:
-			qvars = [1, 1, 0, MySQLdb.escape_string(c[0])] #puts it back in the wonky db format to match user_name
-		except: #escape string sometimes triggers an encoding error
-			qvars = [1, 1, 0, c[0]]
-# 				traceback.print_exc()	
-	else:
-		try:
-			qvars = [0, 0, 1, MySQLdb.escape_string(c[0])] #puts it back in the wonky db format to match user_name
-		except: #escape string sometimes triggers an encoding error
-			qvars = [0, 0, 1, c[0]]
-# 				traceback.print_exc()
-	query = queries.getQuery(qname, qvars)
-	cursor.execute(query)
-	conn.commit()
-
-##MAIN##
-wiki = wikitools.Wiki(hostbot_settings.apiurl)
-wiki.login(hostbot_settings.username, hostbot_settings.password)
-conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
-cursor = conn.cursor()
-tools = hb_profiles.Toolkit()
-queries = hb_queries.Query()
-param = hb_output_settings.Params()
-params = param.getParams('th invites')
-
-updateTalkpageStatus(cursor, queries.getQuery("th add talkpage"))
-candidates = getUsernames(cursor, queries.getQuery("th invitees"))
-for c in candidates:
-	try:
-		invited = inviteGuests(c, params)
-# 		updateInviteStatus(cursor, "update th invite status", invited, c)
-	except:
-		print "something went wrong with " + c[0]					
-
-cursor.close()
-conn.close()
+    # Do this once for every edit (Not part of OAuth)
+    response = requests.get(
+        hostbot_settings.oauth_api_url,
+        params={
+            'action': "query",
+            'meta': "tokens",
+            'type': "csrf",
+            'format': "json"
+        },
+        headers={'User-Agent': hostbot_settings.oauth_user_agent},
+        auth=auth1  # This is the new thing
+    )
+    doc = response.json() #why name this variable doc? 
+    print doc
+    response = requests.post(
+        "https://en.wikipedia.org/w/api.php",
+        data={
+            'action': "edit",
+            'title': "User:Jtmorgan/sandbox",
+            'section': "new",
+            'summary': "Hello World",
+            'text': "Hello everyone!",
+            'token': doc['query']['tokens']['csrftoken'],
+            'format': "json"
+        },
+        headers={'User-Agent': hostbot_settings.oauth_user_agent},
+        auth=auth1  # This is the new thing
+    )
+    response.json()

@@ -23,6 +23,8 @@ import hb_queries
 import hostbot_settings
 import MySQLdb
 import random
+import requests
+from requests_oauthlib import OAuth1
 import sys
 import traceback
 import wikitools
@@ -89,7 +91,7 @@ def updateDB(user_id, qstring, sample_group, invited, invitable):
 		print "something went wrong with " + str(user_id)
 
 if __name__ == "__main__":
-    #master
+    #dev
     wiki = wikitools.Wiki(hostbot_settings.apiurl)
     wiki.login(hostbot_settings.username, hostbot_settings.password)
     conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
