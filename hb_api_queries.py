@@ -96,7 +96,31 @@ class Query:
         else:
             pass
         return is_eligible        
- 
+
+    def getPageText(self, page_path, page_id):
+        """
+        Gets the raw text of a page or page section.
+        Sample: http://meta.wikimedia.org/w/api.php?action=query&prop=revisions&titles=Grants:IdeaLab/Introductions&rvprop=content&rvsection=21&format=jsonfm
+        """
+#       if section:
+#           params['rvsection'] = section
+        response = requests.get(
+            self.api_url,   
+            params={
+            'action': 'query',
+            'prop': 'revisions',
+            'titles': page_path,
+            'rvprop' : 'content',
+            'format': "json",
+                },
+#             headers={'User-Agent': self.user_agent},
+#             auth=self.auth1,        
+            )                   
+        doc = response.json()
+        print doc
+        text = doc['query']['pages'][page_id]['revisions'][0]['*']
+        return text
+         
 if __name__ == "__main__":
     """
     Run this script directly if you want to test it.
