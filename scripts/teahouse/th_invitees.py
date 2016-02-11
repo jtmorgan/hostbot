@@ -25,6 +25,11 @@ def getInvitees(q_string, cursor):
 	"""insert today's potential invitees into the database"""
 	cursor.execute(q_string)
 	conn.commit()
+	
+def addTalkPages(q_string, cursor):
+	"""adds their talkpage id (if they have one)"""
+	cursor.execute(q_string)
+	conn.commit()	
 
 if __name__ == "__main__":
     conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
@@ -34,7 +39,13 @@ if __name__ == "__main__":
 
 #     getInvitees(queries.getQuery("five edit newbies"), cursor)
 #     getInvitees(queries.getQuery("ten edit newbies"), cursor)
-    getInvitees(queries.getQuery("teahouse experiment newbies"), cursor)    
+#     getInvitees(queries.getQuery("teahouse experiment newbies"), cursor) 
+    getInvitees(queries.getQuery("teahouse test"), cursor) 
+    addTalkPages(queries.getQuery("th add talkpage test"), cursor)    
+    
+    
+#     addTalkPages(queries.getQuery("th add talkpage"), cursor)    
+       
 #     getInvitees(queries.getQuery("autoconfirmed newbies"), cursor)
 
     cursor.close()

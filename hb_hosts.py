@@ -21,10 +21,10 @@ import hb_output_settings
 import requests
 import sys
 
-class Query:
+class Eligible:
 
     def __init__(self):
-        self.api_url = "http://en.wikipedia.org/w/api.php/"
+        self.api_url = "https://en.wikipedia.org/w/api.php/"
              
     def getLatestEditDate(self, user_name):
         """
@@ -96,30 +96,6 @@ class Query:
         else:
             pass
         return is_eligible        
-
-    def getPageText(self, page_path, page_id):
-        """
-        Gets the raw text of a page or page section.
-        Sample: http://meta.wikimedia.org/w/api.php?action=query&prop=revisions&titles=Grants:IdeaLab/Introductions&rvprop=content&rvsection=21&format=jsonfm
-        """
-#       if section:
-#           params['rvsection'] = section
-        response = requests.get(
-            self.api_url,   
-            params={
-            'action': 'query',
-            'prop': 'revisions',
-            'titles': page_path,
-            'rvprop' : 'content',
-            'format': "json",
-                },
-#             headers={'User-Agent': self.user_agent},
-#             auth=self.auth1,        
-            )                   
-        doc = response.json()
-        print doc
-        text = doc['query']['pages'][page_id]['revisions'][0]['*']
-        return text
          
 if __name__ == "__main__":
     """
@@ -127,11 +103,11 @@ if __name__ == "__main__":
     Pass in the date threshold fron the command line.
     """
     param = hb_output_settings.Params()
-    params = param.getParams("th_invites")
-    sub_date = int(sys.argv[1])
-    q = Query()
+    params = param.getParams(sys.argv[1]) #what type of invites
+    sub_date = int(sys.argv[2]) #numeric threshold (days ago)
+    e = Eligible()
     potential_inviters = params['inviters'] 
-    eligible_inviters = [x for x in potential_inviters if q.determineInviterEligibility(x, sub_date)]
+    eligible_inviters = [x for x in potential_inviters if e.determineInviterEligibility(x, sub_date)]
     print potential_inviters
     print eligible_inviters        
     

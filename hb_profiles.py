@@ -18,37 +18,86 @@
 # from datetime import datetime, timedelta
 # import dateutil.parser
 # import wikitools
-import invite_config
+import hostbot_settings
 import MySQLdb
 import hb_output_settings as output_settings
+import hb_queries
 import hb_templates as templates
 import requests
 from requests_oauthlib import OAuth1
-# import operator
-import hb_queries
-# import re
-# import time
+import wikitools
 
+
+class Samples:
+    """Create, parse, and post formatted messages to wiki."""
+
+    def __init__(self):
+        """
+        Set up the db connection.
+        """
+#         self.wiki = wikitools.Wiki(hostbot_settings.apiurl)
+#         self.wiki.login(hostbot_settings.username, hostbot_settings.password)
+        self.conn = MySQLdb.connect(
+        host = hostbot_settings.host, 
+        db = hostbot_settings.dbname, 
+        read_default_file = hostbot_settings.defaultcnf, 
+        use_unicode=1, 
+        charset="utf8"
+            )
+        self.cursor = self.conn.cursor()        
+        self.queries = hb_queries.Query()        
+        
+    def getSample(self, query_key, sub_sample=False):
+        """
+        Returns a list of usernames and ids of candidates for invitation
+        """
+#         sample_query = self.queries.getQuery(query_key)
+        sample_query = "SELECT user_name, user_id, user_talkpage FROM th_invite_test WHERE date(sample_date) = date(NOW()) AND sample_type = 4 AND invite_status IS NULL AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL);"
+        self.cursor.execute(sample_query)
+        rows = self.cursor.fetchall()
+        sample_set = [(row[0],row[1], row[2]) for row in rows]
+        if sub_sample:
+        	sample_set = sample_set[:5]
+        return sample_set 
+        
+#         self.cursor.close()
+#         self.conn.close()    
+
+    def updateOneRow(self, query_key, qvars):
+        """
+        Updates the database: was the user invited, or skipped?
+        """
+#         try:
+        query = self.queries.getQuery(query_key, qvars)
+        self.cursor.execute(query)
+        self.conn.commit()
+#         except:
+#             print "something went wrong with this one"
+                              
 class Profiles:
     """Create, parse, and post formatted messages to wiki."""
 
-    def __init__(self, path, id = False, settings = False):
+    def __init__(self, path, user_name = False, user_id = False, page_id = False, settings = False):
         """
         Instantiate your editing session.
         """
-        self.page_path = path
-#       print self.page_path
-        if id:
-            self.page_id = str(id)
+        self.page_path = path        
+        if user_name:
+            self.user_name = user_name        
+#         print self.page_path
+        if user_id:
+            self.user_id = user_id
 #           print self.page_id
+        if page_id:
+            self.page_id = str(page_id)
         if settings:
             self.profile_settings = settings
-        self.api_url = invite_config.oauth_api_url
-        self.user_agent = invite_config.oauth_user_agent
+        self.api_url = hostbot_settings.oauth_api_url
+        self.user_agent = hostbot_settings.oauth_user_agent
         self.auth1 = OAuth1(unicode("b5d87cbe96174f9435689a666110159c"),
-                client_secret=unicode(invite_config.client_secret),
+                client_secret=unicode(hostbot_settings.client_secret),
                 resource_owner_key=unicode("ca1b222d687be9ac33cfb49676f5bfd2"),
-                resource_owner_secret=unicode(invite_config.resource_owner_secret))      
+                resource_owner_secret=unicode(hostbot_settings.resource_owner_secret))      
                 
     def getToken(self):
         """
@@ -73,26 +122,23 @@ class Profiles:
         
         return token
                                     
-    def getPageText(self, page_path, page_id):
+    def getPageText(self, section=False):
         """
         Gets the raw text of a page or page section.
         Sample: http://meta.wikimedia.org/w/api.php?action=query&prop=revisions&titles=Grants:IdeaLab/Introductions&rvprop=content&rvsection=21&format=jsonfm
         """
-#       if section:
-#           params['rvsection'] = section
-        response = requests.get(
-            self.api_url,   
-            params={
+        api_params={
             'action': 'query',
             'prop': 'revisions',
-            'titles': page_path,
+            'titles': self.page_path,
             'rvprop' : 'content',
-                },
-#             headers={'User-Agent': self.user_agent},
-#             auth=self.auth1,        
-            )                   
+            'format': "json"            
+        }        
+        if section:
+			api_params['rvsection'] = section
+        response = requests.get(self.api_url, params=api_params)                   
         doc = response.json()
-        text = response['query']['pages'][page_id]['revisions'][0]['*']
+        text = doc['query']['pages'][self.page_id]['revisions'][0]['*']
         return text
         
     def formatProfile(self, val):
@@ -105,13 +151,19 @@ class Profiles:
 #       print tmplt
         return tmplt
         
-    def publishProfile(self, val, path, edit_summ):
+    def publishProfile(self):
         """
         Publishes one or more formatted messages on a wiki.
         """
-        print path
-        print edit_summ
-        print val
+        try:
+            print self.page_path
+            print self.edit_summ
+            print self.invite
+            self.invited = True
+        except:
+            print "unable to invite " + self.user_name + " at this time."    
+        
+        return self.invited
 #         response = requests.post(
 #             self.api_url,
 #             data={
@@ -128,6 +180,18 @@ class Profiles:
 #             auth=auth1  # This is the new thing
 #         )     
 
-
+    def updateDB(self):
+        """
+        Updates the database: was the user invited, or skipped?
+        """
+        self.conn = MySQLdb.connect(
+        host = hostbot_settings.host, 
+        db = hostbot_settings.dbname, 
+        read_default_file = hostbot_settings.defaultcnf, 
+        use_unicode=1, 
+        charset="utf8"
+            )
+        self.cursor = self.conn.cursor()        
+        self.queries = hb_queries.Query() 
 
 
