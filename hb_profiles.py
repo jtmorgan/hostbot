@@ -116,12 +116,10 @@ class Profiles:
             )
         doc = response.json() #why name this variable doc?
         try:
-            token = doc['query']['tokens']['csrftoken'] 
+            self.token = doc['query']['tokens']['csrftoken'] 
         except:
-            token = None
-        
-        return token
-                                    
+            self.token = None
+                                            
     def getPageText(self, section=False):
         """
         Gets the raw text of a page or page section.
@@ -159,39 +157,25 @@ class Profiles:
             print self.page_path
             print self.edit_summ
             print self.invite
+            response = requests.post(
+                self.api_url,
+                data={
+                    'action': "edit",
+                    'title': self.page_path,
+                    'section': "new",
+                    'summary': self.edit_summ,
+                    'text': self.invite,
+                    'bot': 1,
+                    'token': self.token,
+                    'format': "json"
+                    },
+                headers={'User-Agent': self.user_agent},
+                auth=self.auth1
+                )     
             self.invited = True
         except:
             print "unable to invite " + self.user_name + " at this time."    
-        
-        return self.invited
-#         response = requests.post(
-#             self.api_url,
-#             data={
-#                 'action': "edit",
-#                 'title': path,
-#                 'section': "new",
-#                 'summary': edit_summ,
-#                 'text': val,
-#                 'bot': 1,
-#                 'token': doc['query']['tokens']['csrftoken'],
-#                 'format': "json"
-#             },
-#             headers={'User-Agent': self.user_agent},
-#             auth=auth1  # This is the new thing
-#         )     
-
-    def updateDB(self):
-        """
-        Updates the database: was the user invited, or skipped?
-        """
-        self.conn = MySQLdb.connect(
-        host = hostbot_settings.host, 
-        db = hostbot_settings.dbname, 
-        read_default_file = hostbot_settings.defaultcnf, 
-        use_unicode=1, 
-        charset="utf8"
-            )
-        self.cursor = self.conn.cursor()        
-        self.queries = hb_queries.Query() 
+    
+#         return self.invited
 
 

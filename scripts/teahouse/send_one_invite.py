@@ -36,10 +36,7 @@ def getEligibleInviters(elig_check, potential_inviters):
     eligible_inviters = [x for x in potential_inviters if elig_check.determineInviterEligibility(x, 21)]
     return eligible_inviters
     
-def runSample(c, inviter, message, params):
-#     invited = False
-#     skip = False
-#     message = random.choice(params['messages'])     
+def runSample(c, inviter, message, params):   
     prof = hb_profiles.Profiles(params['output namespace'] + c[0], user_name = c[0], user_id = c[1], page_id = c[2],  settings = params)
     prof.inviter = inviter
     prof.message = message
@@ -48,14 +45,10 @@ def runSample(c, inviter, message, params):
     if c[2] is not None:
         prof.skip = checkTalkPage(prof.skip, prof, params['skip templates'])
     if not prof.skip:
-        prof = inviteGuests(prof, prof.message[1], prof.inviter) #return invited, don't declare it
-#         prof.invited = True
-#         print "invited? " + str(invited)
+        prof = inviteGuests(prof, prof.message[1], prof.inviter)
     else:
-#         print "skipped? " + str(skip) + prof.user_name
         message = ("th control","")
-    return prof #add invite status, etc here    
-#       updateDB(s[1], "update th invite status", message[0], int(invited), int(skip))
+    return prof    
 
 
 def checkTalkPage(skip, prof, skip_templates): #only works if you already have the talkpage
@@ -73,6 +66,7 @@ def inviteGuests(prof, message_text, inviter):
     prof.invite = prof.formatProfile({'inviter' : inviter, 'message' : message_text})
     prof.edit_summ = prof.user_name + params["edit summary"]
 #     try:
+    prof.getToken()
     prof.publishProfile()
 #     except:
 #         print "something went wrong trying to invite " + page_path
@@ -86,20 +80,19 @@ if __name__ == "__main__":
     params = param.getParams(sys.argv[1])
     elig_check = hb_hosts.Eligible()
     daily_sample = hb_profiles.Samples()
-    candidates = daily_sample.getSample(params['select query'], sub_sample=True)    
-#     user_name = sys.argv[2]
-#     user_id = sys.argv[3]
-#     page_id = sys.argv[4]
-#     candidates = [(user_name, user_id, page_id)]
+#     candidates = daily_sample.getSample(params['select query'], sub_sample=True)    
+    user_name = sys.argv[2]
+    user_id = int(sys.argv[3]) #int so it will be committed to the db
+    page_id = sys.argv[4]
+    candidates = [(user_name, user_id, page_id)]
     if sys.argv[1] in ('th_invites', 'twa_invites', 'test_invites'):
         if len(candidates) > 150:
             candidates = random.sample(candidates, 150) #pull 150 users out randomly
     else:
         pass
     inviters = getEligibleInviters(elig_check, params['inviters'])
-#     inviters = ["J-Mo", "Fred", "Subbu"]
     for c in candidates:
-        print c
+#         print c
         profile = runSample(c, random.choice(inviters), random.choice(params['messages']), params)
-        daily_sample.updateOneRow("update test invite status", [profile.message[0], int(profile.invited), int(profile.skip), profile.user_id])
-#         updateDB('update th invite status', profile) #update query should be parameterized       
+        daily_sample.updateOneRow("update test invite status", [profile.message[0], int(profile.invited), int(profile.skip), profile.user_id]) 
+        #add talkpage check     
