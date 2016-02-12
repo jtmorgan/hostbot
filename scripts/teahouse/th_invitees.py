@@ -40,8 +40,8 @@ if __name__ == "__main__":
 #     getInvitees(queries.getQuery("five edit newbies"), cursor)
 #     getInvitees(queries.getQuery("ten edit newbies"), cursor)
 #     getInvitees(queries.getQuery("teahouse experiment newbies"), cursor) 
-    getInvitees(queries.getQuery("teahouse test"), cursor) 
-    addTalkPages(queries.getQuery("th add talkpage test"), cursor)    
+    getInvitees(queries.getQuery("teahouse experiment newbies"), cursor) 
+    addTalkPages(queries.getQuery("th add talkpage"), cursor)    
     
     
 #     addTalkPages(queries.getQuery("th add talkpage"), cursor)    

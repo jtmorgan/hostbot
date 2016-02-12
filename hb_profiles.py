@@ -15,9 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# from datetime import datetime, timedelta
-# import dateutil.parser
-# import wikitools
 import hostbot_settings
 import MySQLdb
 import hb_output_settings as output_settings
@@ -25,7 +22,6 @@ import hb_queries
 import hb_templates as templates
 import requests
 from requests_oauthlib import OAuth1
-import wikitools
 
 
 class Samples:
@@ -35,8 +31,6 @@ class Samples:
         """
         Set up the db connection.
         """
-#         self.wiki = wikitools.Wiki(hostbot_settings.apiurl)
-#         self.wiki.login(hostbot_settings.username, hostbot_settings.password)
         self.conn = MySQLdb.connect(
         host = hostbot_settings.host, 
         db = hostbot_settings.dbname, 
@@ -52,7 +46,7 @@ class Samples:
         Returns a list of usernames and ids of candidates for invitation
         """
 #         sample_query = self.queries.getQuery(query_key)
-        sample_query = "SELECT user_name, user_id, user_talkpage FROM th_invite_test WHERE date(sample_date) = date(NOW()) AND sample_type = 4 AND invite_status IS NULL AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL);"
+        sample_query = "SELECT user_name, user_id, user_talkpage FROM th_up_invitees_experiment_2 WHERE date(sample_date) = date(NOW()) AND sample_type = 4 AND invite_status IS NULL AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL);" #FIXME pull from queries module
         self.cursor.execute(sample_query)
         rows = self.cursor.fetchall()
         sample_set = [(row[0],row[1], row[2]) for row in rows]
@@ -84,10 +78,8 @@ class Profiles:
         self.page_path = path        
         if user_name:
             self.user_name = user_name        
-#         print self.page_path
         if user_id:
             self.user_id = user_id
-#           print self.page_id
         if page_id:
             self.page_id = str(page_id)
         if settings:
@@ -146,7 +138,6 @@ class Profiles:
         page_templates = templates.Template()
         tmplt = page_templates.getTemplate(self.profile_settings['type'])
         tmplt = tmplt.format(**val).encode('utf-8')
-#       print tmplt
         return tmplt
         
     def publishProfile(self):
@@ -154,9 +145,9 @@ class Profiles:
         Publishes one or more formatted messages on a wiki.
         """
         try:
-            print self.page_path
-            print self.edit_summ
-            print self.invite
+#             print self.page_path
+#             print self.edit_summ
+#             print self.invite
             response = requests.post(
                 self.api_url,
                 data={
@@ -175,7 +166,4 @@ class Profiles:
             self.invited = True
         except:
             print "unable to invite " + self.user_name + " at this time."    
-    
-#         return self.invited
-
 

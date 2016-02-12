@@ -80,11 +80,11 @@ if __name__ == "__main__":
     params = param.getParams(sys.argv[1])
     elig_check = hb_hosts.Eligible()
     daily_sample = hb_profiles.Samples()
-#     candidates = daily_sample.getSample(params['select query'], sub_sample=True)    
-    user_name = sys.argv[2]
-    user_id = int(sys.argv[3]) #int so it will be committed to the db
-    page_id = sys.argv[4]
-    candidates = [(user_name, user_id, page_id)]
+    candidates = daily_sample.getSample(params['select query'], sub_sample=False)    
+#     user_name = sys.argv[2]
+#     user_id = int(sys.argv[3]) #int so it will be committed to the db
+#     page_id = sys.argv[4]
+#     candidates = [(user_name, user_id, page_id)]
     if sys.argv[1] in ('th_invites', 'twa_invites', 'test_invites'):
         if len(candidates) > 150:
             candidates = random.sample(candidates, 150) #pull 150 users out randomly
@@ -94,5 +94,5 @@ if __name__ == "__main__":
     for c in candidates:
 #         print c
         profile = runSample(c, random.choice(inviters), random.choice(params['messages']), params)
-        daily_sample.updateOneRow("update test invite status", [profile.message[0], int(profile.invited), int(profile.skip), profile.user_id]) 
+        daily_sample.updateOneRow("update th invite status", [profile.message[0], int(profile.invited), int(profile.skip), profile.user_id]) 
         #add talkpage check     
