@@ -23,6 +23,9 @@ import hb_templates as templates
 import requests
 from requests_oauthlib import OAuth1
 
+#TODO: add in logging again, more try statements
+#hostbot_settings to config
+#get DB class out of profiles.py, rename
 
 class Samples:
     """Create, parse, and post formatted messages to wiki."""
@@ -40,13 +43,29 @@ class Samples:
             )
         self.cursor = self.conn.cursor()        
         self.queries = hb_queries.Query()        
+
+    def insertInvitees(self, query_key):
+        """
+        Insert today's potential invitees into the database
+        """
+        query = self.queries.getQuery(query_key)
+        self.cursor.execute(query)
+        self.conn.commit()
+
+    def updateTalkPages(self, query_key):
+        """
+        Updates the database with user talkpage ids (if they have one)
+        """
+        query = self.queries.getQuery(query_key)
+        self.cursor.execute(query)
+        self.conn.commit()
         
-    def getSample(self, query_key, sub_sample=False):
+    def selectSample(self, query_key, sub_sample=False):
         """
         Returns a list of usernames and ids of candidates for invitation
         """
-#         sample_query = self.queries.getQuery(query_key)
-        sample_query = "SELECT user_name, user_id, user_talkpage FROM th_up_invitees_experiment_2 WHERE date(sample_date) = date(NOW()) AND sample_type = 4 AND invite_status IS NULL AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL);" #FIXME pull from queries module
+#         sample_query = "SELECT user_name, user_id, user_talkpage FROM th_up_invitees_experiment_2 WHERE date(sample_date) = date(NOW()) AND sample_type = 4 AND invite_status IS NULL AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL);"
+        sample_query = self.queries.getQuery(query_key)
         self.cursor.execute(sample_query)
         rows = self.cursor.fetchall()
         sample_set = [(row[0],row[1], row[2]) for row in rows]
@@ -165,5 +184,5 @@ class Profiles:
                 )     
             self.invited = True
         except:
-            print "unable to invite " + self.user_name + " at this time."    
+            print "unable to invite " + self.user_name + " at this time."   #should be logged, not printed  
 

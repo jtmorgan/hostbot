@@ -15,107 +15,73 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from datetime import datetime
-import hb_api_queries
+import hb_hosts
 import hb_output_settings
 import hb_profiles
-import hb_queries
-import hostbot_settings
-import MySQLdb
 import random
-import requests
-from requests_oauthlib import OAuth1
 import sys
-import traceback
-import wikitools
 
-def getSample(cursor, qstring):
-	"""
-	Returns a list of usernames and ids of candidates for invitation
-	"""
-	cursor.execute(qstring)
-	rows = cursor.fetchall()
-	sample_set = [(row[0],row[1], row[2]) for row in rows]
-# 	sample_set = sample_set[:5]
-	return sample_set
+def getEligibleInviters(elig_check, potential_inviters):
+    eligible_inviters = [x for x in potential_inviters if elig_check.determineInviterEligibility(x, 21)]
+    return eligible_inviters
+    
+def runSample(c, inviter, message, params):   
+    prof = hb_profiles.Profiles(params['output namespace'] + c[0], user_name = c[0], user_id = c[1], page_id = c[2],  settings = params)
+    prof.inviter = inviter
+    prof.message = message
+    prof.invited = False
+    prof.skip = False
+    if c[2] is not None:
+        prof.skip = checkTalkPage(prof.skip, prof, params['skip templates'])
+    if not prof.skip:
+        prof = inviteGuests(prof, prof.message[1], prof.inviter)
+    else:
+        message = ("th control","")
+    return prof    
 
-def getEligibleInviters(potential_inviters):
-    inviters = [x for x in potential_inviters if elig_check.determineInviterEligibility(x, 21)]
-    return inviters
-
-def runSample(sub_sample, inviters, send_invite):
-	for s in sub_sample:
-		output = hb_profiles.Profiles(params['output namespace'] + s[0], id = s[2], settings = params)
-		invited = False
-		skip = talkpageCheck(s[2], output)
-		if send_invite:
-			message = random.choice(params['messages'])
-			if not skip:
-				inviteGuests(s, output, message[1], random.choice(inviters))
-				invited = True
-		else:
-			message = ("th control","")
-		updateDB(s[1], "update th invite status", message[0], int(invited), int(skip))
-
-def inviteGuests(s, output, message_text, inviter):
-	"""
-	Invites todays newcomers.
-	"""
-	invite = output.formatProfile({'inviter' : inviter, 'message' : message_text})
-	edit_summ = s[0] + params["edit summary"]
-	try:
-		output.publishProfile(invite, params['output namespace'] + s[0], edit_summ, edit_sec = "new")
-	except:
-		print "something went wrong trying to invite " + s[0]
-
-def talkpageCheck(talkpage_id, output):
-	"""checks talk pages"""
-	skip = False
-	if talkpage_id is not None:
-		talkpage_text = output.getPageText()
-		for template in params['skip templates']:
-			if template in talkpage_text:
-				skip = True
-	return skip
-
-def updateDB(user_id, qstring, sample_group, invited, invitable):
-	"""
-	Updates the database: was the user invited, or skipped?
-	"""
-	try:
-		qvars = [sample_group, invited, invitable, user_id]
-		query = queries.getQuery(qstring, qvars)
-		cursor.execute(query)
-		conn.commit()
-	except:
-		print "something went wrong with " + str(user_id)
+def checkTalkPage(skip, prof, skip_templates): 
+    """checks talk pages"""
+    #only works if you already have the talkpage
+    #move to hb_hosts, rename that 'hb_user_check
+    tp_text = prof.getPageText()
+    for t in skip_templates:
+        if t in tp_text:
+            skip = True
+    return skip
+    
+def inviteGuests(prof, message_text, inviter):
+    """
+    Invites todays newcomers.
+    """
+    prof.invite = prof.formatProfile({'inviter' : inviter, 'message' : message_text})
+    prof.edit_summ = prof.user_name + params["edit summary"]
+    try:
+        prof.getToken()
+        prof.publishProfile()
+    except:
+        print "something went wrong trying to invite " + page_path
+    return prof
 
 if __name__ == "__main__":
-    #dev
-    wiki = wikitools.Wiki(hostbot_settings.apiurl)
-    wiki.login(hostbot_settings.username, hostbot_settings.password)
-    conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
-    cursor = conn.cursor()
-    queries = hb_queries.Query()
     param = hb_output_settings.Params()
     params = param.getParams(sys.argv[1])
-    elig_check = hb_api_queries.Query()
-    cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
-    conn.commit()
-
-    candidates = getSample(cursor, queries.getQuery(params['select query']))
-    if sys.argv[1] in ('th_invites', 'twa_invites', 'test_invites'):
+    elig_check = hb_hosts.Eligible()
+    
+    daily_sample = hb_profiles.Samples()
+    daily_sample.insertInvitees("teahouse experiment newbies") #need to generalize for TWA too
+    daily_sample.updateTalkPages("th add talkpage") #need to generalize for TWA too
+    candidates = daily_sample.selectSample(params['select query'], sub_sample=False)    
+#     user_name = sys.argv[2]
+#     user_id = int(sys.argv[3]) #int so it will be committed to the db
+#     page_id = sys.argv[4]
+#     candidates = [(user_name, user_id, page_id)]
+    if sys.argv[1] in ('th_invites', 'twa_invites', 'test_invites'): #parameterize
         if len(candidates) > 150:
             candidates = random.sample(candidates, 150) #pull 150 users out randomly
     else:
         pass
-
-    inviters = getEligibleInviters(params['inviters'])
-#     print inviters
-    runSample(candidates, inviters, True)
-
-    cursor.execute(queries.getQuery("th add talkpage")) #Inserts the id of the user's talkpage into the database
-    conn.commit()
-
-    cursor.close()
-    conn.close()
+    inviters = getEligibleInviters(elig_check, params['inviters'])
+    for c in candidates:
+        profile = runSample(c, random.choice(inviters), random.choice(params['messages']), params)
+        daily_sample.updateOneRow("update th invite status", [profile.message[0], int(profile.invited), int(profile.skip), profile.user_id]) 
+        #add talkpage check    

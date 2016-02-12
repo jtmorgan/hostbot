@@ -65,14 +65,12 @@ def inviteGuests(prof, message_text, inviter):
     """
     prof.invite = prof.formatProfile({'inviter' : inviter, 'message' : message_text})
     prof.edit_summ = prof.user_name + params["edit summary"]
-#     try:
-    prof.getToken()
-    prof.publishProfile()
-#     except:
-#         print "something went wrong trying to invite " + page_path
+    try:
+        prof.getToken()
+        prof.publishProfile()
+    except:
+        print "something went wrong trying to invite " + page_path
     return prof
-    #need to return success
-# def updateDB(profile)
 
 
 if __name__ == "__main__":
@@ -92,7 +90,6 @@ if __name__ == "__main__":
         pass
     inviters = getEligibleInviters(elig_check, params['inviters'])
     for c in candidates:
-#         print c
         profile = runSample(c, random.choice(inviters), random.choice(params['messages']), params)
         daily_sample.updateOneRow("update th invite status", [profile.message[0], int(profile.invited), int(profile.skip), profile.user_id]) 
         #add talkpage check     
