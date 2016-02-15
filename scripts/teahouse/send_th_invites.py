@@ -85,3 +85,4 @@ if __name__ == "__main__":
         profile = runSample(c, random.choice(inviters), random.choice(params['messages']), params)
         daily_sample.updateOneRow("update th invite status", [profile.message[0], int(profile.invited), int(profile.skip), profile.user_id]) 
         #add talkpage check    
+    daily_sample.updateTalkPages("th add talkpage") #need to generalize for TWA too
