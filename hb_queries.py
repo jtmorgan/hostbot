@@ -129,7 +129,7 @@ class Query:
 		AND p.page_namespace = 3
 		AND REPLACE(i.user_name, " ", "_") = p.page_title
 		AND i.user_talkpage IS NULL""",
-				},				
+				},		
 }
 
 	def getQuery(self, query_type, query_vars = False):

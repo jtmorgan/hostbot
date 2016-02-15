@@ -64,7 +64,6 @@ class Samples:
         """
         Returns a list of usernames and ids of candidates for invitation
         """
-#         sample_query = "SELECT user_name, user_id, user_talkpage FROM th_up_invitees_experiment_2 WHERE date(sample_date) = date(NOW()) AND sample_type = 4 AND invite_status IS NULL AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL);"
         sample_query = self.queries.getQuery(query_key)
         self.cursor.execute(sample_query)
         rows = self.cursor.fetchall()
