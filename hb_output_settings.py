@@ -74,7 +74,7 @@ class Params:
 				'output section' : 'new',
 				'edit summary' : ', you are invited to the Teahouse!',
 				'output section title' : '== {{subst:PAGENAME}}, you are invited to the Teahouse ==',
-				'inviters' : ['Rosiestep','Jtmorgan','Missvain','Naypta','AmaryllisGardener','Doctree','Osarius','Soni', 'I JethroBT', 'Dathus', 'Cordless Larry', '78.26', 'Worm That Turned', 'ChamithN', 'Samwalton9',],
+				'inviters' : ['Rosiestep','Jtmorgan','Missvain','Liz','Naypta','AmaryllisGardener','Doctree','Osarius','Soni', 'I JethroBT', 'Dathus', 'Cordless Larry', '78.26', 'Worm That Turned', 'ChamithN', 'Samwalton9',],
 				'messages' : [('th exp', ""),], #not currently using the message text
 				'skip templates' : ['uw-vandalism4', 'final warning', '{{sock|', 'uw-unsourced4', 'uw-socksuspect', 'Socksuspectnotice', 'only warning','without further warning', 'Uw-socksuspect', 'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4'],
 				},
@@ -85,7 +85,7 @@ class Params:
 				'output section' : 'new',
 				'edit summary' : ', you are invited to the Teahouse!',
 				'output section title' : '== {{subst:PAGENAME}}, you are invited to the Teahouse ==',
-				'inviters' : ['Rosiestep','Jtmorgan','Missvain','Naypta','AmaryllisGardener','Doctree','Osarius','Soni', 'I JethroBT', 'Dathus', '78.26', 'Worm That Turned', 'ChamithN', 'Samwalton9',],
+				'inviters' : ['Rosiestep','Jtmorgan','Missvain','Liz','Naypta','AmaryllisGardener','Doctree','Osarius','Soni', 'I JethroBT', 'Dathus', '78.26', 'Worm That Turned', 'ChamithN', 'Samwalton9',],
 				'messages' : [('th exp', ""),], #not currently using the message text
 				'skip templates' : ['uw-vandalism4', 'final warning', '{{sock|', 'uw-unsourced4', 'uw-socksuspect', 'Socksuspectnotice', 'only warning','without further warning', 'Uw-socksuspect', 'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4'],
 				},				
