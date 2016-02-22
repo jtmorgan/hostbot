@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import hb_hosts
+import hb_toolkit
 import hb_output_settings
 import hb_profiles
 import random
