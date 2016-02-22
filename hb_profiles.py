@@ -129,25 +129,6 @@ class Profiles:
             self.token = doc['query']['tokens']['csrftoken'] 
         except:
             self.token = None
-                                            
-    def getPageText(self, section=False):
-        """
-        Gets the raw text of a page or page section.
-        Sample: http://meta.wikimedia.org/w/api.php?action=query&prop=revisions&titles=Grants:IdeaLab/Introductions&rvprop=content&rvsection=21&format=jsonfm
-        """
-        api_params={
-            'action': 'query',
-            'prop': 'revisions',
-            'titles': self.page_path,
-            'rvprop' : 'content',
-            'format': "json"            
-        }        
-        if section:
-			api_params['rvsection'] = section
-        response = requests.get(self.api_url, params=api_params)                   
-        doc = response.json()
-        text = doc['query']['pages'][self.page_id]['revisions'][0]['*']
-        return text
         
     def formatProfile(self, val):
         """

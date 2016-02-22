@@ -24,6 +24,15 @@ import sys
 def getEligibleInviters(elig_check, potential_inviters):
     eligible_inviters = [x for x in potential_inviters if elig_check.determineInviterEligibility(x, 21)]
     return eligible_inviters
+
+def getEligibleInvitees(elig_check, potential_invitees, skip_templates):
+    """
+    Takes an eligibility checker object, a list of keywords, and 
+    a list of invite candidates (user_name, user_id, talkpage_id). 
+    Returns a dictionary with lists of eligible and ineligible invitees.
+    """
+    eligible_invitees = [x for x in potential_invitees if elig_check.determineInviteeEligibility(x)]
+    return eligible_invitees
     
 def runSample(c, inviter, message, params):   
     prof = hb_profiles.Profiles(params['output namespace'] + c[0], user_name = c[0], user_id = c[1], page_id = c[2],  settings = params)
@@ -31,23 +40,8 @@ def runSample(c, inviter, message, params):
     prof.message = message
     prof.invited = False
     prof.skip = False
-    if c[2] is not None:
-        prof.skip = checkTalkPage(prof.skip, prof, params['skip templates'])
-    if not prof.skip:
-        prof = inviteGuests(prof, prof.message[1], prof.inviter)
-    else:
-        message = ("th control","")
+    prof = inviteGuests(prof, prof.message[1], prof.inviter)
     return prof    
-
-def checkTalkPage(skip, prof, skip_templates): 
-    """checks talk pages"""
-    #only works if you already have the talkpage
-    #move to hb_hosts, rename that 'hb_user_check
-    tp_text = prof.getPageText()
-    for t in skip_templates:
-        if t in tp_text:
-            skip = True
-    return skip
     
 def inviteGuests(prof, message_text, inviter):
     """
@@ -65,12 +59,13 @@ def inviteGuests(prof, message_text, inviter):
 if __name__ == "__main__":
     param = hb_output_settings.Params()
     params = param.getParams(sys.argv[1])
-    elig_check = hb_hosts.Eligible()
+    elig_check = hb_toolkit.Eligible()
     
     daily_sample = hb_profiles.Samples()
     daily_sample.insertInvitees("teahouse experiment newbies") #need to generalize for TWA too
     daily_sample.updateTalkPages("th add talkpage") #need to generalize for TWA too
-    candidates = daily_sample.selectSample(params['select query'], sub_sample=False)    
+    candidates = daily_sample.selectSample(params['select query'], sub_sample=False)
+    #make this a function    
 #     user_name = sys.argv[2]
 #     user_id = int(sys.argv[3]) #int so it will be committed to the db
 #     page_id = sys.argv[4]
@@ -81,8 +76,13 @@ if __name__ == "__main__":
     else:
         pass
     inviters = getEligibleInviters(elig_check, params['inviters'])
-    for c in candidates:
-        profile = runSample(c, random.choice(inviters), random.choice(params['messages']), params)
+    invitees = getEligibleInvitees(elig_check, candidates, params['skip templates'])
+    skipped_editors = [x for x in candidates if not in invitees]
+    for i in invitees:
+        profile = runSample(i, random.choice(inviters), random.choice(params['messages']), params)
         daily_sample.updateOneRow("update th invite status", [profile.message[0], int(profile.invited), int(profile.skip), profile.user_id]) 
         #add talkpage check    
+    for s in skipped_editors:
+        daily_sample.updateOneRow("update th invite status", [profile.message[0], 0, 1, s[1]])         
+
     daily_sample.updateTalkPages("th add talkpage") #need to generalize for TWA too
