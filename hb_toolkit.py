@@ -26,7 +26,7 @@ class Eligible:
     def __init__(self):
         self.api_url = "https://en.wikipedia.org/w/api.php/"
         self.settings = hb_output_settings.Params()
-        self.output_params = settings.getParams("th_invites")
+        self.output_params = self.settings.getParams("th_invites")
              
     def getLatestEditDate(self, user_name):
         """
@@ -110,14 +110,14 @@ class Eligible:
         has_skip_template = False        
         is_blocked = self.getBlockStatus(invitee[0])
         if invitee[2] is not None:
-            has_skip_template = checkTalkPage(self.output_params["skip templates"] + invitee[0], invitee[2], self.output_params["skip templates"])
+            has_skip_template = self.checkTalkPage(self.output_params["output namespace"] + invitee[0], invitee[2], self.output_params["skip templates"])
         if not has_skip_template and not is_blocked:
             is_eligible = True
         else:
             pass
         return is_eligible
 
-    def checkTalkPage(page_path, page_id, skip_templates): 
+    def checkTalkPage(self, page_path, page_id, skip_templates): 
         """
         Takes a dictionary of key words.
         If those words appear in the user talkpage,
@@ -143,10 +143,15 @@ class Eligible:
             'format': "json"            
         }        
         if section:
-			api_params['rvsection'] = section
-        response = requests.get(self.api_url, params=api_params)                   
-        doc = response.json()
-        text = doc['query']['pages'][page_id]['revisions'][0]['*']
+            api_params['rvsection'] = section
+        else:
+            pass
+        try:
+            response = requests.get(self.api_url, params=api_params)                   
+            doc = response.json()
+            text = doc['query']['pages'][page_id]['revisions'][0]['*']
+        except:#if there's an error, text is an empty string. Keeps the system working.
+            text = ""
         return text        
          
 if __name__ == "__main__":

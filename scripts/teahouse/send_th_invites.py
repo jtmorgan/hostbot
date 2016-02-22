@@ -62,7 +62,7 @@ if __name__ == "__main__":
     elig_check = hb_toolkit.Eligible()
     
     daily_sample = hb_profiles.Samples()
-    daily_sample.insertInvitees("teahouse experiment newbies") #need to generalize for TWA too
+#     daily_sample.insertInvitees("teahouse experiment newbies") #need to generalize for TWA too
     daily_sample.updateTalkPages("th add talkpage") #need to generalize for TWA too
     candidates = daily_sample.selectSample(params['select query'], sub_sample=False)
     #make this a function    
@@ -77,12 +77,13 @@ if __name__ == "__main__":
         pass
     inviters = getEligibleInviters(elig_check, params['inviters'])
     invitees = getEligibleInvitees(elig_check, candidates, params['skip templates'])
-    skipped_editors = [x for x in candidates if not in invitees]
+    skipped_editors = [x for x in candidates if x not in invitees]
     for i in invitees:
         profile = runSample(i, random.choice(inviters), random.choice(params['messages']), params)
         daily_sample.updateOneRow("update th invite status", [profile.message[0], int(profile.invited), int(profile.skip), profile.user_id]) 
         #add talkpage check    
     for s in skipped_editors:
+#         print s
         daily_sample.updateOneRow("update th invite status", [profile.message[0], 0, 1, s[1]])         
 
     daily_sample.updateTalkPages("th add talkpage") #need to generalize for TWA too
