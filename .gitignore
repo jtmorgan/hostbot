@@ -1,6 +1,7 @@
 data
 logs
 *.DS_Store
+*config.py
 hostbot_settings*
 old
 *.InterarchyMirrorCacheData
