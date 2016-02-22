@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import hostbot_settings
+import hb_config
 import MySQLdb
 import hb_output_settings as output_settings
 import hb_queries
@@ -24,7 +24,7 @@ import requests
 from requests_oauthlib import OAuth1
 
 #TODO: add in logging again, more try statements
-#hostbot_settings to config
+#hb_config to config
 #get DB class out of profiles.py, rename
 
 class Samples:
@@ -35,9 +35,9 @@ class Samples:
         Set up the db connection.
         """
         self.conn = MySQLdb.connect(
-        host = hostbot_settings.host, 
-        db = hostbot_settings.dbname, 
-        read_default_file = hostbot_settings.defaultcnf, 
+        host = hb_config.host, 
+        db = hb_config.dbname, 
+        read_default_file = hb_config.defaultcnf, 
         use_unicode=1, 
         charset="utf8"
             )
@@ -102,12 +102,12 @@ class Profiles:
             self.page_id = str(page_id)
         if settings:
             self.profile_settings = settings
-        self.api_url = hostbot_settings.oauth_api_url
-        self.user_agent = hostbot_settings.oauth_user_agent
+        self.api_url = hb_config.oauth_api_url
+        self.user_agent = hb_config.oauth_user_agent
         self.auth1 = OAuth1(unicode("b5d87cbe96174f9435689a666110159c"),
-                client_secret=unicode(hostbot_settings.client_secret),
+                client_secret=unicode(hb_config.client_secret),
                 resource_owner_key=unicode("ca1b222d687be9ac33cfb49676f5bfd2"),
-                resource_owner_secret=unicode(hostbot_settings.resource_owner_secret))      
+                resource_owner_secret=unicode(hb_config.resource_owner_secret))      
                 
     def getToken(self):
         """

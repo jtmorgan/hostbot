@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import hostbot_settings
+import hb_config
 import hb_output_settings as output_settings
 import hb_profiles as profiles
 import sys

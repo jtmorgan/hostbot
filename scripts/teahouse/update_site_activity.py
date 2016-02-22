@@ -17,7 +17,7 @@
 
 import datetime
 import MySQLdb
-import hostbot_settings
+import hb_config
 from warnings import filterwarnings
 
 ##FUNCTIONS##
@@ -123,7 +123,7 @@ def updatePagelist(cursor):
 	conn.commit()
 
 ##MAIN##
-conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
+conn = MySQLdb.connect(host = hb_config.host, db = hb_config.dbname, read_default_file = hb_config.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
 filterwarnings('ignore', category = MySQLdb.Warning)
 

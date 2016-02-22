@@ -17,15 +17,15 @@
 
 import urllib2
 import wikitools
-import hostbot_settings
+import hb_config
 from BeautifulSoup import BeautifulStoneSoup as bss
 
 
 # the archive page, in this case Teahouse/Guest_book
-report_title = hostbot_settings.rootpage + '/Guest_book'
+report_title = hb_config.rootpage + '/Guest_book'
 
 # the page you want to archive
-remove_title_left = hostbot_settings.rootpage + '/Guests/Right_column'
+remove_title_left = hb_config.rootpage + '/Guests/Right_column'
 
 report_template = '''%s
 '''
@@ -38,8 +38,8 @@ remove_template = '''= Recent guests =
 %s
 '''
 
-wiki = wikitools.Wiki(hostbot_settings.apiurl)
-wiki.login(hostbot_settings.username, hostbot_settings.password)
+wiki = wikitools.Wiki(hb_config.apiurl)
+wiki.login(hb_config.username, hb_config.password)
 
 # get the number of new profiles on the Guest_left page
 

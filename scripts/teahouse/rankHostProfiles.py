@@ -17,7 +17,7 @@
 
 import MySQLdb
 import hb_profiles
-import hostbot_settings
+import hb_config
 import hb_output_settings
 import sys
 
@@ -58,7 +58,7 @@ def rankProfiles():
 
 
 ###MAIN###
-conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=True, charset="utf8")
+conn = MySQLdb.connect(host = hb_config.host, db = hb_config.dbname, read_default_file = hb_config.defaultcnf, use_unicode=True, charset="utf8")
 cursor = conn.cursor()
 param = hb_output_settings.Params()
 params = param.getParams(sys.argv[1])

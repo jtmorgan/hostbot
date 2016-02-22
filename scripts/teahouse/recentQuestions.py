@@ -21,18 +21,18 @@ import urllib2
 import wikitools
 import re
 import MySQLdb
-import hostbot_settings
+import hb_config
 
-report_title = hostbot_settings.rootpage + '/Questions-recent/%i'
+report_title = hb_config.rootpage + '/Questions-recent/%i'
 
 report_template = '''%s
 
 <!-- Fill in the "section" parameter with the question title from the Q&A page -->
 {{Wikipedia:Teahouse/Questions-answer|section=%s}}
 '''
-wiki = wikitools.Wiki(hostbot_settings.apiurl)
-wiki.login(hostbot_settings.username, hostbot_settings.password)
-conn = MySQLdb.connect(host = hostbot_settings.host, db = hostbot_settings.dbname, read_default_file = hostbot_settings.defaultcnf, use_unicode=1, charset="utf8")
+wiki = wikitools.Wiki(hb_config.apiurl)
+wiki.login(hb_config.username, hb_config.password)
+conn = MySQLdb.connect(host = hb_config.host, db = hb_config.dbname, read_default_file = hb_config.defaultcnf, use_unicode=1, charset="utf8")
 cursor = conn.cursor()
 
 cursor.execute('''
