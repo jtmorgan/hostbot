@@ -1,4 +1,4 @@
-#! /usr/bin/env python2.7
+#! /usr/bin/env python
 
 # Copyright 2013 Jtmorgan
 
@@ -69,7 +69,7 @@ class Samples:
         rows = self.cursor.fetchall()
         sample_set = [(row[0],row[1], row[2]) for row in rows]
         if sub_sample:
-        	sample_set = sample_set[:5]
+        	sample_set = sample_set[:30]
         return sample_set 
         
 #         self.cursor.close()

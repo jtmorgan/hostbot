@@ -1,4 +1,4 @@
-#! /usr/bin/env python2.7
+#! /usr/bin/env python
 
 # Copyright 2015 Jtmorgan
 
@@ -20,6 +20,9 @@ import dateutil.parser
 import hb_output_settings
 import requests
 import sys
+import requests.packages.urllib3
+requests.packages.urllib3.disable_warnings()
+
 
 class Eligible:
 
@@ -108,9 +111,10 @@ class Eligible:
         """
         is_eligible = False
         has_skip_template = False        
-        is_blocked = self.getBlockStatus(invitee[0])
+        is_blocked = self.getBlockStatus(invitee[1])
         if invitee[2] is not None:
             has_skip_template = self.checkTalkPage(self.output_params["output namespace"] + invitee[0], invitee[2], self.output_params["skip templates"])
+#             print invitee[0] + str(has_skip_template)
         if not has_skip_template and not is_blocked:
             is_eligible = True
         else:
@@ -149,7 +153,7 @@ class Eligible:
         try:
             response = requests.get(self.api_url, params=api_params)                   
             doc = response.json()
-            text = doc['query']['pages'][page_id]['revisions'][0]['*']
+            text = doc['query']['pages'][str(page_id)]['revisions'][0]['*'] #note page_id as str
         except:#if there's an error, text is an empty string. Keeps the system working.
             text = ""
         return text        
