@@ -75,6 +75,7 @@ if __name__ == "__main__":
             candidates = random.sample(candidates, 150) #pull 150 users out randomly
     else:
         pass
+#     inviters = params['inviters'] #for TWA
     inviters = getEligibleInviters(elig_check, params['inviters'])
     invitees = getEligibleInvitees(elig_check, candidates, params['skip templates'])
     skipped_editors = [x for x in candidates if x not in invitees]

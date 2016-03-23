@@ -101,7 +101,7 @@ class Query:
 	'string' : u"""SELECT user_name, user_id, user_talkpage
 		FROM th_up_invitees_experiment_2
 		WHERE date(sample_date) = date(NOW())
-		AND sample_type = 3
+		AND sample_type = 4
 		AND invite_status IS NULL
 		AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL)""",
 				},
