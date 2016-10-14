@@ -71,8 +71,8 @@ if __name__ == "__main__":
 #     page_id = sys.argv[4]
 #     candidates = [(user_name, user_id, page_id)]
     if sys.argv[1] in ('th_invites', 'twa_invites', 'test_invites'): #parameterize
-        if len(candidates) > 150:
-            candidates = random.sample(candidates, 150) #pull 150 users out randomly
+        if len(candidates) > 300:
+            candidates = random.sample(candidates, 300) #pull 300 users out randomly
     else:
         pass
 #     inviters = params['inviters'] #for TWA
