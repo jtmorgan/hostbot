@@ -1,0 +1,16 @@
+#! /usr/bin/env python2.7
+
+# Wiki login details
+username = 'MyBot'
+password = 'mybotspassword'
+apiurl = 'http://en.wikipedia.org/w/api.php'
+indexurl = 'http://en.wikipedia.org/w/index.php'
+
+# db details
+host = 'enwiki.labsdb'
+dbname = 'mybotdb'
+defaultcnf = '/data/project/labsusername/.my.cnf'
+
+# Teahouse settings
+rootpage = 'Wikipedia:Teahouse'
+editsumm = 'automatic edits by [[User:HostBot|HostBot]]'

@@ -3,7 +3,6 @@ logs
 *.DS_Store
 *config.py
 hostbot_settings*
-old
 *.InterarchyMirrorCacheData
 "Icon\r"
 *.pyc

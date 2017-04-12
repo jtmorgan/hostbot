@@ -1,0 +1,18 @@
+= HostBot: your Wikipedia robot friend =
+[http://en.wikipedia.org/wiki/User:HostBot HostBot] is a set of Python scripts that performs repetitive tasks on and for the [http://en.wikipedia.org/wiki/Wikipedia:Teahouse Wikipedia Teahouse]. HostBot is run by [http://en.wikipedia.org/wiki/User:Jtmorgan Jonathan Morgan], and is hosted on [https://wikitech.wikimedia.org/wiki/Main_Page Wikimedia Labs]. Hostbot is written in Python 2.7 and makes use of the [http://www.mediawiki.org/wiki/API:Main_page MediaWiki API] and the [https://github.com/alexz-enwp/wikitools wikitools] Python framework.
+
+Information about what the Teahouse is, and how it came to be can be found [http://meta.wikimedia.org/wiki/Teahouse here]. If you're interested in creating a Teahouse on your home wiki, please email Jonathan or post to [http://en.wikipedia.org/wiki/User_talk:Jtmorgan his talk page on Wikipedia].
+
+== Functions ==
+
+=== Talk page invitations ===
+Posts templated invitations to the talk pages of new Wikipedia editors. Currently it posts invitations to visit the Teahouse and to play The Wikipedia Adventure game.
+
+=== Archiving ===
+Archives Teahouse guest profiles.
+
+=== Activity logging ===
+Logs activity on the Teahouse: questions asked and answered, profiles created, unique visitors.
+
+=== Featuring ===
+Features recent content in galleries on the Teahouse front pages: recently asked questions, recently created guest profiles, and recently active hosts. Also re-orders the profiles on the Teahouse Host Lounge to feature most active hosts at the top.
