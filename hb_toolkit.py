@@ -2,6 +2,7 @@
 
 from datetime import datetime, timedelta
 import dateutil.parser
+import hb_config
 import hb_output_settings
 import requests
 import sys
@@ -12,9 +13,10 @@ requests.packages.urllib3.disable_warnings()
 class Eligible:
 
     def __init__(self):
-        self.api_url = "https://en.wikipedia.org/w/api.php/"
+        self.api_url = hb_config.api_url_get
+#         self.api_url = "https://en.wikipedia.org/w/api.php/"
         self.settings = hb_output_settings.Params()
-        self.output_params = self.settings.getParams("th_invites")
+        self.output_params = self.settings.getParams("test_invites")#parameterize
 
     def getLatestEditDate(self, user_name):
         """

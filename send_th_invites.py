@@ -8,6 +8,7 @@ import sys
 
 def getEligibleInviters(elig_check, potential_inviters):
     eligible_inviters = [x for x in potential_inviters if elig_check.determineInviterEligibility(x, 21)]
+    print(eligible_inviters)
     return eligible_inviters
 
 def getEligibleInvitees(elig_check, potential_invitees, skip_templates):
@@ -47,8 +48,8 @@ if __name__ == "__main__":
     elig_check = hb_toolkit.Eligible()
 
     daily_sample = hb_profiles.Samples()
-    daily_sample.insertInvitees("teahouse experiment newbies")
-    daily_sample.updateTalkPages("th add talkpage")
+    daily_sample.insertInvitees("teahouse test")#parameterize
+    daily_sample.updateTalkPages("th add talkpage test")#parameterize
     candidates = daily_sample.selectSample(params['select query'], sub_sample=False)
     #make this a function
 #     user_name = sys.argv[2]
@@ -66,8 +67,8 @@ if __name__ == "__main__":
 #     print skipped_editors
     for i in invitees:
         profile = runSample(i, random.choice(inviters), random.choice(params['messages']), params)
-        daily_sample.updateOneRow("update th invite status", [profile.message[0], int(profile.invited), int(profile.skip), profile.user_id])
+        daily_sample.updateOneRow("update test invite status", [profile.message[0], int(profile.invited), int(profile.skip), profile.user_id])
     for s in skipped_editors:
-        daily_sample.updateOneRow("update th invite status", [profile.message[0], 0, 1, s[1]])
+        daily_sample.updateOneRow("update test invite status", [profile.message[0], 0, 1, s[1]])
 
-    daily_sample.updateTalkPages("th add talkpage")
+    daily_sample.updateTalkPages("th add talkpage test")
