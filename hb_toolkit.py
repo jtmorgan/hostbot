@@ -12,11 +12,9 @@ requests.packages.urllib3.disable_warnings()
 
 class Eligible:
 
-    def __init__(self):
+    def __init__(self, params):
         self.api_url = hb_config.api_url_get
-#         self.api_url = "https://en.wikipedia.org/w/api.php/"
-        self.settings = hb_output_settings.Params()
-        self.output_params = self.settings.getParams("test_invites")#parameterize
+        self.output_params = params
 
     def getLatestEditDate(self, user_name):
         """

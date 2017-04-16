@@ -8,7 +8,10 @@ class Params:
 	def __init__(self):
 		self.output_params = {
 			'th_invites' : {
+			    'insert query' : 'teahouse experiment newbies',
 			    'select query' : 'th experiment invitees',
+			    'status update query' : 'update th invite status',
+			    'talkpage update query' : 'th add talkpage',
 				'type' : 'th invite templates',
 				'output namespace' : 'User_talk:',
 				'output section' : 'new',
@@ -19,8 +22,11 @@ class Params:
 				'skip templates' : ['uw-vandalism4', 'final warning', '{{sock|', 'uw-unsourced4', 'uw-socksuspect', 'Socksuspectnotice', 'only warning','without further warning', 'Uw-socksuspect', 'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4'],
 				},
 			'test_invites' : { #when using the test db th_invite_test
+			    'insert query' : 'teahouse test',
 			    'select query' : 'th test invitees',
-				'type' : 'th invite templates',
+			    'status update query' : 'update test invite status',
+			    'talkpage update query' : 'th add talkpage test',
+				'type' : 'test invite templates',
 				'output namespace' : 'User_talk:',
 				'output section' : 'new',
 				'edit summary' : ', you are invited to the Teahouse!',
