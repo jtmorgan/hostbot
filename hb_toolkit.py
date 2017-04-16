@@ -1,20 +1,5 @@
 #! /usr/bin/env python
 
-# Copyright 2015 Jtmorgan
-
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 from datetime import datetime, timedelta
 import dateutil.parser
 import hb_output_settings
@@ -30,14 +15,14 @@ class Eligible:
         self.api_url = "https://en.wikipedia.org/w/api.php/"
         self.settings = hb_output_settings.Params()
         self.output_params = self.settings.getParams("th_invites")
-             
+
     def getLatestEditDate(self, user_name):
         """
         Get the date of the user's most recent edit
         See: https://www.mediawiki.org/wiki/API:Usercontribs
-        Example: https://en.wikipedia.org/w/api.php/?ucprop=timestamp&ucuser=Jtmorgan&list=usercontribs&action=query&ucshow=top&uclimit=1&ucdir=older  
+        Example: https://en.wikipedia.org/w/api.php/?ucprop=timestamp&ucuser=Jtmorgan&list=usercontribs&action=query&ucshow=top&uclimit=1&ucdir=older
         """
-                
+
         parameters = {
             "action" : "query",
             "list" : "usercontribs",
@@ -60,7 +45,7 @@ class Eligible:
         """
         Find out whether the user is currently blocked from editing
         See: https://www.mediawiki.org/wiki/API:Users
-        Example: https://en.wikipedia.org/w/api.php?action=query&list=users&ususers=Willy_on_Wheels~enwiki&usprop=blockinfo 
+        Example: https://en.wikipedia.org/w/api.php?action=query&list=users&ususers=Willy_on_Wheels~enwiki&usprop=blockinfo
         """
         parameters = {
             "action" : "query",
@@ -68,7 +53,7 @@ class Eligible:
             "ususers" : user_name,
             "usprop" : "blockinfo",
             "format": "json",
-            }  
+            }
         blocked = False
         api_req = requests.get(self.api_url, params=parameters)
         # print api_req.url
@@ -77,10 +62,10 @@ class Eligible:
         if "blockid" in api_data["query"]["users"][0].keys():
             blocked = True
         else:
-            pass    
+            pass
         # print blocked
         return blocked
-    
+
     def meetsEditDateThreshold(self, latest_edit_date, threshold):
         meets_threshold = False
         cur_date = datetime.utcnow().date()
@@ -89,8 +74,8 @@ class Eligible:
             meets_threshold = True
         else:
             pass
-        return meets_threshold        
-                            
+        return meets_threshold
+
     def determineInviterEligibility(self, inviter, threshold):
         """
         Takes a username and a date.
@@ -103,14 +88,14 @@ class Eligible:
             is_eligible = True
         else:
             pass
-        return is_eligible        
+        return is_eligible
 
     def determineInviteeEligibility(self, invitee):
         """
         Takes a tuple of user_name, user_id, userpage_id.
         """
         is_eligible = False
-        has_skip_template = False        
+        has_skip_template = False
         is_blocked = self.getBlockStatus(invitee[1])
         if invitee[2] is not None:
             has_skip_template = self.checkTalkPage(self.output_params["output namespace"] + invitee[0], invitee[2], self.output_params["skip templates"])
@@ -121,7 +106,7 @@ class Eligible:
             pass
         return is_eligible
 
-    def checkTalkPage(self, page_path, page_id, skip_templates): 
+    def checkTalkPage(self, page_path, page_id, skip_templates):
         """
         Takes a dictionary of key words.
         If those words appear in the user talkpage,
@@ -133,7 +118,7 @@ class Eligible:
             if t in tp_text:
                 skip = True
         return skip
-                     
+
     def getPageText(self, page_path, page_id, section=False): #create a generic class?
         """
         Gets the raw text of a page or page section.
@@ -144,20 +129,20 @@ class Eligible:
             'prop': 'revisions',
             'titles': page_path,
             'rvprop' : 'content',
-            'format': "json"            
-        }        
+            'format': "json"
+        }
         if section:
             api_params['rvsection'] = section
         else:
             pass
         try:
-            response = requests.get(self.api_url, params=api_params)                   
+            response = requests.get(self.api_url, params=api_params)
             doc = response.json()
             text = doc['query']['pages'][str(page_id)]['revisions'][0]['*'] #note page_id as str
         except:#if there's an error, text is an empty string. Keeps the system working.
             text = ""
-        return text        
-         
+        return text
+
 if __name__ == "__main__":
     """
     Run this script directly if you want to test it.
@@ -167,12 +152,7 @@ if __name__ == "__main__":
     params = param.getParams(sys.argv[1]) #what type of invites
     sub_date = int(sys.argv[2]) #numeric threshold (days ago)
     e = Eligible()
-    potential_inviters = params['inviters'] 
+    potential_inviters = params['inviters']
     eligible_inviters = [x for x in potential_inviters if e.determineInviterEligibility(x, sub_date)]
     print potential_inviters
-    print eligible_inviters        
-    
-
-
-
-
+    print eligible_inviters
