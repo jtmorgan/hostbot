@@ -55,7 +55,7 @@ if __name__ == "__main__":
 #     user_id = int(sys.argv[3]) #int so it will be committed to the db
 #     page_id = sys.argv[4]
 #     candidates = [(user_name, user_id, page_id)]
-    if sys.argv[1] in ('th_invites', 'twa_invites', 'test_invites'): #parameterize
+    if sys.argv[1] in ('th_invites', 'test_invites'):
         if len(candidates) > 300:
             candidates = random.sample(candidates, 300) #pull 300 users out randomly
     else:

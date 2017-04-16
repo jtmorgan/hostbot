@@ -2,7 +2,7 @@
 
 class Params:
 	"""
-	output parameters for building various kinds of profiles and their values and settings.
+	output parameters for running the invite script under different conditions.
 	"""
 
 	def __init__(self):
