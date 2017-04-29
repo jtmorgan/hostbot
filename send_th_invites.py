@@ -19,7 +19,7 @@ def getEligibleInvitees(elig_check, potential_invitees, skip_templates):
     eligible_invitees = [x for x in potential_invitees if elig_check.determineInviteeEligibility(x)]
     return eligible_invitees
 
-def runSample(c, inviter, message, params):
+def runSample(c, inviter, condition, params):
     prof = hb_profiles.Profiles(params['output namespace'] + c[0],
                                 user_name = c[0],
                                 user_id = c[1],
@@ -27,24 +27,29 @@ def runSample(c, inviter, message, params):
                                 settings = params
                                 )
     prof.inviter = inviter
-    prof.message = message
+    prof.condition = condition
     prof.invited = False
     prof.skip = False
-    prof = inviteGuests(prof, prof.message[1], prof.inviter)
+
+    if prof.condition != "control":
+        prof = inviteGuests(prof, prof.inviter)
+    else:
+        pass #record but don't invite
+
     return prof
 
-def inviteGuests(prof, message_text, inviter):
+def inviteGuests(prof, inviter):
     """
-    Invites todays newcomers.
+    Send talkpage invitations.
     """
-    prof.invite = prof.formatProfile({'inviter' : inviter, 'message' : message_text})
+    prof.invite = prof.formatProfile({'inviter' : inviter})
     prof.edit_summ = prof.user_name + params["edit summary"]
 
     try:
         prof.getToken()
         prof.publishProfile()
     except:
-        print "something went wrong trying to invite " + page_path
+        print "something went wrong trying to invite " + page_path #should log, not print
     return prof
 
 if __name__ == "__main__":
@@ -55,26 +60,23 @@ if __name__ == "__main__":
     daily_sample = hb_profiles.Samples()
     daily_sample.insertInvitees(params['insert query'])
     daily_sample.updateTalkPages(params['talkpage update query'])
-    candidates = daily_sample.selectSample(params['select query'], sub_sample=False)
+    all_records = daily_sample.selectSample(params['select query'], sub_sample=False)
+    candidates = getEligibleInvitees(elig_check, all_records, params['skip templates'])
+    skipped_editors = [x for x in all_records if x not in candidates]
+
+    if len(candidates) > params['sample size']:
+        candidates = random.sample(candidates, params['sample size'])
 
     if sys.argv[1] == 'th_invites':
-        if len(candidates) > 300:
-            candidates = random.sample(candidates, 300) #pull 300 users out randomly
-    elif sys.argv[1] == 'test_invites':
-        candidates = random.sample(candidates, 10) #pull 10 users out randomly
+        inviters = getEligibleInviters(elig_check, params['inviters'])
     else:
-        print("unrecognized invite condition " + sys.argv[1])
+        inviters = params['inviters']
 
-    inviters = getEligibleInviters(elig_check, params['inviters'])
-    invitees = getEligibleInvitees(elig_check, candidates, params['skip templates'])
-    skipped_editors = [x for x in candidates if x not in invitees]
-#     print skipped_editors
-
-    for i in invitees:
-        profile = runSample(i, random.choice(inviters), random.choice(params['messages']), params)
-        daily_sample.updateOneRow(params['status update query'], [profile.message[0], int(profile.invited), int(profile.skip), profile.user_id])
+    for c in candidates:
+        profile = runSample(c, random.choice(inviters), random.choice(params['conditions']), params)
+        daily_sample.updateOneRow(params['status update query'], [profile.condition, int(profile.invited), int(profile.skip), profile.user_id])
 
     for s in skipped_editors:
-        daily_sample.updateOneRow(params['status update query'], [profile.message[0], 0, 1, s[1]])
+        daily_sample.updateOneRow(params['status update query'], ["invalid", 0, 1, s[1]])
 
     daily_sample.updateTalkPages(params['talkpage update query'])

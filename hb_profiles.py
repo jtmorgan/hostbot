@@ -53,12 +53,9 @@ class Samples:
         self.cursor.execute(sample_query)
         rows = self.cursor.fetchall()
         sample_set = [(row[0],row[1], row[2]) for row in rows]
-        if sub_sample:
+        if sub_sample: #this may not be necessary
         	sample_set = sample_set[:5]
         return sample_set
-
-#         self.cursor.close()
-#         self.conn.close()
 
     def updateOneRow(self, query_key, qvars):
         """
@@ -86,7 +83,7 @@ class Profiles:
         if page_id:
             self.page_id = str(page_id)
         if settings:
-            self.profile_settings = settings
+            self.profile_settings = settings #why are settings optional?
         self.api_url = hb_config.oauth_api_url
         self.user_agent = hb_config.oauth_user_agent
         self.auth1 = OAuth1(unicode("b5d87cbe96174f9435689a666110159c"),
