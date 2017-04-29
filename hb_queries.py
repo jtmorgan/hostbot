@@ -6,7 +6,7 @@ class Query:
 	def __init__(self):
 		self.mysql_queries = {
 'teahouse experiment newbies' : {
-    'string' : u"""insert ignore into th_up_invitees_experiment_2
+    'string' : u"""insert ignore into th_up_invitees_current
 	(user_id, user_name, user_registration, user_editcount, sample_date, sample_type)
 	SELECT user_id, user_name, user_registration, user_editcount, NOW(), 4
 	FROM enwiki_p.user
@@ -43,7 +43,7 @@ class Query:
 		        },
 'th experiment invitees' : {
 	'string' : u"""SELECT user_name, user_id, user_talkpage
-		FROM th_up_invitees_experiment_2
+		FROM th_up_invitees_current
 		WHERE date(sample_date) = date(NOW())
 		AND sample_type = 4
 		AND invite_status IS NULL
@@ -66,7 +66,7 @@ class Query:
 		AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL)""",
 				},
 'update th invite status' : {
-	'string' : u"""update th_up_invitees_experiment_2 set sample_group = '%s', invite_status = %d,  hostbot_skipped = %d where user_id = %d""",
+	'string' : u"""update th_up_invitees_current set sample_group = '%s', invite_status = %d,  hostbot_skipped = %d where user_id = %d""",
 				},
 'update test invite status' : { #when using the test db th_invite_test
 	'string' : u"""update th_invite_test set sample_group = '%s', invite_status = %d,  hostbot_skipped = %d where user_id = %d""",
@@ -75,7 +75,7 @@ class Query:
 	'string' : """update tm_up_invitees set sample_group = '%s', invite_status = %d,  hostbot_skipped = %d where user_id = %d""",
 				},
 'th add talkpage' : {
-	'string' : u"""UPDATE th_up_invitees_experiment_2 as i, enwiki_p.page as p
+	'string' : u"""UPDATE th_up_invitees_current as i, enwiki_p.page as p
 		SET i.user_talkpage = p.page_id, i.ut_is_redirect = p.page_is_redirect
 		WHERE date(i.sample_date) = date(NOW())
 		AND p.page_namespace = 3

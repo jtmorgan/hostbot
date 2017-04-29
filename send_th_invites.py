@@ -60,12 +60,15 @@ if __name__ == "__main__":
     daily_sample = hb_profiles.Samples()
     daily_sample.insertInvitees(params['insert query'])
     daily_sample.updateTalkPages(params['talkpage update query'])
-    all_records = daily_sample.selectSample(params['select query'], sub_sample=False)
+    all_records = daily_sample.selectSample(params['select query'], sub_sample=False) #not using sub-sample
     candidates = getEligibleInvitees(elig_check, all_records, params['skip templates'])
+    print("Found " + str(len(candidates)) + " candidates for invitation")
     skipped_editors = [x for x in all_records if x not in candidates]
+    print("Skipped " + str(len(skipped_editors)) + " editors for invitation")
 
     if len(candidates) > params['sample size']:
         candidates = random.sample(candidates, params['sample size'])
+        print("Ready to invite " + str(len(candidates)) + " of the candidates for invitation")
 
     if sys.argv[1] == 'th_invites':
         inviters = getEligibleInviters(elig_check, params['inviters'])

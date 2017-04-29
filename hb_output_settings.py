@@ -15,7 +15,7 @@ class Params:
 				'type' : 'th invite templates',
 				'output namespace' : 'User_talk:',
 				'output section' : 'new',
-				'sample size' : 10,
+				'sample size' : 300,
 				'edit summary' : ', you are invited to the Teahouse!',
 				'output section title' : '== {{subst:PAGENAME}}, you are invited to the Teahouse ==',
 				'inviters' : ['Rosiestep','Jtmorgan','Missvain','Liz','Naypta','AmaryllisGardener','Doctree','I JethroBT', 'Dathus', 'Cordless Larry', 'Gestrid', 'Cullen328', 'Lectonar', 'Mz7', '78.26', 'Worm That Turned', 'ChamithN', 'Samwalton9',],
