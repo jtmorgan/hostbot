@@ -45,7 +45,7 @@ class Params:
 				'type' : 'tm invite template',
 				'output namespace' : 'User_talk:',
 				'output section' : 'new',
-				'sample size' : 500,
+				'sample size' : 10,
 				'edit summary' : ', you are invited to try training modules',
 				'output section title' : '== {{subst:PAGENAME}}, you are invited to try training modules ==',
 				'inviters' : ['NULL'], #make sure this is ignored when formatting template
