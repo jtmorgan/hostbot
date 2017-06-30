@@ -6,7 +6,7 @@ class Query:
 	def __init__(self):
 		self.mysql_queries = {
 'teahouse experiment newbies' : {
-    'string' : u"""insert ignore into th_up_invitees_current
+    'string' : """insert ignore into th_up_invitees_current
 	(user_id, user_name, user_registration, user_editcount, sample_date, sample_type)
 	SELECT user_id, user_name, user_registration, user_editcount, NOW(), 4
 	FROM enwiki_p.user
@@ -18,7 +18,7 @@ class Query:
 		and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s'))""",
 		        },
 'teahouse test' : { #when using the test db th_invite_test
-    'string' : u"""insert ignore into th_invite_test
+    'string' : """insert ignore into th_invite_test
 	(user_id, user_name, user_registration, user_editcount, sample_date, sample_type)
 	SELECT user_id, user_name, user_registration, user_editcount, NOW(), 4
 	FROM enwiki_p.user
@@ -41,8 +41,16 @@ class Query:
 		where log_type = "block" and log_action = "block"
 		and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 1 DAY),'%Y%m%d%H%i%s'))""",
 		        },
+'tm select records' : { #need to make sure I'm not selecting skips
+	'string' : """SELECT user_name, user_id, user_talkpage
+		FROM tm_up_invitees
+		WHERE date(sample_date) = date(NOW())
+		AND sample_type = 1
+		AND invite_status IS NULL
+		AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL)""",
+				},		        
 'th experiment invitees' : {
-	'string' : u"""SELECT user_name, user_id, user_talkpage
+	'string' : """SELECT user_name, user_id, user_talkpage
 		FROM th_up_invitees_current
 		WHERE date(sample_date) = date(NOW())
 		AND sample_type = 4
@@ -50,32 +58,24 @@ class Query:
 		AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL)""",
 				},
 'th test invitees' : { #when using the test db th_invite_test
-	'string' : u"""SELECT user_name, user_id, user_talkpage
+	'string' : """SELECT user_name, user_id, user_talkpage
 		FROM th_invite_test
 		WHERE date(sample_date) = date(NOW())
 		AND sample_type = 4
 		AND invite_status IS NULL
 		AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL)""",
 				},
-'tm select records' : { #need to make sure I'm not selecting skips
-	'string' : u"""SELECT user_name, user_id, user_talkpage
-		FROM tm_up_invitees
-		WHERE date(sample_date) = date(NOW())
-		AND sample_type = 1
-		AND invite_status IS NULL
-		AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL)""",
-				},
 'update th invite status' : {
-	'string' : u"""update th_up_invitees_current set sample_group = '%s', invite_status = %d,  hostbot_skipped = %d where user_id = %d""",
+	'string' : """update th_up_invitees_current set sample_group = '%s', invite_status = %d,  hostbot_skipped = %d where user_id = %d""",
 				},
 'update test invite status' : { #when using the test db th_invite_test
-	'string' : u"""update th_invite_test set sample_group = '%s', invite_status = %d,  hostbot_skipped = %d where user_id = %d""",
+	'string' : """update th_invite_test set sample_group = '%s', invite_status = %d,  hostbot_skipped = %d where user_id = %d""",
 				},
 'tm update invite status' : {
 	'string' : """update tm_up_invitees set sample_group = '%s', invite_status = %d,  hostbot_skipped = %d where user_id = %d""",
 				},
 'th add talkpage' : {
-	'string' : u"""UPDATE th_up_invitees_current as i, enwiki_p.page as p
+	'string' : """UPDATE th_up_invitees_current as i, enwiki_p.page as p
 		SET i.user_talkpage = p.page_id, i.ut_is_redirect = p.page_is_redirect
 		WHERE date(i.sample_date) = date(NOW())
 		AND p.page_namespace = 3
@@ -83,7 +83,7 @@ class Query:
 		AND i.user_talkpage IS NULL""",
 				},
 'th add talkpage test' : { #when using the test db th_invite_test
-	'string' : u"""UPDATE th_invite_test as i, enwiki_p.page as p
+	'string' : """UPDATE th_invite_test as i, enwiki_p.page as p
 		SET i.user_talkpage = p.page_id, i.ut_is_redirect = p.page_is_redirect
 		WHERE date(i.sample_date) = date(NOW())
 		AND p.page_namespace = 3

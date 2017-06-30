@@ -13,7 +13,7 @@ requests.packages.urllib3.disable_warnings()
 class Eligible:
 
     def __init__(self, params):
-        self.api_url = hb_config.api_url_get
+        self.api_url = hb_config.api_url_get #different from OAuth api url, for testwiki
         self.output_params = params
 
     def getLatestEditDate(self, user_name):
@@ -56,7 +56,7 @@ class Eligible:
             }
         blocked = False
         api_req = requests.get(self.api_url, params=parameters)
-        # print api_req.url
+        # print(api_req.url)
 
         api_data = api_req.json()
         if "blockid" in api_data["query"]["users"][0].keys():
@@ -99,7 +99,7 @@ class Eligible:
         is_blocked = self.getBlockStatus(invitee[1])
         if invitee[2] is not None:
             has_skip_template = self.checkTalkPage(self.output_params["output namespace"] + invitee[0], invitee[2], self.output_params["skip templates"])
-#             print invitee[0] + str(has_skip_template)
+#             print(invitee[0] + " " + str(has_skip_template))
         if not has_skip_template and not is_blocked:
             is_eligible = True
         else:
@@ -145,8 +145,9 @@ class Eligible:
 
 if __name__ == "__main__":
     """
+    Note: may not be working!
     Run this script directly if you want to test it.
-    Pass in the date threshold fron the command line.
+    Pass in the date threshold from the command line.
     """
     param = hb_output_settings.Params()
     params = param.getParams(sys.argv[1]) #what type of invites

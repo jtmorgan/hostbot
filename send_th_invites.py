@@ -72,7 +72,7 @@ if __name__ == "__main__":
 
     if sys.argv[1] == 'th_invites':
         inviters = getEligibleInviters(elig_check, params['inviters'])
-    else:
+    else: #only Teahouse invites have an inviters param
         inviters = params['inviters']
 
     for c in candidates:
