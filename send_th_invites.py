@@ -4,6 +4,7 @@ import hb_toolkit
 import hb_output_settings
 import hb_profiles
 import random
+from time import sleep
 import sys
 
 def getEligibleInviters(elig_check, potential_inviters):
@@ -78,6 +79,8 @@ if __name__ == "__main__":
     for c in candidates:
         profile = runSample(c, random.choice(inviters), random.choice(params['conditions']), params)
         daily_sample.updateOneRow(params['status update query'], [profile.condition, int(profile.invited), int(profile.skip), profile.user_id])
+        if sys.argv[1] == 'training_module_invites':
+            sleep(5)
 
     for s in skipped_editors:
         daily_sample.updateOneRow(params['status update query'], ["invalid", 0, 1, s[1]])
