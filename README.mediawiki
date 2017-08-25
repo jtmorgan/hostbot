@@ -3,8 +3,5 @@
 
 Information about what the Teahouse is, and how it came to be can be found [http://meta.wikimedia.org/wiki/Teahouse here]. If you're interested in creating a Teahouse on your home wiki, please email Jonathan or post to [http://en.wikipedia.org/wiki/User_talk:Jtmorgan his talk page on Wikipedia].
 
-== Functions ==
-
-=== Talk page invitations ===
-Posts invitations to visit the Teahouse to the talk pages of new Wikipedia editors.
+HostBot is written in Python 3 and uses [https://github.com/requests/requests-oauthlib requests_oauthlib] for authentication.
 
