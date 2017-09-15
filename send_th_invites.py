@@ -7,6 +7,12 @@ import random
 from time import sleep
 import sys
 
+def convertBytestrings(all_records):
+    """Db returns byte strings, but we want normal strings"""
+    for a in all_records:
+        a[0] = a[0].decode('utf-8')
+    return all_records
+
 def getEligibleInviters(elig_check, potential_inviters):
     eligible_inviters = [x for x in potential_inviters if elig_check.determineInviterEligibility(x, 21)]
     return eligible_inviters
@@ -50,7 +56,7 @@ def inviteGuests(prof, inviter):
         prof.getToken()
         prof.publishProfile()
     except:
-        print "something went wrong trying to invite " + page_path #should log, not print
+        print("something went wrong trying to invite " + page_path) #should log, not print
     return prof
 
 if __name__ == "__main__":
@@ -59,9 +65,10 @@ if __name__ == "__main__":
     elig_check = hb_toolkit.Eligible(params)
 
     daily_sample = hb_profiles.Samples()
-    daily_sample.insertInvitees(params['insert query'])
+#     daily_sample.insertInvitees(params['insert query'])
     daily_sample.updateTalkPages(params['talkpage update query'])
-    all_records = daily_sample.selectSample(params['select query'], sub_sample=False) #not using sub-sample
+    all_records = daily_sample.selectSample(params['select query'], sub_sample=True)
+    all_records = convertBytestrings(all_records)
     candidates = getEligibleInvitees(elig_check, all_records, params['skip templates'])
     print("Found " + str(len(candidates)) + " candidates for invitation")
     skipped_editors = [x for x in all_records if x not in candidates]
@@ -76,13 +83,14 @@ if __name__ == "__main__":
     else: #only Teahouse invites have an inviters param
         inviters = params['inviters']
 
-#     for c in candidates:
-#         profile = runSample(c, random.choice(inviters), random.choice(params['conditions']), params)
-#         daily_sample.updateOneRow(params['status update query'], [profile.condition, int(profile.invited), int(profile.skip), profile.user_id])
-#         if sys.argv[1] == 'training_module_invites':
-#             sleep(5)
-#
-#     for s in skipped_editors:
+    for c in candidates:
+        profile = runSample(c, random.choice(inviters), random.choice(params['conditions']), params)
+        daily_sample.updateOneRow(params['status update query'], {'group':profile.condition, 'status':int(profile.invited), 'skipped':int(profile.skip), 'user_id':profile.user_id})
+        if sys.argv[1] == 'training_module_invites':
+            sleep(5)
+
+    for s in skipped_editors:
 #         daily_sample.updateOneRow(params['status update query'], ["invalid", 0, 1, s[1]])
-#
-#     daily_sample.updateTalkPages(params['talkpage update query'])
+        daily_sample.updateOneRow(params['status update query'], {'group':'invalid', 'status':0, 'skipped':1, 'user_id':profile.user_id})
+
+    daily_sample.updateTalkPages(params['talkpage update query'])

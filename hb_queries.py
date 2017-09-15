@@ -48,7 +48,7 @@ class Query:
 		AND sample_type = 1
 		AND invite_status IS NULL
 		AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL)""",
-				},		        
+				},
 'th experiment invitees' : {
 	'string' : """SELECT user_name, user_id, user_talkpage
 		FROM th_up_invitees_current
@@ -69,12 +69,12 @@ class Query:
 	'string' : """update th_up_invitees_current set sample_group = '%s', invite_status = %d,  hostbot_skipped = %d where user_id = %d""",
 				},
 'update test invite status' : { #when using the test db th_invite_test
-	'string' : """update th_invite_test set sample_group = '%s', invite_status = %d,  hostbot_skipped = %d where user_id = %d""",
+	'string' : """update th_invite_test set sample_group = '{group:s}', invite_status = {status:d},  hostbot_skipped = {skipped:d} where user_id = {user_id:d}""",
 				},
 'tm update invite status' : {
 	'string' : """update tm_up_invitees set sample_group = '%s', invite_status = %d,  hostbot_skipped = %d where user_id = %d""",
 				},
-'th add talkpage' : {
+'th add talkpage' : {#should pull this from the API, because of replag
 	'string' : """UPDATE th_up_invitees_current as i, enwiki_p.page as p
 		SET i.user_talkpage = p.page_id, i.ut_is_redirect = p.page_is_redirect
 		WHERE date(i.sample_date) = date(NOW())
@@ -102,11 +102,14 @@ class Query:
 
 	def getQuery(self, query_type, query_vars = False):
 		if query_type in self.mysql_queries:
-			query = self.mysql_queries[query_type]['string'].encode("utf8")
+# 			query = self.mysql_queries[query_type]['string'].encode("utf8")
+			query = self.mysql_queries[query_type]['string']
 			if query_vars:
-				query = query % tuple(query_vars) #should accept a list containing any number of vars
+# 				query = query % tuple(query_vars) #should accept a list containing any number of vars
+				query = query.format(**query_vars)
+
 			else:
 				pass
 			return query
 		else:
-			print "something went wrong with query of type " + query_type
+			print("something went wrong with query of type " + query_type)

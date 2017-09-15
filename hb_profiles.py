@@ -1,7 +1,11 @@
 #! /usr/bin/env python
 
 import hb_config
-import MySQLdb
+# import MySQLdb
+import pymysql.cursors
+import pymysql.converters as conv
+# import pymysql.constants as const
+from pymysql.constants import FIELD_TYPE
 import hb_output_settings as output_settings
 import hb_queries
 import hb_templates as templates
@@ -19,13 +23,13 @@ class Samples:
         """
         Set up the db connection.
         """
-        self.conn = MySQLdb.connect(
+        self.conn = pymysql.connect(
         host = hb_config.host,
         db = hb_config.dbname,
         read_default_file = hb_config.defaultcnf,
-        use_unicode=1,
-        charset="utf8"
+        charset="utf8",
             )
+
         self.cursor = self.conn.cursor()
         self.queries = hb_queries.Query()
 
@@ -52,9 +56,9 @@ class Samples:
         sample_query = self.queries.getQuery(query_key)
         self.cursor.execute(sample_query)
         rows = self.cursor.fetchall()
-        sample_set = [(row[0],row[1], row[2]) for row in rows]
-        if sub_sample: #this may not be necessary
-        	sample_set = sample_set[:5]
+        sample_set = [[row[0],row[1], row[2]] for row in rows]
+        if sub_sample:
+            sample_set = sample_set[:5]
         return sample_set
 
     def updateOneRow(self, query_key, qvars):
@@ -86,10 +90,10 @@ class Profiles:
             self.profile_settings = settings #why are settings optional?
         self.api_url = hb_config.oauth_api_url
         self.user_agent = hb_config.oauth_user_agent
-        self.auth1 = OAuth1(unicode("b5d87cbe96174f9435689a666110159c"),
-                client_secret=unicode(hb_config.client_secret),
-                resource_owner_key=unicode("ca1b222d687be9ac33cfb49676f5bfd2"),
-                resource_owner_secret=unicode(hb_config.resource_owner_secret))
+        self.auth1 = OAuth1("b5d87cbe96174f9435689a666110159c",
+                client_secret=hb_config.client_secret,
+                resource_owner_key="ca1b222d687be9ac33cfb49676f5bfd2",
+                resource_owner_secret=hb_config.resource_owner_secret)
 
     def getToken(self):
         """
@@ -118,7 +122,9 @@ class Profiles:
         """
         page_templates = templates.Template()
         tmplt = page_templates.getTemplate(self.profile_settings['type'])
-        tmplt = tmplt.format(**val).encode('utf-8')
+#         tmplt = tmplt.format(**val).encode('utf-8')
+        tmplt = tmplt.format(**val)
+
         return tmplt
 
     def publishProfile(self):
@@ -126,25 +132,25 @@ class Profiles:
         Publishes one or more formatted messages on a wiki.
         """
         try:
-#             print self.page_path
-#             print self.edit_summ
-#             print self.invite
-            response = requests.post(
-                self.api_url,
-                data={
-                    'action': "edit",
-                    'title': self.page_path,
-                    'section': "new",
-                    'summary': self.edit_summ,
-                    'text': self.invite,
-                    'bot': 1,
-                    'token': self.token,
-                    'format': "json"
-                    },
-                headers={'User-Agent': self.user_agent},
-                auth=self.auth1
-                )
-            self.invited = True
+            print(self.page_path)
+#             print(self.edit_summ)
+            print(self.invite)
+#             response = requests.post(
+#                 self.api_url,
+#                 data={
+#                     'action': "edit",
+#                     'title': self.page_path,
+#                     'section': "new",
+#                     'summary': self.edit_summ,
+#                     'text': self.invite,
+#                     'bot': 1,
+#                     'token': self.token,
+#                     'format': "json"
+#                     },
+#                 headers={'User-Agent': self.user_agent},
+#                 auth=self.auth1
+#                 )
+#             self.invited = True
         except:
-            print "unable to invite " + self.user_name + " at this time."   #should be logged, not printed
+            print("unable to invite " + self.user_name + " at this time.")   #should be logged, not printed
 
