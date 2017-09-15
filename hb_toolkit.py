@@ -6,8 +6,9 @@ import hb_config
 import hb_output_settings
 import requests
 import sys
-import requests.packages.urllib3
-requests.packages.urllib3.disable_warnings()
+#cmt out 9/15/2017 - not sure if this is needed
+# import requests.packages.urllib3
+# requests.packages.urllib3.disable_warnings()
 
 
 class Eligible:
@@ -100,6 +101,9 @@ class Eligible:
         if invitee[2] is not None:
             has_skip_template = self.checkTalkPage(self.output_params["output namespace"] + invitee[0], invitee[2], self.output_params["skip templates"])
 #             print(invitee[0] + " " + str(has_skip_template))
+        if is_blocked:
+            print(invitee[1])
+            print(invitee[0])
         if not has_skip_template and not is_blocked:
             is_eligible = True
         else:
@@ -149,11 +153,18 @@ if __name__ == "__main__":
     Run this script directly if you want to test it.
     Pass in the date threshold from the command line.
     """
-    param = hb_output_settings.Params()
-    params = param.getParams(sys.argv[1]) #what type of invites
-    sub_date = int(sys.argv[2]) #numeric threshold (days ago)
-    e = Eligible()
-    potential_inviters = params['inviters']
-    eligible_inviters = [x for x in potential_inviters if e.determineInviterEligibility(x, sub_date)]
-    print potential_inviters
-    print eligible_inviters
+    #testing eligibility for invite (not blocked)
+    block_test_user = sys.argv[1]
+    e = Eligible(hb_output_settings.Params().getParams('th_invites'))
+    is_blocked = e.getBlockStatus(block_test_user)
+    print(is_blocked)
+
+# cmt out on 9/15/2017 to test block status
+#     param = hb_output_settings.Params()
+#     params = param.getParams(sys.argv[1]) #what type of invites
+#     sub_date = int(sys.argv[2]) #numeric threshold (days ago)
+#     e = Eligible()
+#     potential_inviters = params['inviters']
+#     eligible_inviters = [x for x in potential_inviters if e.determineInviterEligibility(x, sub_date)]
+#     print potential_inviters
+#     print eligible_inviters

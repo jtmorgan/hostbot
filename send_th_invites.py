@@ -76,13 +76,13 @@ if __name__ == "__main__":
     else: #only Teahouse invites have an inviters param
         inviters = params['inviters']
 
-    for c in candidates:
-        profile = runSample(c, random.choice(inviters), random.choice(params['conditions']), params)
-        daily_sample.updateOneRow(params['status update query'], [profile.condition, int(profile.invited), int(profile.skip), profile.user_id])
-        if sys.argv[1] == 'training_module_invites':
-            sleep(5)
-
-    for s in skipped_editors:
-        daily_sample.updateOneRow(params['status update query'], ["invalid", 0, 1, s[1]])
-
-    daily_sample.updateTalkPages(params['talkpage update query'])
+#     for c in candidates:
+#         profile = runSample(c, random.choice(inviters), random.choice(params['conditions']), params)
+#         daily_sample.updateOneRow(params['status update query'], [profile.condition, int(profile.invited), int(profile.skip), profile.user_id])
+#         if sys.argv[1] == 'training_module_invites':
+#             sleep(5)
+#
+#     for s in skipped_editors:
+#         daily_sample.updateOneRow(params['status update query'], ["invalid", 0, 1, s[1]])
+#
+#     daily_sample.updateTalkPages(params['talkpage update query'])
