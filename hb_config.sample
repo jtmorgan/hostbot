@@ -1,0 +1,15 @@
+#! /usr/bin/env python
+
+# oauth authentication for HostBot
+client_key = "" #consumer token
+client_secret= "" #consumer secret
+resource_owner_key= "" #resource owner (access token)
+resource_owner_secret= "" #access secret
+oauth_api_url = "" #e.g. https://en.wikipedia.org/w/api.php
+oauth_user_agent = "https://github.com/path/to/repo; yourname@youremail.com"
+api_url_get = 'https://en.wikipedia.org/w/api.php'
+
+# toollabs db details
+host = 'somewikidb.labsdb'
+dbname = 'somedbname'
+defaultcnf = '/path/to/.my.cnf'

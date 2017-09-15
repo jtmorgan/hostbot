@@ -11,3 +11,4 @@ config.json
 time.log
 log/
 old/
+env/
