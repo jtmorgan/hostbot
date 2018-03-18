@@ -10,6 +10,8 @@ oauth_user_agent = "https://github.com/path/to/repo; yourname@youremail.com"
 api_url_get = 'https://en.wikipedia.org/w/api.php'
 
 # toollabs db details
-host = 'somewikidb.labsdb'
-dbname = 'somedbname'
+hostbot_host = 'tools.db.svc.eqiad.wmflabs'
+hostbot_db = 's51322__hostbot'
+enwiki_host = 'enwiki.labsdb'
+enwiki_db = 'enwiki_p'
 defaultcnf = '/path/to/.my.cnf'
