@@ -97,13 +97,13 @@ class Eligible:
         """
         is_eligible = False
         has_skip_template = False
-        is_blocked = self.getBlockStatus(invitee[1])
+        is_blocked = self.getBlockStatus(invitee[0])
+        if is_blocked:
+            print(invitee[0] + " is blocked")
         if invitee[2] is not None:
             has_skip_template = self.checkTalkPage(self.output_params["output namespace"] + invitee[0], invitee[2], self.output_params["skip templates"])
 #             print(invitee[0] + " " + str(has_skip_template))
-        if is_blocked:
-            print(invitee[1])
-            print(invitee[0])
+
         if not has_skip_template and not is_blocked:
             is_eligible = True
         else:
