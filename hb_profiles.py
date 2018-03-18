@@ -21,56 +21,105 @@ class Samples:
 
     def __init__(self):
         """
-        Set up the db connection.
+        Set up connections to hostbot db and enwiki db
+        Load query library
         """
-        self.conn = pymysql.connect(
-        host = hb_config.host,
-        db = hb_config.dbname,
-        read_default_file = hb_config.defaultcnf,
-        charset="utf8",
-            )
+        self.conn_hostbot = pymysql.connect(
+            host = hb_config.hostbot_host,
+            db = hb_config.hostbot_db,
+            read_default_file = hb_config.defaultcnf,
+            charset="utf8",
+        )
 
-        self.cursor = self.conn.cursor()
+        self.cursor_hostbot = self.conn_hostbot.cursor()
+
+        self.conn_wiki = pymysql.connect(
+            host = hb_config.wiki_host,
+            db = hb_config.wiki_db,
+            read_default_file = hb_config.defaultcnf,
+            charset="utf8",
+        )
+
+        self.cursor_wiki = self.conn_wiki.cursor()
+
         self.queries = hb_queries.Query()
 
-    def insertInvitees(self, query_key):
+    def convert_bytes_in_db_rows(self, rows):
         """
-        Insert today's potential invitees into the database
+        Takes a list of tupes from a db query
+        Convert all varbinary fields to unicode strings
+        Return a list of lists.
+        """
+        return [[x.decode() if type(x) == bytes else x for x in row] for row in rows]
+
+
+    def select_from_wiki_db(self, query_key, convert_bytestrings = False):
+        """
+        Select one or more rows from the wiki db
+        Return a list of tuples
         """
         query = self.queries.getQuery(query_key)
-        self.cursor.execute(query)
-        self.conn.commit()
+        rows = self.cursor_wiki.execute(query)
+        if convert_bytestrings:
+            rows = self.convert_bytes_in_db_rows(self.cursor_wiki.fetchall())
+        else:
+            rows = list(self.cursor_wiki.fetchall())
 
-    def updateTalkPages(self, query_key):
+        return rows
+
+    def insert_rows(self, query_key, rows):
         """
-        Updates the database with user talkpage ids (if they have one)
+        Insert one or more rows into the hostbot db
+        Takes a list of lists
+        Converts datetime values to strings - is this necessary?
+        currently, datetime is hardcoded as field 4
         """
         query = self.queries.getQuery(query_key)
-        self.cursor.execute(query)
-        self.conn.commit()
+        for row in rows:
+            row[4] = '{:%Y-%m-%d %H:%M:%S}'.format(row[4])
+            x = tuple(row)
+            self.cursor_hostbot.execute(query.format(*x))
+            self.conn_hostbot.commit()
 
-    def selectSample(self, query_key, sub_sample=False):
-        """
-        Returns a list of usernames and ids of candidates for invitation
-        """
-        sample_query = self.queries.getQuery(query_key)
-        self.cursor.execute(sample_query)
-        rows = self.cursor.fetchall()
-        sample_set = [[row[0],row[1], row[2]] for row in rows]
-        if sub_sample:
-            sample_set = sample_set[:5]
-        return sample_set
 
-    def updateOneRow(self, query_key, qvars):
-        """
-        Updates the database: was the user invited, or skipped?
-        """
-#         try:
-        query = self.queries.getQuery(query_key, qvars)
-        self.cursor.execute(query)
-        self.conn.commit()
-#         except:
-#             print "something went wrong with this one"
+ #    def insertInvitees(self, query_key):
+#         """
+#         Insert today's potential invitees into the database
+#         """
+#         query = self.queries.getQuery(query_key)
+#         self.cursor.execute(query)
+#         self.conn.commit()
+#
+#     def updateTalkPages(self, query_key):
+#         """
+#         Updates the database with user talkpage ids (if they have one)
+#         """
+#         query = self.queries.getQuery(query_key)
+#         self.cursor.execute(query)
+#         self.conn.commit()
+#
+#     def selectSample(self, query_key, sub_sample=False):
+#         """
+#         Returns a list of usernames and ids of candidates for invitation
+#         """
+#         sample_query = self.queries.getQuery(query_key)
+#         self.cursor.execute(sample_query)
+#         rows = self.cursor.fetchall()
+#         sample_set = [[row[0],row[1], row[2]] for row in rows]
+#         if sub_sample:
+#             sample_set = sample_set[:5]
+#         return sample_set
+#
+#     def updateOneRow(self, query_key, qvars):
+#         """
+#         Updates the database: was the user invited, or skipped?
+#         """
+# #         try:
+#         query = self.queries.getQuery(query_key, qvars)
+#         self.cursor.execute(query)
+#         self.conn.commit()
+# #         except:
+# #             print "something went wrong with this one"
 
 class Profiles:
     """Create, parse, and post formatted messages to wiki."""

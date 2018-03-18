@@ -22,11 +22,12 @@ class Params:
                 'conditions' : ['th-invite'],
                 'skip templates' : ['uw-vandalism4', 'final warning', '{{sock|', 'uw-unsourced4', 'uw-socksuspect', 'Socksuspectnotice', 'only warning','without further warning', 'Uw-socksuspect', 'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4', '{{bots|deny=HostBot','{{Bots|deny=HostBot','{{nobots','{{Nobots'],
                 },
-            'test_invites' : { #when using the test db th_invite_test
-                'insert query' : 'teahouse test',
-                'select query' : 'th test invitees',
+            'test invites' : { #when using the test db th_invite_test
+                'db_table' : 'th_invite_test',
+                'select query' : 'select sample test',
+                'insert query' : 'insert sample test',
+                'talkpage update query' : 'add talkpage test',
                 'status update query' : 'update test invite status',
-                'talkpage update query' : 'th add talkpage test',
                 'type' : 'test invite templates',
                 'output namespace' : 'User_talk:',
                 'output section' : 'new',

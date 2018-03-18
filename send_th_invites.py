@@ -62,35 +62,37 @@ def inviteGuests(prof, inviter):
 if __name__ == "__main__":
     param = hb_output_settings.Params()
     params = param.getParams(sys.argv[1])
-    elig_check = hb_toolkit.Eligible(params)
+#     elig_check = hb_toolkit.Eligible(params) #what is this about? host eligibility?
 
     daily_sample = hb_profiles.Samples()
-#     daily_sample.insertInvitees(params['insert query'])
-    daily_sample.updateTalkPages(params['talkpage update query'])
-    all_records = daily_sample.selectSample(params['select query'], sub_sample=True)
-    all_records = convertBytestrings(all_records)
-    candidates = getEligibleInvitees(elig_check, all_records, params['skip templates'])
-    print("Found " + str(len(candidates)) + " candidates for invitation")
-    skipped_editors = [x for x in all_records if x not in candidates]
-    print("Skipped " + str(len(skipped_editors)) + " editors for invitation")
-
-    if len(candidates) > params['sample size']:
-        candidates = random.sample(candidates, params['sample size'])
-        print("Ready to invite " + str(len(candidates)) + " of the candidates for invitation")
-
-    if sys.argv[1] == 'th_invites':
-        inviters = getEligibleInviters(elig_check, params['inviters'])
-    else: #only Teahouse invites have an inviters param
-        inviters = params['inviters']
-
-    for c in candidates:
-        profile = runSample(c, random.choice(inviters), random.choice(params['conditions']), params)
-        daily_sample.updateOneRow(params['status update query'], {'group':profile.condition, 'status':int(profile.invited), 'skipped':int(profile.skip), 'user_id':profile.user_id})
-        if sys.argv[1] == 'training_module_invites':
-            sleep(5)
-
-    for s in skipped_editors:
-#         daily_sample.updateOneRow(params['status update query'], ["invalid", 0, 1, s[1]])
-        daily_sample.updateOneRow(params['status update query'], {'group':'invalid', 'status':0, 'skipped':1, 'user_id':profile.user_id})
-
-    daily_sample.updateTalkPages(params['talkpage update query'])
+    all_records = daily_sample.select_from_wiki_db(params['select query'], convert_bytestrings = True)
+    daily_sample.insert_rows(params['insert query'], all_records)
+#     daily_sample.update_rows(params[''])
+#     daily_sample.updateTalkPages(params['talkpage update query'])
+#     all_records = daily_sample.selectSample(params['select query'], sub_sample=True)
+#     all_records = convertBytestrings(all_records)
+#     candidates = getEligibleInvitees(elig_check, all_records, params['skip templates'])
+#     print("Found " + str(len(candidates)) + " candidates for invitation")
+#     skipped_editors = [x for x in all_records if x not in candidates]
+#     print("Skipped " + str(len(skipped_editors)) + " editors for invitation")
+#
+#     if len(candidates) > params['sample size']:
+#         candidates = random.sample(candidates, params['sample size'])
+#         print("Ready to invite " + str(len(candidates)) + " of the candidates for invitation")
+#
+#     if sys.argv[1] == 'th_invites':
+#         inviters = getEligibleInviters(elig_check, params['inviters'])
+#     else: #only Teahouse invites have an inviters param
+#         inviters = params['inviters']
+#
+#     for c in candidates:
+#         profile = runSample(c, random.choice(inviters), random.choice(params['conditions']), params)
+#         daily_sample.updateOneRow(params['status update query'], {'group':profile.condition, 'status':int(profile.invited), 'skipped':int(profile.skip), 'user_id':profile.user_id})
+#         if sys.argv[1] == 'training_module_invites':
+#             sleep(5)
+#
+#     for s in skipped_editors:
+# #         daily_sample.updateOneRow(params['status update query'], ["invalid", 0, 1, s[1]])
+#         daily_sample.updateOneRow(params['status update query'], {'group':'invalid', 'status':0, 'skipped':1, 'user_id':profile.user_id})
+#
+#     daily_sample.updateTalkPages(params['talkpage update query'])

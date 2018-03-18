@@ -81,7 +81,7 @@ if __name__ == "__main__":
 #     rows = select_query(conn2, query3)
 #     print(rows)
 
-## NOT VALIDATED - SELECT FROM ENWIKI AND COMMIT TO HOSTBOT INVITE TABLE
+## VALIDATED - SELECT FROM ENWIKI AND COMMIT TO HOSTBOT INVITE TABLE
     conn2 = connect_to_db('enwiki.labsdb', 'enwiki_p','/home/jmorgan/replica.my.cnf')
     query3 = """SELECT user_id, user_name, user_registration, user_editcount, NOW(), 4
     FROM enwiki_p.user
