@@ -92,22 +92,24 @@ class Query:
         AND REPLACE(i.user_name, " ", "_") = p.page_title
         AND i.user_talkpage IS NULL""",
                 },
-'select talkpage test' : { #when using the test db th_invite_test
-    'string' : """UPDATE th_invite_test as i, enwiki_p.page as p
-        SET i.user_talkpage = p.page_id, i.ut_is_redirect = p.page_is_redirect
-        WHERE date(i.sample_date) = date(NOW())
-        AND p.page_namespace = 3
-        AND REPLACE(i.user_name, " ", "_") = p.page_title
-        AND i.user_talkpage IS NULL""",
+# 'select talkpage test' : { #when using the test db th_invite_test
+#     'string' : """UPDATE th_invite_test as i, enwiki_p.page as p
+#         SET i.user_talkpage = p.page_id, i.ut_is_redirect = p.page_is_redirect
+#         WHERE date(i.sample_date) = date(NOW())
+#         AND p.page_namespace = 3
+#         AND REPLACE(i.user_name, " ", "_") = p.page_title
+#         AND i.user_talkpage IS NULL""",
+#                 },
+'find talkpage test' : {
+    'string' : """SELECT p.page_id, p.page_is_redirect, p.page_title
+ FROM enwiki_p.page AS p
+ WHERE p.page_namespace = 3
+ AND p.page_title IN ({})""",
                 },
-'update talkpage test' : { #when using the test db th_invite_test
-    'string' : """UPDATE th_invite_test as i, enwiki_p.page as p
-        SET i.user_talkpage = p.page_id, i.ut_is_redirect = p.page_is_redirect
-        WHERE date(i.sample_date) = date(NOW())
-        AND p.page_namespace = 3
-        AND REPLACE(i.user_name, " ", "_") = p.page_title
-        AND i.user_talkpage IS NULL""",
-                },
+'add talkpage test' : {
+    'string' : """UPDATE th_invite_test SET user_talkpage = {}, ut_is_redirect = {}
+WHERE REPLACE(user_name," ","_") = '{}' AND user_talkpage IS NULL""",
+},
 'tm add talkpage' : {
     'string' : """UPDATE tm_up_invitees as i, enwiki_p.page as p
         SET i.user_talkpage = p.page_id, i.ut_is_redirect = p.page_is_redirect

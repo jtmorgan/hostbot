@@ -26,6 +26,7 @@ class Params:
                 'db_table' : 'th_invite_test',
                 'select query' : 'select sample test',
                 'insert query' : 'insert sample test',
+                'talkpage select query' : 'find talkpage test',
                 'talkpage update query' : 'add talkpage test',
                 'status update query' : 'update test invite status',
                 'type' : 'test invite templates',

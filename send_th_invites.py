@@ -62,11 +62,18 @@ def inviteGuests(prof, inviter):
 if __name__ == "__main__":
     param = hb_output_settings.Params()
     params = param.getParams(sys.argv[1])
-#     elig_check = hb_toolkit.Eligible(params) #what is this about? host eligibility?
+#     elig_check = hb_toolkit.Eligible(params)
 
     daily_sample = hb_profiles.Samples()
-    all_records = daily_sample.select_from_wiki_db(params['select query'], convert_bytestrings = True)
+    all_records = daily_sample.select_rows(params['select query'], 'enwiki', convert_bytestrings = True) #list of lists
+    print(all_records)
     daily_sample.insert_rows(params['insert query'], all_records)
+    sample_userpages = ["'" + "','".join(x[1].replace(" ","_") for x in all_records) + "'"]
+    print(sample_userpages)
+    all_talkpages = daily_sample.select_rows_formatted(params['talkpage select query'], sample_userpages, 'enwiki', convert_bytestrings = True)
+    print(all_talkpages)
+    daily_sample.update_rows(params['talkpage update query'], all_talkpages)
+
 #     daily_sample.update_rows(params[''])
 #     daily_sample.updateTalkPages(params['talkpage update query'])
 #     all_records = daily_sample.selectSample(params['select query'], sub_sample=True)

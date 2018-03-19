@@ -44,7 +44,7 @@ class Samples:
 
         self.queries = hb_queries.Query()
 
-    def convert_bytes_in_db_rows(self, rows):
+    def convert_bytes_in_db_rows(self, rows): #should be in toolkit?
         """
         Takes a list of tupes from a db query
         Convert all varbinary fields to unicode strings
@@ -53,17 +53,49 @@ class Samples:
         return [[x.decode() if type(x) == bytes else x for x in row] for row in rows]
 
 
-    def select_from_wiki_db(self, query_key, convert_bytestrings = False):
+    def select_rows(self, query_key, query_db, convert_bytestrings = False):
         """
         Select one or more rows from the wiki db
         Return a list of tuples
         """
-        query = self.queries.getQuery(query_key)
-        rows = self.cursor_wiki.execute(query)
-        if convert_bytestrings:
-            rows = self.convert_bytes_in_db_rows(self.cursor_wiki.fetchall())
+        if query_db == 'enwiki':
+            cursor = self.cursor_wiki
         else:
-            rows = list(self.cursor_wiki.fetchall())
+            cursor = self.cursor_hostbot
+
+        query = self.queries.getQuery(query_key)
+        rows = cursor.execute(query)
+
+        if convert_bytestrings:
+            rows = self.convert_bytes_in_db_rows(cursor.fetchall())
+        else:
+            rows = list(cursor.fetchall())
+#         rows = self.cursor_wiki.execute(query)
+#         if convert_bytestrings:
+#             rows = self.convert_bytes_in_db_rows(self.cursor_wiki.fetchall()) #yields a list of tuples; should be list of lists?
+#         else:
+#             rows = list(self.cursor_wiki.fetchall())
+
+        return rows
+
+    def select_rows_formatted(self, query_key, query_vals, query_db, convert_bytestrings = False):
+        """
+        Select one or more rows from the wiki db, based on a formatted query
+        Return a list of tuples
+        """
+        if query_db == 'enwiki':
+            cursor = self.cursor_wiki
+        else:
+            cursor = self.cursor_hostbot
+
+        qstring = self.queries.getQuery(query_key)
+        query = qstring.format(*query_vals)
+        rows = cursor.execute(query)
+
+        if convert_bytestrings:
+            rows = self.convert_bytes_in_db_rows(cursor.fetchall())
+        else:
+            rows = list(cursor.fetchall())
 
         return rows
 
@@ -77,10 +109,19 @@ class Samples:
         query = self.queries.getQuery(query_key)
         for row in rows:
             row[4] = '{:%Y-%m-%d %H:%M:%S}'.format(row[4])
-            x = tuple(row)
-            self.cursor_hostbot.execute(query.format(*x))
+#             x = tuple(row)#probably doesn't need to be a tuple
+#             self.cursor_hostbot.execute(query.format(*x))
+            self.cursor_hostbot.execute(query.format(*row))
             self.conn_hostbot.commit()
 
+    def update_rows(self,query_key, rows):
+        """
+        Update values in existing rows on the hostbot db
+        """
+        query = self.queries.getQuery(query_key)
+        for row in rows:
+            self.cursor_hostbot.execute(query.format(*row)) #works if it's a list?
+            self.conn_hostbot.commit()
 
  #    def insertInvitees(self, query_key):
 #         """
