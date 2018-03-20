@@ -114,14 +114,18 @@ class Samples:
             self.cursor_hostbot.execute(query.format(*row))
             self.conn_hostbot.commit()
 
-    def update_rows(self,query_key, rows):
+    def update_rows(self,query_key, rows, single_row = False):
         """
         Update values in existing rows on the hostbot db
         """
         query = self.queries.getQuery(query_key)
-        for row in rows:
-            self.cursor_hostbot.execute(query.format(*row)) #works if it's a list?
+        if single_row:
+            self.cursor_hostbot.execute(query.format(*rows)) #works if it's a list?
             self.conn_hostbot.commit()
+        else:
+            for row in rows:
+                self.cursor_hostbot.execute(query.format(*row)) #works if it's a list?
+                self.conn_hostbot.commit()
 
  #    def insertInvitees(self, query_key):
 #         """
@@ -223,7 +227,7 @@ class Profiles:
         """
         try:
             print(self.page_path)
-#             print(self.edit_summ)
+            print(self.edit_summ)
             print(self.invite)
 #             response = requests.post(
 #                 self.api_url,
@@ -240,7 +244,7 @@ class Profiles:
 #                 headers={'User-Agent': self.user_agent},
 #                 auth=self.auth1
 #                 )
-#             self.invited = True
+            self.invited = True
         except:
             print("unable to invite " + self.user_name + " at this time.")   #should be logged, not printed
 

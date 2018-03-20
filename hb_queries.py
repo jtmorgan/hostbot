@@ -27,18 +27,26 @@ class Query:
                 },
 'insert sample test' : {'string' : "INSERT IGNORE INTO th_invite_test(user_id, user_name, user_registration, user_editcount, sample_date, sample_type) VALUES({}, '{}', '{}', {}, '{}', {})"
                 },
-'teahouse test' : { #when using the test db th_invite_test
-    'string' : """insert ignore into th_invite_test
-    (user_id, user_name, user_registration, user_editcount, sample_date, sample_type)
-    SELECT user_id, user_name, user_registration, user_editcount, NOW(), 4
-    FROM enwiki_p.user
-    WHERE user_registration > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s')
-    AND user_editcount >=5
-    AND user_id NOT IN (SELECT ug_user FROM enwiki_p.user_groups WHERE ug_group = 'bot')
-    AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging
-        where log_type = "block" and log_action = "block"
-        and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s'))""",
+'select candidates test' : {
+    'string' : """SELECT user_name, user_id, user_talkpage
+        FROM th_invite_test
+        WHERE date(sample_date) = date(NOW())
+        AND sample_type = 4
+        AND invite_status IS NULL
+        AND (ut_is_redirect = 0 OR ut_is_redirect IS NULL)""",
                 },
+# 'teahouse test' : { #when using the test db th_invite_test
+#     'string' : """insert ignore into th_invite_test
+#     (user_id, user_name, user_registration, user_editcount, sample_date, sample_type)
+#     SELECT user_id, user_name, user_registration, user_editcount, NOW(), 4
+#     FROM enwiki_p.user
+#     WHERE user_registration > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s')
+#     AND user_editcount >=5
+#     AND user_id NOT IN (SELECT ug_user FROM enwiki_p.user_groups WHERE ug_group = 'bot')
+#     AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging
+#         where log_type = "block" and log_action = "block"
+#         and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s'))""",
+#                 },
 'tm insert records' : {
     'string' : """insert ignore into tm_up_invitees
     (user_id, user_name, user_registration, user_editcount, sample_date, sample_type)
@@ -78,8 +86,8 @@ class Query:
 'update th invite status' : {
     'string' : """update th_up_invitees_current set sample_group = '%s', invite_status = %d,  hostbot_skipped = %d where user_id = %d""",
                 },
-'update test invite status' : { #when using the test db th_invite_test
-    'string' : """update th_invite_test set sample_group = '{group:s}', invite_status = {status:d},  hostbot_skipped = {skipped:d} where user_id = {user_id:d}""",
+'update invite status test' : { #when using the test db th_invite_test
+    'string' : """update th_invite_test set sample_group = '{}', invite_status = {},  hostbot_skipped = {} where user_id = {}""",
                 },
 'tm update invite status' : {
     'string' : """update tm_up_invitees set sample_group = '%s', invite_status = %d,  hostbot_skipped = %d where user_id = %d""",
