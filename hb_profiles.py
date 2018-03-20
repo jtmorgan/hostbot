@@ -185,24 +185,24 @@ class Profiles:
         Publishes one or more formatted messages on a wiki.
         """
         try:
-            print(self.page_path)
-            print(self.edit_summ)
-            print(self.invite)
-#             response = requests.post(
-#                 self.api_url,
-#                 data={
-#                     'action': "edit",
-#                     'title': self.page_path,
-#                     'section': "new",
-#                     'summary': self.edit_summ,
-#                     'text': self.invite,
-#                     'bot': 1,
-#                     'token': self.token,
-#                     'format': "json"
-#                     },
-#                 headers={'User-Agent': self.user_agent},
-#                 auth=self.auth1
-#                 )
+#             print(self.page_path)
+#             print(self.edit_summ)
+#             print(self.invite)
+            response = requests.post(
+                self.api_url,
+                data={
+                    'action': "edit",
+                    'title': self.page_path,
+                    'section': "new",
+                    'summary': self.edit_summ,
+                    'text': self.invite,
+                    'bot': 1,
+                    'token': self.token,
+                    'format': "json"
+                    },
+                headers={'User-Agent': self.user_agent},
+                auth=self.auth1
+                )
             self.invited = True
         except:
             print("unable to invite " + self.user_name + " at this time.")   #should be logged, not printed

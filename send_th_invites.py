@@ -7,15 +7,12 @@ import random
 from time import sleep
 import sys
 
-def convertBytestrings(all_records):
-    """Db returns byte strings, but we want normal strings"""
-    for a in all_records:
-        a[0] = a[0].decode('utf-8')
-    return all_records
 
 def getEligibleInviters(elig_check, potential_inviters):
     eligible_inviters = [x for x in potential_inviters if elig_check.determineInviterEligibility(x, 21)]
+
     return eligible_inviters
+
 
 def getEligibleInvitees(elig_check, candidates, skip_templates):
     """
@@ -24,7 +21,9 @@ def getEligibleInvitees(elig_check, candidates, skip_templates):
     Returns a dictionary with lists of eligible and ineligible invitees.
     """
     eligible_invitees = [x for x in candidates if elig_check.determineInviteeEligibility(x)]
+
     return eligible_invitees
+
 
 def send_invites(invitee, inviter, condition, params):
     """
@@ -73,9 +72,9 @@ if __name__ == "__main__":
     candidates = daily_sample.select_rows(params['select candidates query'], 'hostbot', convert_bytestrings = True)
 #     print(candidates)
     eligible = getEligibleInvitees(elig_check, candidates, params['skip templates'])
-    print(eligible)
+#     print(eligible)
     ineligible = [x for x in candidates if x[1] not in [y[1] for y in eligible]]
-    print(ineligible)
+#     print(ineligible)
     inviters = getEligibleInviters(elig_check, params['inviters'])
 #     print(inviters)
 
@@ -84,7 +83,7 @@ if __name__ == "__main__":
         daily_sample.update_rows(params['status update query'], [profile.condition, int(profile.invited), int(profile.skip), profile.user_id], single_row = True)
 
     new_pagenames = ["'" + "','".join(x[0].replace(" ","_") for x in eligible if x[2] is None) + "'"]
-    print(new_pagenames)
+#     print(new_pagenames)
 
     new_talkpages = daily_sample.select_rows_formatted(params['talkpage select query'], new_pagenames, 'enwiki', convert_bytestrings = True)
     daily_sample.update_rows(params['talkpage update query'], new_talkpages)
