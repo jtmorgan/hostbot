@@ -44,6 +44,7 @@ class Samples:
 
         self.queries = hb_queries.Query()
 
+
     def convert_bytes_in_db_rows(self, rows): #should be in toolkit?
         """
         Takes a list of tupes from a db query
@@ -70,13 +71,9 @@ class Samples:
             rows = self.convert_bytes_in_db_rows(cursor.fetchall())
         else:
             rows = list(cursor.fetchall())
-#         rows = self.cursor_wiki.execute(query)
-#         if convert_bytestrings:
-#             rows = self.convert_bytes_in_db_rows(self.cursor_wiki.fetchall()) #yields a list of tuples; should be list of lists?
-#         else:
-#             rows = list(self.cursor_wiki.fetchall())
 
         return rows
+
 
     def select_rows_formatted(self, query_key, query_vals, query_db, convert_bytestrings = False):
         """
@@ -99,6 +96,7 @@ class Samples:
 
         return rows
 
+
     def insert_rows(self, query_key, rows):
         """
         Insert one or more rows into the hostbot db
@@ -109,10 +107,9 @@ class Samples:
         query = self.queries.getQuery(query_key)
         for row in rows:
             row[4] = '{:%Y-%m-%d %H:%M:%S}'.format(row[4])
-#             x = tuple(row)#probably doesn't need to be a tuple
-#             self.cursor_hostbot.execute(query.format(*x))
             self.cursor_hostbot.execute(query.format(*row))
             self.conn_hostbot.commit()
+
 
     def update_rows(self,query_key, rows, single_row = False):
         """
@@ -127,44 +124,6 @@ class Samples:
                 self.cursor_hostbot.execute(query.format(*row)) #works if it's a list?
                 self.conn_hostbot.commit()
 
- #    def insertInvitees(self, query_key):
-#         """
-#         Insert today's potential invitees into the database
-#         """
-#         query = self.queries.getQuery(query_key)
-#         self.cursor.execute(query)
-#         self.conn.commit()
-#
-#     def updateTalkPages(self, query_key):
-#         """
-#         Updates the database with user talkpage ids (if they have one)
-#         """
-#         query = self.queries.getQuery(query_key)
-#         self.cursor.execute(query)
-#         self.conn.commit()
-#
-#     def selectSample(self, query_key, sub_sample=False):
-#         """
-#         Returns a list of usernames and ids of candidates for invitation
-#         """
-#         sample_query = self.queries.getQuery(query_key)
-#         self.cursor.execute(sample_query)
-#         rows = self.cursor.fetchall()
-#         sample_set = [[row[0],row[1], row[2]] for row in rows]
-#         if sub_sample:
-#             sample_set = sample_set[:5]
-#         return sample_set
-#
-#     def updateOneRow(self, query_key, qvars):
-#         """
-#         Updates the database: was the user invited, or skipped?
-#         """
-# #         try:
-#         query = self.queries.getQuery(query_key, qvars)
-#         self.cursor.execute(query)
-#         self.conn.commit()
-# #         except:
-# #             print "something went wrong with this one"
 
 class Profiles:
     """Create, parse, and post formatted messages to wiki."""

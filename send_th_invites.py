@@ -44,8 +44,6 @@ def send_invites(invitee, inviter, condition, params):
     if prof.condition == "control":
         pass #record but don't invite
     else:
-#         prof = inviteGuests(prof, prof.inviter)#counterintuitive
-
         prof.invite = prof.formatProfile({'inviter' : inviter})
         prof.edit_summ = prof.user_name + params["edit summary"]
 
@@ -56,11 +54,6 @@ def send_invites(invitee, inviter, condition, params):
             print("something went wrong trying to invite " + prof.page_path) #should log, not print
 
     return prof
-
-#     return prof
-
-# def inviteGuests(prof, inviter):
-
 
 
 if __name__ == "__main__":
@@ -96,41 +89,5 @@ if __name__ == "__main__":
     new_talkpages = daily_sample.select_rows_formatted(params['talkpage select query'], new_pagenames, 'enwiki', convert_bytestrings = True)
     daily_sample.update_rows(params['talkpage update query'], new_talkpages)
 
-
-#update talkpages for invited
-
     for i in ineligible:
-#         daily_sample.updateOneRow(params['status update query'], ["invalid", 0, 1, s[1]])
         daily_sample.update_rows(params['status update query'], ['invalid', 0, 1, i[1]], single_row = True) #should it always be single rows?
-
-
-    #select things from the hostbot database, so that we can be sure that every invite is captured
-
-
-#     all_records = daily_sample.selectSample(params['select query'], sub_sample=True)
-#     all_records = convertBytestrings(all_records)
-#     candidates = getEligibleInvitees(elig_check, all_records, params['skip templates'])
-#     print("Found " + str(len(candidates)) + " candidates for invitation")
-#     skipped_editors = [x for x in all_records if x not in candidates]
-#     print("Skipped " + str(len(skipped_editors)) + " editors for invitation")
-#
-#     if len(candidates) > params['sample size']:
-#         candidates = random.sample(candidates, params['sample size'])
-#         print("Ready to invite " + str(len(candidates)) + " of the candidates for invitation")
-#
-#     if sys.argv[1] == 'th_invites':
-#         inviters = getEligibleInviters(elig_check, params['inviters'])
-#     else: #only Teahouse invites have an inviters param
-#         inviters = params['inviters']
-#
-#     for c in candidates:
-#         profile = runSample(c, random.choice(inviters), random.choice(params['conditions']), params)
-#         daily_sample.updateOneRow(params['status update query'], {'group':profile.condition, 'status':int(profile.invited), 'skipped':int(profile.skip), 'user_id':profile.user_id})
-#         if sys.argv[1] == 'training_module_invites':
-#             sleep(5)
-#
-#     for s in skipped_editors:
-# #         daily_sample.updateOneRow(params['status update query'], ["invalid", 0, 1, s[1]])
-#         daily_sample.updateOneRow(params['status update query'], {'group':'invalid', 'status':0, 'skipped':1, 'user_id':profile.user_id})
-#
-#     daily_sample.updateTalkPages(params['talkpage update query'])

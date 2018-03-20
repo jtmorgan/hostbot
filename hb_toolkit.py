@@ -40,7 +40,9 @@ class Eligible:
         api_data = api_req.json()
         edit_timestamp = api_data["query"]["usercontribs"][0]["timestamp"]
         latest_edit_date = dateutil.parser.parse(edit_timestamp, ignoretz=True).date()
+
         return latest_edit_date
+
 
     def getBlockStatus(self, user_name):
         """
@@ -67,6 +69,7 @@ class Eligible:
         # print blocked
         return blocked
 
+
     def meetsEditDateThreshold(self, latest_edit_date, threshold):
         meets_threshold = False
         cur_date = datetime.utcnow().date()
@@ -75,7 +78,9 @@ class Eligible:
             meets_threshold = True
         else:
             pass
+
         return meets_threshold
+
 
     def determineInviterEligibility(self, inviter, threshold):
         """
@@ -89,7 +94,9 @@ class Eligible:
             is_eligible = True
         else:
             pass
+
         return is_eligible
+
 
     def determineInviteeEligibility(self, invitee):
         """
@@ -102,13 +109,14 @@ class Eligible:
             print(invitee[0] + " is blocked")
         if invitee[2] is not None:
             has_skip_template = self.checkTalkPage(self.output_params["output namespace"] + invitee[0], invitee[2], self.output_params["skip templates"])
-#             print(invitee[0] + " " + str(has_skip_template))
 
         if not has_skip_template and not is_blocked:
             is_eligible = True
         else:
             pass
+
         return is_eligible
+
 
     def checkTalkPage(self, page_path, page_id, skip_templates):
         """
@@ -121,7 +129,9 @@ class Eligible:
         for t in skip_templates:
             if t in tp_text:
                 skip = True
+
         return skip
+
 
     def getPageText(self, page_path, page_id, section=False): #create a generic class?
         """
@@ -145,7 +155,9 @@ class Eligible:
             text = doc['query']['pages'][str(page_id)]['revisions'][0]['*'] #note page_id as str
         except:#if there's an error, text is an empty string. Keeps the system working.
             text = ""
+
         return text
+
 
 if __name__ == "__main__":
     """
