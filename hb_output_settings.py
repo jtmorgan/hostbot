@@ -7,7 +7,7 @@ class Params:
 
     def __init__(self):
         self.output_params = {
-            'th invites' : {
+            'th_invites' : {
                 'db_table' : 'th_up_invitees_current',
                 'select sample query' : 'select th sample',
                 'insert sample query' : 'insert th sample',
@@ -25,7 +25,7 @@ class Params:
                 'conditions' : ['th-invite'],
                 'skip templates' : ['uw-vandalism4', 'final warning', '{{sock|', 'uw-unsourced4', 'uw-socksuspect', 'Socksuspectnotice', 'only warning','without further warning', 'Uw-socksuspect', 'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4', '{{bots|deny=HostBot','{{Bots|deny=HostBot','{{nobots','{{Nobots'],
                 },
-            'test invites' : { #when using the test db th_invite_test
+            'test_invites' : { #when using the test db th_invite_test
                 'db_table' : 'th_invite_test',
                 'select sample query' : 'select sample test',
                 'insert sample query' : 'insert sample test',

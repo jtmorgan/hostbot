@@ -86,6 +86,7 @@ if __name__ == "__main__":
 #     print(new_pagenames)
 
     new_talkpages = daily_sample.select_rows_formatted(params['talkpage select query'], new_pagenames, 'enwiki', convert_bytestrings = True)
+#     print(new_talkpages)
     daily_sample.update_rows(params['talkpage update query'], new_talkpages)
 
     for i in ineligible:
