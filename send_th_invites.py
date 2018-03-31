@@ -82,12 +82,14 @@ if __name__ == "__main__":
         profile = send_invites(e, random.choice(inviters), random.choice(params['conditions']), params)
         daily_sample.update_rows(params['status update query'], [profile.condition, int(profile.invited), int(profile.skip), profile.user_id], single_row = True)
 
+    for i in ineligible:
+        daily_sample.update_rows(params['status update query'], ['invalid', 0, 1, i[1]], single_row = True) #should it always be single rows?
+
     new_pagenames = ["'" + "','".join(x[0].replace(" ","_") for x in eligible if x[2] is None) + "'"]
 #     print(new_pagenames)
+
+    sleep(30)#sleep to let the replicas catch up with prod
 
     new_talkpages = daily_sample.select_rows_formatted(params['talkpage select query'], new_pagenames, 'enwiki', convert_bytestrings = True)
 #     print(new_talkpages)
     daily_sample.update_rows(params['talkpage update query'], new_talkpages)
-
-    for i in ineligible:
-        daily_sample.update_rows(params['status update query'], ['invalid', 0, 1, i[1]], single_row = True) #should it always be single rows?
