@@ -59,10 +59,12 @@ class Samples:
         Select one or more rows from the wiki db
         Return a list of tuples
         """
-        if query_db == 'enwiki':
+        if query_db == 'enwiki_db':
             cursor = self.cursor_wiki
-        else:
+        elif query_db == 'hostbot_db':
             cursor = self.cursor_hostbot
+        else:
+            print("unrecognized database: " + query_db)
 
         query = self.queries.getQuery(query_key)
         rows = cursor.execute(query)
@@ -80,10 +82,12 @@ class Samples:
         Select one or more rows from the wiki db, based on a formatted query
         Return a list of tuples
         """
-        if query_db == 'enwiki':
+        if query_db == 'enwiki_db':
             cursor = self.cursor_wiki
-        else:
+        elif query_db == 'hostbot_db':
             cursor = self.cursor_hostbot
+        else:
+            print("unrecognized database: " + query_db)
 
         qstring = self.queries.getQuery(query_key)
         query = qstring.format(*query_vals)

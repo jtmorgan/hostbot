@@ -8,21 +8,32 @@ from time import sleep
 import sys
 
 
-def getEligibleInviters(elig_check, potential_inviters):
-    eligible_inviters = [x for x in potential_inviters if elig_check.determineInviterEligibility(x, 21)]
+# def getEligibleInviters(elig_check, potential_inviters):
+#     eligible_inviters = [x for x in potential_inviters if elig_check.determineInviterEligibility(x, 21)]
+#
+#     return eligible_inviters
+#
+#
+# def getEligibleInvitees(elig_check, candidates, skip_templates):
+#     """
+#     Takes an eligibility checker object, a list of keywords, and
+#     a list of invite candidates (user_name, user_id, talkpage_id).
+#     Returns a dictionary with lists of eligible and ineligible invitees.
+#     """
+#     eligible_invitees = [x for x in candidates if elig_check.determineInviteeEligibility(x)]
+#
+#     return eligible_invitees
 
-    return eligible_inviters
 
 
-def getEligibleInvitees(elig_check, candidates, skip_templates):
+def get_eligible_users(elig_check, usernames, elig_type): #update calls below as appropriate
     """
-    Takes an eligibility checker object, a list of keywords, and
-    a list of invite candidates (user_name, user_id, talkpage_id).
+    Takes an eligibility checker object, and a list of usernames.
     Returns a dictionary with lists of eligible and ineligible invitees.
     """
-    eligible_invitees = [x for x in candidates if elig_check.determineInviteeEligibility(x)]
+    eligible = [x for x in usernames if elig_check.determine_user_eligibility(x, elig_type)]
 
-    return eligible_invitees
+    return eligible
 
 
 def send_invites(invitee, inviter, condition, params):
@@ -61,21 +72,32 @@ if __name__ == "__main__":
     elig_check = hb_toolkit.Eligible(params)
 
     daily_sample = hb_profiles.Samples()
-    all_records = daily_sample.select_rows(params['select sample query'], 'enwiki', convert_bytestrings = True) #list of lists
+    all_records = daily_sample.select_rows(params['select sample query'], 'enwiki_db', convert_bytestrings = True) #list of lists
 #     print(all_records)
+
     daily_sample.insert_rows(params['insert sample query'], all_records)
+
     sample_pagenames = ["'" + "','".join(x[1].replace(" ","_") for x in all_records) + "'"]
 #     print(sample_userpages)
-    all_talkpages = daily_sample.select_rows_formatted(params['talkpage select query'], sample_pagenames, 'enwiki', convert_bytestrings = True)#should I add this to 'all records' instead?
+
+    all_talkpages = daily_sample.select_rows_formatted(params['talkpage select query'], sample_pagenames, 'enwiki_db', convert_bytestrings = True)#should I add this to 'all records' instead?
 #     print(all_talkpages)
+
     daily_sample.update_rows(params['talkpage update query'], all_talkpages)
-    candidates = daily_sample.select_rows(params['select candidates query'], 'hostbot', convert_bytestrings = True)
+
+    candidates = daily_sample.select_rows(params['select candidates query'], 'hostbot_db', convert_bytestrings = True)
 #     print(candidates)
-    eligible = getEligibleInvitees(elig_check, candidates, params['skip templates'])
+
+    candidate_usernames = [x[0] for x in candidates]
+    eligible_usernames = get_eligible_users(elig_check, [x[0] for x in candidates], elig_type='invitee')
+    eligible = [x for x in candidates if x[0] in eligible_usernames]
 #     print(eligible)
-    ineligible = [x for x in candidates if x[1] not in [y[1] for y in eligible]]
+
+#     ineligible = [x for x in candidates if x[1] not in [y[1] for y in eligible]]
+    ineligible = [x for x in candidates if x[0] not in eligible_usernames]
 #     print(ineligible)
-    inviters = getEligibleInviters(elig_check, params['inviters'])
+
+    inviters = get_eligible_users(elig_check, params['inviters'], elig_type = 'inviter')
 #     print(inviters)
 
     for e in eligible:
@@ -86,10 +108,12 @@ if __name__ == "__main__":
         daily_sample.update_rows(params['status update query'], ['invalid', 0, 1, i[1]], single_row = True) #should it always be single rows?
 
     new_pagenames = ["'" + "','".join(x[0].replace(" ","_") for x in eligible if x[2] is None) + "'"]
+
+#     new_pagenames = ["'" + "','".join(params['output namespace'] + x[0].replace(" ","_") for x in eligible if x[2] is None) + "'"]
 #     print(new_pagenames)
 
     sleep(30)#sleep to let the replicas catch up with prod
 
-    new_talkpages = daily_sample.select_rows_formatted(params['talkpage select query'], new_pagenames, 'enwiki', convert_bytestrings = True)
+    new_talkpages = daily_sample.select_rows_formatted(params['talkpage select query'], new_pagenames, 'enwiki_db', convert_bytestrings = True)
 #     print(new_talkpages)
     daily_sample.update_rows(params['talkpage update query'], new_talkpages)
