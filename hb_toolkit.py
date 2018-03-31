@@ -17,9 +17,10 @@ class Eligible:
         self.api_url = hb_config.api_url_get #different from OAuth api url, for testwiki
         self.output_params = params
 
-    def getLatestEditDate(self, user_name):
+#     def getLatestEditDate(self, user_name):
+    def get_latest_edit(self, user_name):
         """
-        Get the date of the user's most recent edit
+        Takes a user name. Returns the date of that user's latest edit, in datetime format.
         See: https://www.mediawiki.org/wiki/API:Usercontribs
         Example: https://en.wikipedia.org/w/api.php/?ucprop=timestamp&ucuser=Jtmorgan&list=usercontribs&action=query&ucshow=top&uclimit=1&ucdir=older
         """
@@ -44,9 +45,10 @@ class Eligible:
         return latest_edit_date
 
 
-    def getBlockStatus(self, user_name):
+#     def getBlockStatus(self, user_name):
+    def get_block_status(self, user_name):
         """
-        Find out whether the user is currently blocked from editing
+        Takes a user name. Returns whether the user is currently blocked from editing, as a boolean value.
         See: https://www.mediawiki.org/wiki/API:Users
         Example: https://en.wikipedia.org/w/api.php?action=query&list=users&ususers=Willy_on_Wheels~enwiki&usprop=blockinfo
         """
@@ -70,7 +72,12 @@ class Eligible:
         return blocked
 
 
+#     def meetsEditDateThreshold(self, latest_edit_date, threshold):
     def meetsEditDateThreshold(self, latest_edit_date, threshold):
+        """
+        Takes a datetime of someone's latest edit and a numeric threshold.
+        Returns a boolean of whether that datetime falls within a given number of days from the current date.
+        """
         meets_threshold = False
         cur_date = datetime.utcnow().date()
         threshold_date = cur_date - timedelta(days=threshold)
@@ -82,9 +89,11 @@ class Eligible:
         return meets_threshold
 
 
-    def determineInviterEligibility(self, inviter, threshold):
+#     def determineInviterEligibility(self, inviter, threshold):
+    def determine_inviter_eligibility(self, inviter, threshold):
         """
-        Takes a username and a date.
+        Takes a username and numeric threshold.
+        Returns a boolean of whether that user is eligible to be listed as a Teahouse inviter.
         """
         is_eligible = False
         is_blocked = self.getBlockStatus(inviter)
@@ -97,7 +106,7 @@ class Eligible:
 
         return is_eligible
 
-
+    #todo: merge this with determine_inviter_eligibility
     def determineInviteeEligibility(self, invitee):
         """
         Takes a tuple of user_name, user_id, userpage_id.
@@ -118,11 +127,11 @@ class Eligible:
         return is_eligible
 
 
-    def checkTalkPage(self, page_path, page_id, skip_templates):
+#     def checkTalkPage(self, page_path, page_id, skip_templates):
+    def check_talkpage_text(self, page_path, page_id, skip_templates):
         """
-        Takes a dictionary of key words.
-        If those words appear in the user talkpage,
-        skip the user (don't send an invite).
+        Takes a dictionary of key words, a talkpage and namespace, and a page_id
+        If those words appear in the user talkpage text, skip the user (don't send an invite).
         """
         skip = False
         tp_text = self.getPageText(page_path, page_id)
@@ -133,8 +142,11 @@ class Eligible:
         return skip
 
 
-    def getPageText(self, page_path, page_id, section=False): #create a generic class?
+#     def getPageText(self, page_path, page_id, section=False): #create a generic class?
+    def get_page_text(self, page_path, page_id, section=False):
+
         """
+        Takes a page and namespace, a page id, and optionally a section number
         Gets the raw text of a page or page section.
         Sample: http://meta.wikimedia.org/w/api.php?action=query&prop=revisions&titles=Grants:IdeaLab/Introductions&rvprop=content&rvsection=21&format=jsonfm
         """
