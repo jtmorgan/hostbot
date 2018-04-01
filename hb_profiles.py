@@ -3,9 +3,9 @@
 import hb_config
 # import MySQLdb
 import pymysql.cursors
-import pymysql.converters as conv
+# import pymysql.converters as conv
 # import pymysql.constants as const
-from pymysql.constants import FIELD_TYPE
+# from pymysql.constants import FIELD_TYPE
 import hb_output_settings as output_settings
 import hb_queries
 import hb_templates as templates
@@ -179,7 +179,6 @@ class Profiles:
         """
         page_templates = templates.Template()
         tmplt = page_templates.getTemplate(self.profile_settings['type'])
-#         tmplt = tmplt.format(**val).encode('utf-8')
         tmplt = tmplt.format(**val)
 
         return tmplt
@@ -188,26 +187,32 @@ class Profiles:
         """
         Publishes one or more formatted messages on a wiki.
         """
-        try:
-#             print(self.page_path)
-#             print(self.edit_summ)
-#             print(self.invite)
-            response = requests.post(
-                self.api_url,
-                data={
-                    'action': "edit",
-                    'title': self.page_path,
-                    'section': "new",
-                    'summary': self.edit_summ,
-                    'text': self.invite,
-                    'bot': 1,
-                    'token': self.token,
-                    'format': "json"
-                    },
-                headers={'User-Agent': self.user_agent},
-                auth=self.auth1
-                )
+
+        if 'test_invites' in self.profile_settings.keys(): #what if profile_settings not set?
+            print(self.page_path)
+            print(self.edit_summ)
+            print(self.invite)
             self.invited = True
-        except:
-            print("unable to invite " + self.user_name + " at this time.")   #should be logged, not printed
+
+        else:
+            try:
+                response = requests.post(
+                    self.api_url,
+                    data={
+                        'action': "edit",
+                        'title': self.page_path,
+                        'section': "new",
+                        'summary': self.edit_summ,
+                        'text': self.invite,
+                        'bot': 1,
+                        'token': self.token,
+                        'format': "json"
+                        },
+                    headers={'User-Agent': self.user_agent},
+                    auth=self.auth1
+                    )
+                self.invited = True
+
+            except:
+                print("unable to invite " + self.user_name + " at this time.")   #should be logged, not printed
 
