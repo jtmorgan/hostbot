@@ -98,8 +98,8 @@ if __name__ == "__main__":
     for e in eligible_new_talkpage:
         page_id = elig_check.get_page_id(params['output namespace'] + e[0])
         print(page_id)
-        updates = [e[0],page_id,0]
-        daily_sample.update_rows(params['talkpage update query'],single_row=True)
+        updates = [page_id,0,e[0]]
+        daily_sample.update_rows(params['talkpage update query'], updates, single_row=True)
 #     new_pagenames = ["'" + "','".join(params['output namespace'] + x[0].replace(" ","_") for x in eligible if x[2] is None) + "'"]
 #     print(new_pagenames)
 

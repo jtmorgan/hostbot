@@ -160,7 +160,7 @@ class Eligible:
         """
         Takes a page and namespace
         Gets the id of the page.
-        Sample: https://meta.wikimedia.org/w/api.php?action=query&prop=revisions&titles=User_talk:Jtmorgan&rvprop=ids&format=jsonfm
+        Sample: https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles=User_talk:Abcd%20dbca&rvprop=ids&format=jsonfm
         """
         api_params={
             'action': 'query',

@@ -59,11 +59,11 @@ class Query:
                 },
 'add th talkpage' : {#should pull this from the API, because of replag
     'string' : """UPDATE th_up_invitees_current SET user_talkpage = {}, ut_is_redirect = {}
-WHERE REPLACE(user_name," ","_") = '{}' AND user_talkpage IS NULL""",
+WHERE REPLACE(user_name," ","_") = "{}" AND user_talkpage IS NULL""",
                 },
 'add talkpage test' : {
     'string' : """UPDATE th_invite_test SET user_talkpage = {}, ut_is_redirect = {}
-WHERE REPLACE(user_name," ","_") = '{}' AND user_talkpage IS NULL""",
+WHERE REPLACE(user_name," ","_") = "{}" AND user_talkpage IS NULL""",
                 },
 'update th invite status' : {
     'string' : """update th_up_invitees_current SET sample_group = '{}', invite_status = {},  hostbot_skipped = {} where user_id = {}""",
