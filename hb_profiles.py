@@ -83,6 +83,7 @@ class Samples:
         Return a list of tuples
         """
         if query_db == 'enwiki_db':
+#             query_vals = self.conn_wiki.escape(query_vals) #escaping any special chars, e.g. apostrophes
             cursor = self.cursor_wiki
         elif query_db == 'hostbot_db':
             cursor = self.cursor_hostbot
@@ -104,16 +105,19 @@ class Samples:
     def insert_rows(self, query_key, rows):
         """
         Insert one or more rows into the hostbot db
-        Takes a list of lists
+        Takes a list of lists or tuples
         Converts datetime values to strings - is this necessary?
         currently, datetime is hardcoded as field 4
         """
         query = self.queries.getQuery(query_key)
         for row in rows:
-            row[4] = '{:%Y-%m-%d %H:%M:%S}'.format(row[4])
-            self.cursor_hostbot.execute(query.format(*row))
-            self.conn_hostbot.commit()
-
+            try:
+                row[4] = "{:%Y-%m-%d %H:%M:%S}".format(row[4])
+                self.cursor_hostbot.execute(query.format(*row))
+                self.conn_hostbot.commit()
+            except:
+                print("couldn't insert record for " + row[0])
+                continue
 
     def update_rows(self,query_key, rows, single_row = False):
         """
@@ -190,11 +194,12 @@ class Profiles:
 
         if 'test_invites' in self.profile_settings.keys(): #what if profile_settings not set?
             print(self.page_path)
-            print(self.edit_summ)
-            print(self.invite)
+#             print(self.edit_summ)
+#             print(self.invite)
             self.invited = True
 
         else:
+            print(self.page_path)
             try:
                 response = requests.post(
                     self.api_url,

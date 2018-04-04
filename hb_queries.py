@@ -23,11 +23,11 @@ class Query:
     AND user_id NOT IN (SELECT ug_user FROM enwiki_p.user_groups WHERE ug_group = 'bot')
     AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging
         where log_type = "block" and log_action = "block"
-        and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s')) limit 20""",
+        and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s')) limit 300""",
                 },
-'insert th sample' : {'string' : "INSERT IGNORE INTO th_up_invitees_current(user_id, user_name, user_registration, user_editcount, sample_date, sample_type) VALUES({}, '{}', '{}', {}, '{}', {})"
+'insert th sample' : {'string' : """INSERT IGNORE INTO th_up_invitees_current(user_id, user_name, user_registration, user_editcount, sample_date, sample_type) VALUES({}, "{}", "{}", {}, "{}", {})"""
                 },
-'insert sample test' : {'string' : "INSERT IGNORE INTO th_invite_test(user_id, user_name, user_registration, user_editcount, sample_date, sample_type) VALUES({}, '{}', '{}', {}, '{}', {})"
+'insert sample test' : {'string' : """INSERT IGNORE INTO th_invite_test(user_id, user_name, user_registration, user_editcount, sample_date, sample_type) VALUES({}, "{}", "{}", {}, "{}", {})"""
                 },
 'select th candidates' : {
     'string' : """SELECT user_name, user_id, user_talkpage
@@ -66,10 +66,10 @@ WHERE REPLACE(user_name," ","_") = "{}" AND user_talkpage IS NULL""",
 WHERE REPLACE(user_name," ","_") = "{}" AND user_talkpage IS NULL""",
                 },
 'update th invite status' : {
-    'string' : """update th_up_invitees_current SET sample_group = '{}', invite_status = {},  hostbot_skipped = {} where user_id = {}""",
+    'string' : """update th_up_invitees_current SET sample_group = "{}", invite_status = {},  hostbot_skipped = {} where user_id = {}""",
                 },
 'update invite status test' : { #when using the test db th_invite_test
-    'string' : """update th_invite_test SET sample_group = '{}', invite_status = {},  hostbot_skipped = {} where user_id = {}""",
+    'string' : """update th_invite_test SET sample_group = "{}", invite_status = {},  hostbot_skipped = {} where user_id = {}""",
                 },
 }
 

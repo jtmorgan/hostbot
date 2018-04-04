@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
     daily_sample.insert_rows(params['insert sample query'], all_records)
 
-    sample_pagenames = ["'" + "','".join(x[1].replace(" ","_") for x in all_records) + "'"]
+    sample_pagenames = ['"' + '","'.join(x[1].replace(" ","_") for x in all_records) + '"']
 #     print(sample_userpages)
 
     all_talkpages = daily_sample.select_rows_formatted(params['talkpage select query'], sample_pagenames, 'enwiki_db', convert_bytestrings = True)#should I add this to 'all records' instead?
@@ -72,7 +72,7 @@ if __name__ == "__main__":
     candidate_usernames = [x[0] for x in candidates]
     eligible_usernames = get_eligible_users(elig_check, [x[0] for x in candidates], elig_type='invitee')
     eligible = [x for x in candidates if x[0] in eligible_usernames]
-    print(eligible)
+#     print(eligible)
 
 #     ineligible = [x for x in candidates if x[1] not in [y[1] for y in eligible]]
     ineligible = [x for x in candidates if x[0] not in eligible_usernames]
@@ -97,7 +97,7 @@ if __name__ == "__main__":
 
     for e in eligible_new_talkpage:
         page_id = elig_check.get_page_id(params['output namespace'] + e[0])
-        print(page_id)
+#         print(page_id)
         updates = [page_id,0,e[0]]
         daily_sample.update_rows(params['talkpage update query'], updates, single_row=True)
 #     new_pagenames = ["'" + "','".join(params['output namespace'] + x[0].replace(" ","_") for x in eligible if x[2] is None) + "'"]
