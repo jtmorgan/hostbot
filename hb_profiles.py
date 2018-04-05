@@ -194,12 +194,12 @@ class Profiles:
 
         if 'test_invites' in self.profile_settings.keys(): #what if profile_settings not set?
             print(self.page_path)
-#             print(self.edit_summ)
-#             print(self.invite)
+            print(self.edit_summ)
+            print(self.invite)
             self.invited = True
 
         else:
-            print(self.page_path)
+#             print(self.page_path)
             try:
                 response = requests.post(
                     self.api_url,
