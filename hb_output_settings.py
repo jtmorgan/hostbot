@@ -21,7 +21,7 @@ class Params:
                 'sample size' : 300,
                 'edit summary' : ', you are invited to the Teahouse!',
 #                 'output section title' : '== {{subst:PAGENAME}}, you are invited to the Teahouse ==',
-                'inviters' : ['Rosiestep','Jtmorgan','Missvain','Liz','Naypta','AmaryllisGardener','Doctree','I JethroBT', 'Dathus', 'Cordless Larry', 'Gestrid', 'Cullen328', 'Lectonar', 'Mz7', '78.26', 'Worm That Turned', 'ChamithN', 'Samwalton9',],
+                'inviters' : ['Rosiestep','Jtmorgan','Missvain','Liz','Naypta','AmaryllisGardener','Doctree','I JethroBT', 'Dathus', 'Cordless Larry', 'Gestrid', 'Cullen328', 'Lectonar', 'Mz7', '78.26', 'Worm That Turned', 'ChamithN', 'Nick Moyes', 'Samwalton9',],
                 'inviter edit threshold' : 21,
                 'conditions' : ['th-invite'],
                 'skip templates' : ['uw-vandalism4', 'final warning', '{{sock|', 'uw-unsourced4', 'uw-socksuspect', 'Socksuspectnotice', 'only warning','without further warning', 'Uw-socksuspect', 'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4', '{{bots|deny=HostBot','{{Bots|deny=HostBot','{{nobots','{{Nobots'],
