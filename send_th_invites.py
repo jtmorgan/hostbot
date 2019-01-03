@@ -83,12 +83,16 @@ if __name__ == "__main__":
     inviters = get_eligible_users(elig_check, params['inviters'], elig_type = 'inviter')
 #     print(inviters)
 
+    print(params)
+
     for e in eligible:
     #check e[1] to see if it's odd or not, assign condition appropriately
         if e[1] % 2 == 1:
             condition = params['conditions'][0] #th-invite
+            print(e[0] + " has an odd id")
         else:
             condition = params['conditions'][1] #control
+            print(e[0] + " has an even id")
 
 #         profile = send_invites(e, random.choice(inviters), random.choice(params['conditions']), params)
         profile = send_invites(e, random.choice(inviters), condition, params)
