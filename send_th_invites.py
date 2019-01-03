@@ -33,7 +33,9 @@ def send_invites(invitee, inviter, condition, params):
     prof.skip = False
 
     if prof.condition == "control":
-        pass #record but don't invite
+#         pass #record but don't invite
+        prof.skip = True
+
     else:
         prof.invite = prof.formatProfile({'inviter' : inviter})
         prof.edit_summ = prof.user_name + params["edit summary"]
@@ -82,7 +84,15 @@ if __name__ == "__main__":
 #     print(inviters)
 
     for e in eligible:
-        profile = send_invites(e, random.choice(inviters), random.choice(params['conditions']), params)
+    #check e[1] to see if it's odd or not, assign condition appropriately
+        if e[1] % 2 == 1:
+            condition = params['conditions'][0] #th-invite
+        else:
+            condition = params['conditions'][1] #control
+
+#         profile = send_invites(e, random.choice(inviters), random.choice(params['conditions']), params)
+        profile = send_invites(e, random.choice(inviters), condition, params)
+
         daily_sample.update_rows(params['status update query'], [profile.condition, int(profile.invited), int(profile.skip), profile.user_id], single_row = True)
 
     for i in ineligible:
