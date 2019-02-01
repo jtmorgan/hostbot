@@ -83,7 +83,7 @@ if __name__ == "__main__":
     inviters = get_eligible_users(elig_check, params['inviters'], elig_type = 'inviter')
 #     print(inviters)
 
-    print(params)
+#     print(params)
 
     for e in eligible:
 #     check e[1] to see if it's odd or not, assign condition appropriately
