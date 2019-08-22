@@ -75,27 +75,15 @@ if __name__ == "__main__":
     eligible_usernames = get_eligible_users(elig_check, [x[0] for x in candidates], elig_type='invitee')
     eligible = [x for x in candidates if x[0] in eligible_usernames]
 #     print(eligible)
-
-#     ineligible = [x for x in candidates if x[1] not in [y[1] for y in eligible]]
     ineligible = [x for x in candidates if x[0] not in eligible_usernames]
 #     print(ineligible)
 
     inviters = get_eligible_users(elig_check, params['inviters'], elig_type = 'inviter')
 #     print(inviters)
-
 #     print(params)
 
     for e in eligible:
-#     check e[1] to see if it's odd or not, assign condition appropriately
-#         if e[1] % 2 == 1:
-#             condition = params['conditions'][0] #th-invite
-#         else:
-#             condition = params['conditions'][1] #control
-#         profile = send_invites(e, random.choice(inviters), condition, params) #use when performing odd-number check function above
-
-#         profile = send_invites(e, random.choice(inviters), random.choice(params['conditions']), params) #use when only inviting 50% of eligible
         profile = send_invites(e, random.choice(inviters), "th-invite", params) #use when inviting everyone who is eligible
-
         daily_sample.update_rows(params['status update query'], [profile.condition, int(profile.invited), int(profile.skip), profile.user_id], single_row = True)
 
     for i in ineligible:
@@ -104,7 +92,7 @@ if __name__ == "__main__":
     eligible_new_talkpage = [x for x in eligible if x[2] is None]
 #     print(eligible_new_talkpage)
 
-    sleep(30)#sleep to let the replicas catch up with prod
+    sleep(30) #sleep to let the replicas catch up with prod
 
     for e in eligible_new_talkpage:
         page_id = elig_check.get_page_id(params['output namespace'] + e[0])
