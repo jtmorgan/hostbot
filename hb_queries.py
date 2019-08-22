@@ -15,7 +15,7 @@ class Query:
         where log_type = "block" and log_action = "block"
         and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s')) limit 300""",
                 },
-'select sample test' : {#only select 10 of the possible invitees
+'select sample test' : {#only select 20 of the possible invitees
     'string' : """SELECT user_id, user_name, user_registration, user_editcount, NOW(), 4
     FROM enwiki_p.user
     WHERE user_registration > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s')
@@ -23,7 +23,7 @@ class Query:
     AND user_id NOT IN (SELECT ug_user FROM enwiki_p.user_groups WHERE ug_group = 'bot')
     AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging
         where log_type = "block" and log_action = "block"
-        and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s')) limit 10""",
+        and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s')) limit 20""",
                 },
 'insert th sample' : {'string' : """INSERT IGNORE INTO th_up_invitees_current(user_id, user_name, user_registration, user_editcount, sample_date, sample_type) VALUES({}, "{}", "{}", {}, "{}", {})"""
                 },
