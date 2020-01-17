@@ -95,8 +95,16 @@ if __name__ == "__main__":
     sleep(30) #sleep to let the replicas catch up with prod
 
     for e in eligible_new_talkpage:
+        #try to grab the ID of the newly-created talkpage
         page_id = elig_check.get_page_id(params['output namespace'] + e[0])
 #         print(page_id)
-        updates = [page_id,0,e[0]]
-#         print(updates)
-        daily_sample.update_rows(params['talkpage update query'], updates, single_row=True)
+#         print(e[0])
+        if page_id:
+            updates = [page_id,0,e[0]]
+            #wrap this in try/except...
+            try:
+                daily_sample.update_rows(params['talkpage update query'], updates, single_row=True)
+            except:
+                print("something went wrong trying to save new talkpage for " + e[0])
+        else:
+            pass

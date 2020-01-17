@@ -34,7 +34,7 @@ class Eligible:
             }
 
         api_req = requests.get(self.api_url, params=api_params)
-        # print api_req.url
+#         print(api_req.url)
         api_data = api_req.json()
         edit_timestamp = api_data["query"]["usercontribs"][0]["timestamp"]
         latest_edit_date = dateutil.parser.parse(edit_timestamp, ignoretz=True).date()
