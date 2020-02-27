@@ -64,7 +64,7 @@ if __name__ == "__main__":
 #     print(sample_userpages)
 
     all_talkpages = daily_sample.select_rows_formatted(params['talkpage select query'], sample_pagenames, 'enwiki_db', convert_bytestrings = True)#should I add this to 'all records' instead?
-#     print(all_talkpages)
+    print(all_talkpages)
 
     daily_sample.update_rows(params['talkpage update query'], all_talkpages)
 

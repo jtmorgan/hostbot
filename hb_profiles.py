@@ -116,7 +116,7 @@ class Samples:
                 self.cursor_hostbot.execute(query.format(*row))
                 self.conn_hostbot.commit()
             except:
-                print("couldn't insert record for " + row[0])
+#                 print("couldn't insert record for " + str(row[0]))
                 continue
 
     def update_rows(self,query_key, rows, single_row = False):
@@ -129,8 +129,11 @@ class Samples:
             self.conn_hostbot.commit()
         else:
             for row in rows:
-                self.cursor_hostbot.execute(query.format(*row)) #works if it's a list?
-                self.conn_hostbot.commit()
+                try:
+                    self.cursor_hostbot.execute(query.format(*row)) #works if it's a list?
+                    self.conn_hostbot.commit()
+                else:
+                    pass #this was leading to a traceback and possibly halting the script
 
 
 class Profiles:

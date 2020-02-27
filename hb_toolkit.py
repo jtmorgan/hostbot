@@ -61,6 +61,7 @@ class Eligible:
         api_data = api_req.json()
         if "blockid" in api_data["query"]["users"][0].keys():#check this
             blocked = True
+            print("The user " + user_name + " is blocked.") #to check whether my block check is working
         else:
             pass
 
@@ -121,7 +122,7 @@ class Eligible:
             for t in skip_templates:
                 if t in tp_text:
                     skip = True
-
+                    print("This talkpage contains skip templates: " + page_path) #verifying the talkpage check is working
         return skip
 
 
