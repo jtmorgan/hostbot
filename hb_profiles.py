@@ -132,8 +132,8 @@ class Samples:
                 try:
                     self.cursor_hostbot.execute(query.format(*row)) #works if it's a list?
                     self.conn_hostbot.commit()
-                else:
-                    pass #this was leading to a traceback and possibly halting the script
+                except:
+                    continue #this was leading to a traceback and possibly halting the script
 
 
 class Profiles:
