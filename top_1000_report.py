@@ -101,7 +101,6 @@ if __name__ == "__main__":
     df_topk = pd.DataFrame(top_1k_daily)
 
     blacklist = ["Main_Page", "Special:", "Portal:", "Wikipedia:", "Talk:", "User:", "_talk:"]
-df_topk[df_topk['article'].str.contains('|'.join(blacklist))] #only interested in articles
 
     df_topk = df_topk[~df_topk['article'].str.contains('|'.join(blacklist))]
 
