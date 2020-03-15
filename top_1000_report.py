@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+# from __future__ import print_function #for a weird error I'm getting with Oauth for the top_1000 report
 from datetime import datetime, timedelta
 import hb_config
 import json
@@ -39,6 +40,17 @@ def get_top_daily(sample_date):
 
     return top_articles
 
+def format_row(rank, title, views, row_template):
+
+    table_row = {'rank': rank,
+           'title' : title.replace("_"," "),
+            'views' : views,
+                }
+
+    row = row_template.format(**table_row)
+#     print(row)
+    return(row)
+
 def get_token(auth1):
     """
     Accepts an auth object for a user
@@ -57,9 +69,9 @@ def get_token(auth1):
         auth=auth1,
         ).json()
 
-    print(result)
-
+#     print(result)
     edit_token = result['query']['tokens']['csrftoken']
+#     print(edit_token)
 
     return(edit_token)
 
@@ -86,9 +98,9 @@ def publish_report(output, auth1, edit_token):
 
 if __name__ == "__main__":
 
-    auth1 = OAuth1(dtr_config.client_key,
+    auth1 = OAuth1("b5d87cbe96174f9435689a666110159c",
                hb_config.client_secret,
-               hb_config.resource_owner_key,
+               "ca1b222d687be9ac33cfb49676f5bfd2",
                hb_config.resource_owner_secret)
 
     sample_date = {'year': datetime.strftime(datetime.now() - timedelta(1), '%Y'),
