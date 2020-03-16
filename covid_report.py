@@ -5,6 +5,7 @@ import hb_config
 import mwapi
 from mwapi.errors import APIError
 import requests
+from requests_oauthlib import OAuth1
 import pandas as pd
 import json
 
@@ -89,76 +90,76 @@ def get_quality_score(revision):
 
     return prediction
 
-    def get_pageviews(article_params):
-    #sample https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/user/Zeng_Guang/daily/20200314/20200314
-        q_template= "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/user/{title}/daily/{startdate}/{enddate}"
-        q_string = q_template.format(**article_params)
-    #     print(q_string)
-        response = requests.get(q_string).json()
-    #     print(response)
-        try:
-            views = response['items'][0]['views']
-        except:
-            views = None
+def get_pageviews(article_params):
+#sample https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/user/Zeng_Guang/daily/20200314/20200314
+    q_template= "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/user/{title}/daily/{startdate}/{enddate}"
+    q_string = q_template.format(**article_params)
+#     print(q_string)
+    response = requests.get(q_string).json()
+#     print(response)
+    try:
+        views = response['items'][0]['views']
+    except:
+        views = None
 
-        return views
+    return views
 
-    def format_row(rank, title, views, prediction, row_template):
+def format_row(rank, title, views, prediction, row_template):
 
-        table_row = {'view rank': rank,
-               'title' : title.replace("_"," "),
-                'views' : views,
-                'prediction' : prediction,
-                    }
+    table_row = {'view rank': rank,
+           'title' : title.replace("_"," "),
+            'views' : views,
+            'prediction' : prediction,
+                }
 
-        row = row_template.format(**table_row)
-    #     print(row)
-        return(row)
+    row = row_template.format(**table_row)
+#     print(row)
+    return(row)
 
-        def get_token(auth1):
-        """
-        Accepts an auth object for a user
-        Returns an edit token for the specified wiki
-        """
+def get_token(auth1):
+    """
+    Accepts an auth object for a user
+    Returns an edit token for the specified wiki
+    """
 
-        result = requests.get(
-            url="https://en.wikipedia.org/w/api.php", #TODO add to config
-            params={
-                'action': "query",
-                'meta': "tokens",
-                'type': "csrf",
-                'format': "json"
-                },
-            headers={'User-Agent': "jonnymorgan.esq@gmail.com"}, #TODO add to config
-            auth=auth1,
-            ).json()
-
-    #     print(result)
-        edit_token = result['query']['tokens']['csrftoken']
-    #     print(edit_token)
-
-        return(edit_token)
-
-    def publish_report(output, auth1, edit_token):
-        """
-        Accepts the page text, credentials and edit token
-        Publishes the formatted page text to the specified wiki
-        """
-        response = requests.post(
-        url = "https://en.wikipedia.org/w/api.php", #TODO add to config
-        data={
-            'action': "edit",
-            'title': "User:HostBot/COVID-19_article_report", #TODO add to config
-            'section': "1",
-            'summary': "testing automated COVID-19 reports", #TODO add to config
-            'text': output,
-            'bot': 1,
-            'token': edit_token,
+    result = requests.get(
+        url="https://en.wikipedia.org/w/api.php", #TODO add to config
+        params={
+            'action': "query",
+            'meta': "tokens",
+            'type': "csrf",
             'format': "json"
             },
         headers={'User-Agent': "jonnymorgan.esq@gmail.com"}, #TODO add to config
-        auth=auth1
-            )
+        auth=auth1,
+        ).json()
+
+#     print(result)
+    edit_token = result['query']['tokens']['csrftoken']
+#     print(edit_token)
+
+    return(edit_token)
+
+def publish_report(output, auth1, edit_token):
+    """
+    Accepts the page text, credentials and edit token
+    Publishes the formatted page text to the specified wiki
+    """
+    response = requests.post(
+    url = "https://en.wikipedia.org/w/api.php", #TODO add to config
+    data={
+        'action': "edit",
+        'title': "User:HostBot/COVID-19_article_report", #TODO add to config
+        'section': "1",
+        'summary': "testing automated COVID-19 reports", #TODO add to config
+        'text': output,
+        'bot': 1,
+        'token': edit_token,
+        'format': "json"
+        },
+    headers={'User-Agent': "jonnymorgan.esq@gmail.com"}, #TODO add to config
+    auth=auth1
+        )
 
 
 if __name__ == "__main__":
