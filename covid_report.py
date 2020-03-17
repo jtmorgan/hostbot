@@ -267,3 +267,7 @@ Last updated on ~~~~~
 
     output = header + rows_wiki + "|}"
 
+    edit_token = get_token(auth1)
+
+    publish_report(output, auth1, edit_token)
+
