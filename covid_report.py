@@ -237,7 +237,7 @@ if __name__ == "__main__":
     #     print(get_latest_rev(row))
 #         q_params = sample_date
         #update the params with the current article title
-        q_params['title'] = row)
+        q_params['title'] = row
         v = get_pageviews(q_params)
         views.append(v)
 
