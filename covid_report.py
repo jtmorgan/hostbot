@@ -104,6 +104,19 @@ def get_pageviews(article_params):
 
     return views
 
+def get_yesterdates():
+    """
+    Returns month, day year for yesterday; month and day for day before
+    """
+    date_parts = {'year': datetime.strftime(datetime.now() - timedelta(1), '%Y'),
+       'month' : datetime.strftime(datetime.now() - timedelta(1), '%m'),
+       'day': datetime.strftime(datetime.now() - timedelta(1), '%d'),
+       'month2' : datetime.strftime(datetime.now() - timedelta(2), '%m'),
+       'day2': datetime.strftime(datetime.now() - timedelta(2), '%d'),
+        }
+
+    return date_parts
+
 def format_row(rank, title, views, prediction, row_template):
 
     table_row = {'view rank': rank,
@@ -145,13 +158,14 @@ def publish_report(output, auth1, edit_token):
     Accepts the page text, credentials and edit token
     Publishes the formatted page text to the specified wiki
     """
+
     response = requests.post(
     url = "https://en.wikipedia.org/w/api.php", #TODO add to config
     data={
         'action': "edit",
         'title': "User:HostBot/COVID-19_article_report", #TODO add to config
         'section': "1",
-        'summary': "testing automated COVID-19 reports", #TODO add to config
+        'summary': edit_sum,
         'text': output,
         'bot': 1,
         'token': edit_token,
@@ -170,6 +184,9 @@ if __name__ == "__main__":
            hb_config.resource_owner_secret)
 
     session = mwapi.Session('https://en.wikipedia.org/')
+
+    #get yesterday's date info for queries and reporting
+    date_parts = get_yesterdates()
 
     cat = 'Template:2019–20 coronavirus pandemic'
 
@@ -200,13 +217,13 @@ if __name__ == "__main__":
     df_pandemic.insert(loc=2, column = 'quality prediction', value = ss)
 
     #get recent pageviews
-    sample_date = {'startdate': datetime.strftime(datetime.now() - timedelta(1), '%Y')
-               + datetime.strftime(datetime.now() - timedelta(1), '%m')
-               + datetime.strftime(datetime.now() - timedelta(1), '%d'),
-               'enddate' : datetime.strftime(datetime.now() - timedelta(1), '%Y')
-               + datetime.strftime(datetime.now() - timedelta(1), '%m')
-               + datetime.strftime(datetime.now() - timedelta(1), '%d'),
-            }
+#     sample_date = {'startdate': datetime.strftime(datetime.now() - timedelta(1), '%Y')
+#                + datetime.strftime(datetime.now() - timedelta(1), '%m')
+#                + datetime.strftime(datetime.now() - timedelta(1), '%d'),
+#                'enddate' : datetime.strftime(datetime.now() - timedelta(1), '%Y')
+#                + datetime.strftime(datetime.now() - timedelta(1), '%m')
+#                + datetime.strftime(datetime.now() - timedelta(1), '%d'),
+#             }
 
     views = []
 
@@ -214,7 +231,12 @@ if __name__ == "__main__":
     #     print(dfd_test['event_pageTitle'])
     #     print(get_latest_rev(row))
 
-        q_params = sample_date
+#         q_params = sample_date
+
+        q_params = {'startdate' : date_parts['year'] + date_parts['month'] + date_parts['day'],
+                    'enddate' : date_parts['year'] + date_parts['month'] + date_parts['day'],
+                        } #do this outside the loop?
+
         q_params.update(title = row)
         v = get_pageviews(q_params)
         views.append(v)
@@ -241,6 +263,12 @@ Last updated on ~~~~~
 !Predicted quality class
 """
 
+
+    footer = """|}
+
+    <!--IMPORTANT add all categories to the top section of the page, not here. Otherwise, they will get removed when the bot runs tomorrow! -->
+    """
+
     rt_row = """|-
     |{view rank}
     |[[{title}|{title}]]
@@ -258,16 +286,18 @@ Last updated on ~~~~~
 
     rows_wiki = ''.join(report_rows)
 
-    sd_components = {'year': datetime.strftime(datetime.now() - timedelta(1), '%Y'),
-       'month' : datetime.strftime(datetime.now() - timedelta(1), '%m'),
-       'day': datetime.strftime(datetime.now() - timedelta(1), '%d'),
-            }
+#     sd_components = {'year': datetime.strftime(datetime.now() - timedelta(1), '%Y'),
+#        'month' : datetime.strftime(datetime.now() - timedelta(1), '%m'),
+#        'day': datetime.strftime(datetime.now() - timedelta(1), '%d'),
+#             }
 
-    header = rt_header.format(**sd_components)
+    header = rt_header.format(**date_parts)
 
-    output = header + rows_wiki + "|}"
+    output = header + rows_wiki + footer
 
     edit_token = get_token(auth1)
 
-    publish_report(output, auth1, edit_token)
+    edit_sum = "COVID-19 article report for {year}-{month}-{day}".format(**date_parts)
+
+    publish_report(output, edit_sum, auth1, edit_token)
 
