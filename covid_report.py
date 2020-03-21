@@ -153,7 +153,7 @@ def get_token(auth1):
 
     return(edit_token)
 
-def publish_report(output, auth1, edit_token):
+def publish_report(output, edit_sum, auth1, edit_token):
     """
     Accepts the page text, credentials and edit token
     Publishes the formatted page text to the specified wiki
@@ -227,17 +227,17 @@ if __name__ == "__main__":
 
     views = []
 
+    q_params = {'startdate' : date_parts['year'] + date_parts['month'] + date_parts['day'],
+            'enddate' : date_parts['year'] + date_parts['month'] + date_parts['day'],
+            'title' : '',
+                } #do this outside the loop?
+
     for row in df_pandemic['page title']:
     #     print(dfd_test['event_pageTitle'])
     #     print(get_latest_rev(row))
-
 #         q_params = sample_date
-
-        q_params = {'startdate' : date_parts['year'] + date_parts['month'] + date_parts['day'],
-                    'enddate' : date_parts['year'] + date_parts['month'] + date_parts['day'],
-                        } #do this outside the loop?
-
-        q_params.update(title = row)
+        #update the params with the current article title
+        q_params['title'] = row)
         v = get_pageviews(q_params)
         views.append(v)
 
@@ -252,7 +252,6 @@ if __name__ == "__main__":
     df_pandemic['rank'] = list(rank)
 
     rt_header = """== COVID-19 article status on {year}-{month}-{day} ==
-All articles that transclude the [[:Template:2019–20_coronavirus_pandemic|COVID-19 template]].
 
 Last updated on ~~~~~
 
@@ -267,6 +266,8 @@ Last updated on ~~~~~
     footer = """|}
 
     <!--IMPORTANT add all categories to the top section of the page, not here. Otherwise, they will get removed when the bot runs tomorrow! -->
+
+
     """
 
     rt_row = """|-
