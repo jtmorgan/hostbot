@@ -9,6 +9,12 @@ from requests_oauthlib import OAuth1
 import pandas as pd
 import json
 
+#TODO
+#encapsulate what's in MAIN
+#pull hard-coded vals to hb_config
+#docstrings
+#rmv my dumb API function
+
 #code from https://.com/mediawiki-utilities/python-mwapi
 def get_template_mems(template):
 # If passed a `continuation` parameter, returns an iterable over a continued query.
@@ -48,7 +54,7 @@ def api_call(endpoint, parameters): #I don't need this
     return response
 
 def get_latest_rev(page_title):
-                #https://en.wikipedia.org/w/api.php?action=parse&prop=sections&format=json&formatversion=2&page=Whidbey_Island
+    #https://en.wikipedia.org/w/api.php?action=parse&prop=sections&format=json&formatversion=2&page=Whidbey_Island
     ENDPOINT = 'https://en.wikipedia.org/w/api.php'
 
     params = {'action' : 'query',
@@ -183,7 +189,7 @@ if __name__ == "__main__":
            "ca1b222d687be9ac33cfb49676f5bfd2",
            hb_config.resource_owner_secret)
 
-    session = mwapi.Session('https://en.wikipedia.org/')
+    session = mwapi.Session('https://en.wikipedia.org/', user_agent="jonnymorgan.esq@gmail.com") #add ua to config
 
     #get yesterday's date info for queries and reporting
     date_parts = get_yesterdates()
@@ -217,14 +223,6 @@ if __name__ == "__main__":
     df_pandemic.insert(loc=2, column = 'quality prediction', value = ss)
 
     #get recent pageviews
-#     sample_date = {'startdate': datetime.strftime(datetime.now() - timedelta(1), '%Y')
-#                + datetime.strftime(datetime.now() - timedelta(1), '%m')
-#                + datetime.strftime(datetime.now() - timedelta(1), '%d'),
-#                'enddate' : datetime.strftime(datetime.now() - timedelta(1), '%Y')
-#                + datetime.strftime(datetime.now() - timedelta(1), '%m')
-#                + datetime.strftime(datetime.now() - timedelta(1), '%d'),
-#             }
-
     views = []
 
     q_params = {'startdate' : date_parts['year'] + date_parts['month'] + date_parts['day'],
@@ -235,7 +233,7 @@ if __name__ == "__main__":
     for row in df_pandemic['page title']:
     #     print(dfd_test['event_pageTitle'])
     #     print(get_latest_rev(row))
-#         q_params = sample_date
+
         #update the params with the current article title
         q_params['title'] = row
         v = get_pageviews(q_params)
@@ -286,11 +284,6 @@ Last updated on ~~~~~
                         )]
 
     rows_wiki = ''.join(report_rows)
-
-#     sd_components = {'year': datetime.strftime(datetime.now() - timedelta(1), '%Y'),
-#        'month' : datetime.strftime(datetime.now() - timedelta(1), '%m'),
-#        'day': datetime.strftime(datetime.now() - timedelta(1), '%d'),
-#             }
 
     header = rt_header.format(**date_parts)
 
