@@ -169,7 +169,7 @@ def publish_report(output, edit_sum, auth1, edit_token):
     url = "https://en.wikipedia.org/w/api.php", #TODO add to config
     data={
         'action': "edit",
-        'title': "User:HostBot/COVID-19_article_report", #TODO add to config
+        'title': "Wikipedia:WikiProject_COVID-19/Article_report", #TODO add to config
         'section': "1",
         'summary': edit_sum,
         'text': output,
