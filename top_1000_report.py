@@ -19,20 +19,26 @@ Last updated on ~~~~~
 !Page views
 """
 
+footer = """|}
+
+	    <!--IMPORTANT add all categories to the top section of the page, not here. Otherwise, they will get removed when the bot runs tomorrow! -->
+	    
+	    """
+
 rt_row = """|-
 |{rank}
 |[[w:{title}|{title}]]
 |{views}
 """
 
-def get_top_daily(sample_date):
+def get_top_daily(date_parts):
     """
     Accepts a dictionary with string values for %Y %m and %d
     Returns a list of dictionaries of article traffic metadata
     """
 
     q_template= "https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia.org/all-access/{year}/{month}/{day}"
-    q_string = q_template.format(**sample_date)
+    q_string = q_template.format(**date_parts)
 #     print(q_string)
     response = requests.get(q_string).json()
 #     print(response)
@@ -51,6 +57,19 @@ def format_row(rank, title, views, row_template):
 #     print(row)
     return(row)
 
+def get_yesterdates():
+    """
+    Returns month, day year for yesterday; month and day for day before
+    """
+    date_parts = {'year': datetime.strftime(datetime.now() - timedelta(1), '%Y'),
+       'month' : datetime.strftime(datetime.now() - timedelta(1), '%m'),
+       'day': datetime.strftime(datetime.now() - timedelta(1), '%d'),
+       'month2' : datetime.strftime(datetime.now() - timedelta(2), '%m'),
+       'day2': datetime.strftime(datetime.now() - timedelta(2), '%d'),
+        }
+
+    return date_parts
+    
 def get_token(auth1):
     """
     Accepts an auth object for a user
@@ -75,7 +94,7 @@ def get_token(auth1):
 
     return(edit_token)
 
-def publish_report(output, auth1, edit_token):
+def publish_report(output, edit_sum, auth1, edit_token):
     """
     Accepts the page text, credentials and edit token
     Publishes the formatted page text to the specified wiki
@@ -85,10 +104,10 @@ def publish_report(output, auth1, edit_token):
     data={
         'action': "edit",
         'title': "User:HostBot/Top_1000_report", #TODO add to config
-#         'section': "new",
-        'summary': "testing new top 1000 reports", #TODO add to config
+        'section': "1",
+        'summary': edit_sum, #TODO add to config
         'text': output,
-        'bot': 0,
+        'bot': 1,
         'token': edit_token,
         'format': "json"
         },
@@ -102,13 +121,11 @@ if __name__ == "__main__":
                hb_config.client_secret,
                "ca1b222d687be9ac33cfb49676f5bfd2",
                hb_config.resource_owner_secret)
+                
+    #get yesterday's date info for queries and reporting
+    date_parts = get_yesterdates()                
 
-    sample_date = {'year': datetime.strftime(datetime.now() - timedelta(1), '%Y'),
-           'month' : datetime.strftime(datetime.now() - timedelta(1), '%m'),
-           'day': datetime.strftime(datetime.now() - timedelta(1), '%d'),
-                }
-
-    top_1k_daily = get_top_daily(sample_date)
+    top_1k_daily = get_top_daily(date_parts)
 
     df_topk = pd.DataFrame(top_1k_daily)
 
@@ -121,7 +138,7 @@ if __name__ == "__main__":
 
     df_topk['rank'] = list(new_rank)
 
-    header = rt_header.format(**sample_date)
+    header = rt_header.format(**date_parts)
 
     report_rows = [format_row(x, y, z, rt_row)
           for x, y, z
@@ -132,10 +149,12 @@ if __name__ == "__main__":
 
     rows_wiki = ''.join(report_rows)
 
-    output = header + rows_wiki + "|}"
+    output = header + rows_wiki + footer
 
     edit_token = get_token(auth1)
+    
+    edit_sum = "Top 1k articles report for {year}-{month}-{day}".format(**date_parts)
 
-    publish_report(output, auth1, edit_token)
+    publish_report(output, edit_sum, auth1, edit_token)
 
 
