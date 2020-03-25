@@ -123,6 +123,14 @@ def get_yesterdates():
 
     return date_parts
 
+def get_total_pageviews(df, column_key):
+	"""
+	Return sum of numeric column from dataframe based on column title
+	"""
+	total_views = df[column_key].sum()
+	
+	return total_views
+
 def format_row(rank, title, views, prediction, row_template):
 
     table_row = {'view rank': rank,
@@ -253,6 +261,8 @@ if __name__ == "__main__":
 
 Last updated on ~~~~~
 
+Total daily pageviews (all articles): {views}
+
 {{| class="wikitable sortable"
 !Pageview rank
 !Article
@@ -286,6 +296,10 @@ Last updated on ~~~~~
     rows_wiki = ''.join(report_rows)
 
     header = rt_header.format(**date_parts)
+    
+    total_views = get_total_pageviews(df_pandemic, 'views')
+    
+    header = header.format(views = total_views) #make this cleaner!
 
     output = header + rows_wiki + footer
 
