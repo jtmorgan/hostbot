@@ -128,7 +128,7 @@ def get_total_pageviews(df, column_key):
 	Return sum of numeric column from dataframe based on column title
 	"""
 	total_views = df[column_key].sum()
-	
+
 	return total_views
 
 def format_row(rank, title, views, prediction, row_template):
@@ -179,6 +179,7 @@ def publish_report(output, edit_sum, auth1, edit_token):
         'action': "edit",
         'title': "Wikipedia:WikiProject_COVID-19/Article_report", #TODO add to config
         'section': "1",
+#         'summary': edit_sum,
         'summary': edit_sum,
         'text': output,
         'bot': 1,
@@ -251,6 +252,10 @@ if __name__ == "__main__":
 
     df_pandemic.insert(loc=3, column = 'views', value = vs)
 
+    df_pandemic.fillna(0, inplace=True) #turn the NaNs into zeros
+
+    df_pandemic['views'] = df_pandemic['views'].astype(int) #make values ints to remove the decimal
+
     df_pandemic.sort_values('views', ascending=False, inplace=True)
 
     rank = range(1, len(df_pandemic)+1)
@@ -259,9 +264,11 @@ if __name__ == "__main__":
 
     rt_header = """== COVID-19 article status on {year}-{month}-{day} ==
 
-Last updated on ~~~~~
+Total articles: {articles}
 
-Total daily pageviews (all articles): {views}
+Total pageviews (all articles): {views}
+
+Last updated on ~~~~~
 
 {{| class="wikitable sortable"
 !Pageview rank
@@ -295,11 +302,15 @@ Total daily pageviews (all articles): {views}
 
     rows_wiki = ''.join(report_rows)
 
-    header = rt_header.format(**date_parts)
-    
     total_views = get_total_pageviews(df_pandemic, 'views')
-    
-    header = header.format(views = total_views) #make this cleaner!
+
+    total_articles = len(df_pandemic)
+
+    date_parts.update(views = total_views) #add in total views for all articles
+
+    date_parts.update(articles = total_articles) #add in total articles counted
+
+    header = rt_header.format(**date_parts)
 
     output = header + rows_wiki + footer
 
