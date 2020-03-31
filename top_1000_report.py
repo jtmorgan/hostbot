@@ -74,20 +74,49 @@ def get_all_topk_articles(day_range):
 
     return all_articles
 
-def get_top_daily(date_parts):
+def get_daily_counts(day_range, ar_dict):
     """
-    Accepts a dictionary with string values for %Y %m and %d
-    Returns a list of dictionaries of article traffic metadata
+    Accepts a list of dicts with year, month, and day values
+        And a dict with article titles as keys and empty dicts as values
+    Returns the article dictionary with each sub-dict populated
+        With pageview values for each date where pageviews were available
     """
 
     q_template= "https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia.org/all-access/{year}/{month}/{day}"
-    q_string = q_template.format(**date_parts)
-#     print(q_string)
-    response = requests.get(q_string).json()
-#     print(response)
-    top_articles = response['items'][0]['articles']
 
-    return top_articles
+    for day_val in day_range:
+
+        dstr = day_val['year'] + "-" + day_val['month'] + "-" + day_val['day']
+#         print(dstr)
+
+        q_string = q_template.format(**day_val)
+        print(q_string)
+        response = requests.get(q_string).json()
+        top_articles_list = response['items'][0]['articles']
+
+        for ar in top_articles_list:
+#             print(ar)
+            if ar['article'] in ar_dict.keys():
+#                 print(ar['article'])
+                ar_dict[ar['article']].update({day_val['date'] : ar['views']}) #untested
+#                 print(ar_dict[ar['article']])
+
+    return ar_dict
+
+# def get_top_daily(date_parts):
+#     """
+#     Accepts a dictionary with string values for %Y %m and %d
+#     Returns a list of dictionaries of article traffic metadata
+#     """
+#
+#     q_template= "https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia.org/all-access/{year}/{month}/{day}"
+#     q_string = q_template.format(**date_parts)
+# #     print(q_string)
+#     response = requests.get(q_string).json()
+# #     print(response)
+#     top_articles = response['items'][0]['articles']
+#
+#     return top_articles
 
 def format_row(rank, title, views, row_template):
 
