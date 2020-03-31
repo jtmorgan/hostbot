@@ -16,7 +16,7 @@ Last updated on ~~~~~
 !Rank
 !Article
 !Total weekly views
-!Days among top 1000 this week
+!Days in top 1k this week
 """
 
 footer = """|}
@@ -47,7 +47,7 @@ def get_yesterdates(lookback=7):
            'day': datetime.strftime(datetime.now() - timedelta(d), '%d'),
             }
 
-        date_parts['date'] = "-".join(date_parts['year'] + date_parts['month'] + date_parts['day']) #untested, may work better with string formatting
+        date_parts['date'] = date_parts['year'] + "-" + date_parts['month'] + "-" + date_parts['day']
 
         date_range.append(date_parts)
 
@@ -85,12 +85,8 @@ def get_daily_counts(day_range, ar_dict):
     q_template= "https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia.org/all-access/{year}/{month}/{day}"
 
     for day_val in day_range:
-
-        dstr = day_val['year'] + "-" + day_val['month'] + "-" + day_val['day']
-#         print(dstr)
-
         q_string = q_template.format(**day_val)
-        print(q_string)
+#         print(q_string)
         response = requests.get(q_string).json()
         top_articles_list = response['items'][0]['articles']
 
@@ -249,7 +245,7 @@ if __name__ == "__main__":
     rows_wiki = ''.join(report_rows)
 
     output = header + rows_wiki + footer
-    print(output)
+#     print(output)
 
     edit_token = get_token(auth1)
 
