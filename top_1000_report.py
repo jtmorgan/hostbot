@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 
-# from __future__ import print_function #for a weird error I'm getting with Oauth for the top_1000 report
 from datetime import datetime, timedelta
 import hb_config
 import json
@@ -8,7 +7,7 @@ import pandas as pd
 import requests
 from requests_oauthlib import OAuth1
 
-rt_header = """== Top ~1000 most viewed English Wikipedia articles on {year}-{month}-{day} ==
+rt_header = """== Popular articles {date7} to {date1} ==
 Excludes the main page, and all pages outside the article namespace.
 
 Last updated on ~~~~~
@@ -16,20 +15,64 @@ Last updated on ~~~~~
 {{| class="wikitable sortable"
 !Rank
 !Article
-!Page views
+!Total weekly views
+!Days among top 1000
 """
 
 footer = """|}
 
-	    <!--IMPORTANT add all categories to the top section of the page, not here. Otherwise, they will get removed when the bot runs tomorrow! -->
-	    
-	    """
+<!--IMPORTANT add all categories to the top section of the page, not here. Otherwise, they will get removed when the bot runs tomorrow! -->
+
+"""
 
 rt_row = """|-
 |{rank}
 |[[w:{title}|{title}]]
-|{views}
+|{week_total}
+|{days_in_topk}
 """
+
+def get_yesterdates(lookback=7):
+    """
+    Accepts a lookback parameter of how many days ago to gather data for (not including the current day per UTC time)
+    Defaults to seven days lookback (val must be at least 1)
+    Returns a list of dictionaries with the previous n dates (exclusive), in reverse chronological order
+    """
+
+    date_range = []
+
+    for d in range(1, lookback + 1):
+        date_parts = {'year': datetime.strftime(datetime.now() - timedelta(d), '%Y'),
+           'month' : datetime.strftime(datetime.now() - timedelta(d), '%m'),
+           'day': datetime.strftime(datetime.now() - timedelta(d), '%d'),
+            }
+
+        date_parts['date'] = "-".join(date_parts['year'] + date_parts['month'] + date_parts['day']) #untested, may work better with string formatting
+
+        date_range.append(date_parts)
+
+    return date_range
+
+def get_all_topk_articles(day_range):
+    """
+    Accepts a list of dicts with year, month, and day values
+    Returns a dictionary (article titles as keys) with all articles that were in the topk list during those dates
+    """
+
+    q_template= "https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia.org/all-access/{year}/{month}/{day}"
+
+    all_articles = {}
+
+    for day_val in day_range:
+        q_string = q_template.format(**day_val) #will this fail if there are extra keys in the dict, like 'date'?
+        response = requests.get(q_string).json()
+        top_articles_list = response['items'][0]['articles']
+
+        top_articles = {item['article']: {} for item in top_articles_list}
+
+        all_articles.update(top_articles)
+
+    return all_articles
 
 def get_top_daily(date_parts):
     """
@@ -57,19 +100,7 @@ def format_row(rank, title, views, row_template):
 #     print(row)
     return(row)
 
-def get_yesterdates():
-    """
-    Returns month, day year for yesterday; month and day for day before
-    """
-    date_parts = {'year': datetime.strftime(datetime.now() - timedelta(1), '%Y'),
-       'month' : datetime.strftime(datetime.now() - timedelta(1), '%m'),
-       'day': datetime.strftime(datetime.now() - timedelta(1), '%d'),
-       'month2' : datetime.strftime(datetime.now() - timedelta(2), '%m'),
-       'day2': datetime.strftime(datetime.now() - timedelta(2), '%d'),
-        }
 
-    return date_parts
-    
 def get_token(auth1):
     """
     Accepts an auth object for a user
@@ -121,9 +152,9 @@ if __name__ == "__main__":
                hb_config.client_secret,
                "ca1b222d687be9ac33cfb49676f5bfd2",
                hb_config.resource_owner_secret)
-                
+
     #get yesterday's date info for queries and reporting
-    date_parts = get_yesterdates()                
+    date_parts = get_yesterdates()
 
     top_1k_daily = get_top_daily(date_parts)
 
@@ -152,7 +183,7 @@ if __name__ == "__main__":
     output = header + rows_wiki + footer
 
     edit_token = get_token(auth1)
-    
+
     edit_sum = "Top 1k articles report for {year}-{month}-{day}".format(**date_parts)
 
     publish_report(output, edit_sum, auth1, edit_token)
