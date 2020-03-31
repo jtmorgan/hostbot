@@ -103,26 +103,29 @@ def get_daily_counts(day_range, ar_dict):
 
     return ar_dict
 
-# def get_top_daily(date_parts):
-#     """
-#     Accepts a dictionary with string values for %Y %m and %d
-#     Returns a list of dictionaries of article traffic metadata
-#     """
-#
-#     q_template= "https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia.org/all-access/{year}/{month}/{day}"
-#     q_string = q_template.format(**date_parts)
-# #     print(q_string)
-#     response = requests.get(q_string).json()
-# #     print(response)
-#     top_articles = response['items'][0]['articles']
-#
-#     return top_articles
+def fill_null_date_vals(day_range, ar_dict):
+    """
+    Accepts a list of dicts with year, month, and day values
+        And a dict with article titles as keys and gaps in the date keys
+    Returns the article dictionary with each sub-dict fully populated
+        With pageview values for all dates in range, even if val is 0
+    """
 
-def format_row(rank, title, views, row_template):
+    #https://www.geeksforgeeks.org/dictionary-methods-in-python-set-2-update-has_key-fromkeys/
+    for day_val in day_range:
+#         dstr = day_val['year'] + "-" + day_val['month'] + "-" + day_val['day'] #need to stop converting this on the fly
+        for v in ar_dict.values():
+            v.setdefault(day_val['date'], 0)
+
+    return ar_dict
+
+
+def format_row(rank, title, week_total, days_in_topk, row_template):
 
     table_row = {'rank': rank,
            'title' : title.replace("_"," "),
-            'views' : views,
+            'week_total' : week_total,
+            'days_in_topk' : days_in_topk
                 }
 
     row = row_template.format(**table_row)
@@ -182,8 +185,17 @@ if __name__ == "__main__":
                "ca1b222d687be9ac33cfb49676f5bfd2",
                hb_config.resource_owner_secret)
 
-    #get yesterday's date info for queries and reporting
-    date_parts = get_yesterdates()
+    #get previous week's date info for query and reporting
+    week_of_days = get_yesterdates(lookback=7)
+
+    #get all of the articles that appeared on the topk list that week
+    all_articles = get_all_topk_articles(week_of_days)
+
+    #get counts for all days each article was in the top 1000
+    all_articles = get_daily_counts(week_of_days, all_articles)
+
+    #fill in missing dict keys with 0 vals
+    all_articles = fill_null_date_vals(week_of_days, all_articles)
 
     top_1k_daily = get_top_daily(date_parts)
 
