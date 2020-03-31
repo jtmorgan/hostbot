@@ -16,7 +16,7 @@ Last updated on ~~~~~
 !Rank
 !Article
 !Total weekly views
-!Days among top 1000
+!Days among top 1000 this week
 """
 
 footer = """|}
@@ -197,35 +197,63 @@ if __name__ == "__main__":
     #fill in missing dict keys with 0 vals
     all_articles = fill_null_date_vals(week_of_days, all_articles)
 
-    top_1k_daily = get_top_daily(date_parts)
+    #now we're ready to make a dataframe!
+    df_aa = pd.DataFrame.from_dict(all_articles, orient="index")
 
-    df_topk = pd.DataFrame(top_1k_daily)
+    #sum across the daily counts
+    #https://stackoverflow.com/questions/25748683/pandas-sum-dataframe-rows-for-given-columns
+    df_aa['week_total'] = df_aa.sum(axis=1)
 
-    blacklist = ["Main_Page", "Special:", "Portal:", "Wikipedia:", "Talk:", "User:", "_talk:", "Help:", "File:"]
+    #make the title NOT the index. Should do this when creating the frame, instead
+    df_aa.reset_index(inplace=True)
 
-    df_topk = df_topk[~df_topk['article'].str.contains('|'.join(blacklist))]
+    #rename title column. Should do this when creating the frame, instead
+    df_aa.rename(columns = {'index' : 'title'}, inplace=True)
 
-    ## fix the ranking, now that we've deleted some pages from the list
-    new_rank = range(1, len(df_topk)+1)
+    #remove blacklisted titles--pages we don't care about, for these purposes. Although... we could keep them I guess.
+    blacklist = ["Main_Page", "Special:", "Category:", "Portal:", "Wikipedia:", "Talk:", "User:", "_talk:", "Help:", "File:"]
+    df_aa = df_aa[~df_aa['title'].str.contains('|'.join(blacklist))]
 
-    df_topk['rank'] = list(new_rank)
+    #sort by weekly views
+    df_aa.sort_values('week_total', ascending=False, inplace=True)
 
-    header = rt_header.format(**date_parts)
+    #add rank column based on weekly views
+    new_rank = range(1, len(df_aa)+1)
+    df_aa['rank'] = list(new_rank)
 
-    report_rows = [format_row(x, y, z, rt_row)
-          for x, y, z
-          in zip(df_topk['rank'],
-                 df_topk['article'],
-                 df_topk['views'],
-                    )]
+    #reset the index to reflect the final ranking, dropping the existing index this time
+    df_aa.reset_index(drop=True, inplace=True)
+
+    #add a column of days when each article was NOT in the topk, so that we can report the inverse of this
+    df_aa['days_not_topk'] = (df_aa == 0).astype(int).sum(axis=1)
+
+    #count days appearing in topk list, from col that reports the inverse
+    df_aa['days_in_topk'] = 7 - df_aa['days_not_topk']
+
+    #start and end dates for header and edit comment
+    header_dates = {'date1' : week_of_days[0]['date'],
+                    'date7' : week_of_days[6]['date']
+                        }
+
+    #format the header template
+    header = rt_header.format(**header_dates)
+
+    report_rows = [format_row(a, b, c, d, rt_row) #this is messy
+      for a, b, c, d
+      in zip(df_aa['rank'],
+             df_aa['title'],
+             df_aa['week_total'],
+             df_aa['days_in_topk'],
+                )]
 
     rows_wiki = ''.join(report_rows)
 
     output = header + rows_wiki + footer
+    print(output)
 
     edit_token = get_token(auth1)
 
-    edit_sum = "Top 1k articles report for {year}-{month}-{day}".format(**date_parts)
+    edit_sum = "Popular articles from {date7} to {date1}".format(**header_dates)
 
     publish_report(output, edit_sum, auth1, edit_token)
 
