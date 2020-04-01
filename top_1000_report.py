@@ -6,6 +6,7 @@ import json
 import pandas as pd
 import requests
 from requests_oauthlib import OAuth1
+from urllib import parse
 
 rt_header = """== Popular articles {date7} to {date1} ==
 Last updated on ~~~~~
@@ -134,12 +135,13 @@ def fill_null_date_vals(day_range, ar_dict):
     """
     #https://www.geeksforgeeks.org/dictionary-methods-in-python-set-2-update-has_key-fromkeys/
     for day_val in week_of_days:
-        for v in all_articles.values():
+        for v in ar_dict.values():
             if len(v) < 8: #if we still don't have any pageviews for some days
                 v.setdefault(day_val['api_date'], 0) #adds a key with val of 0 if no key present
             else:
                 pass
 
+    return ar_dict
 
 def format_row(rank, title, week_total, days_in_topk, row_template):
 
@@ -251,8 +253,8 @@ if __name__ == "__main__":
     df_aa.reset_index(drop=True, inplace=True)
 
     #start and end dates for header and edit comment
-    header_dates = {'date1' : week_of_days[0]['date'],
-                    'date7' : week_of_days[6]['date']
+    header_dates = {'date1' : week_of_days[0]['display_date'],
+                    'date7' : week_of_days[6]['display_date']
                         }
 
     #format the header template
@@ -263,18 +265,18 @@ if __name__ == "__main__":
       in zip(df_aa['rank'],
              df_aa['title'],
              df_aa['week_total'],
-             df_aa['days_in_topk'],
+             df_aa['topk_days'],
                 )]
 
     rows_wiki = ''.join(report_rows)
 
     output = header + rows_wiki + footer
-    print(output)
+#     print(output)
 
-#     edit_token = get_token(auth1)
+    edit_token = get_token(auth1)
 
-#     edit_sum = "Popular articles from {date7} to {date1}".format(**header_dates)
+    edit_sum = "Popular articles from {date7} to {date1}".format(**header_dates)
 
-#     publish_report(output, edit_sum, auth1, edit_token)
+    publish_report(output, edit_sum, auth1, edit_token)
 
 
