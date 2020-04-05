@@ -239,7 +239,7 @@ if __name__ == "__main__":
     df_aa.rename(columns = {'index' : 'title'}, inplace=True)
 
     #remove blacklisted titles--pages we don't care about, for these purposes. Although... we could keep them I guess.
-    blacklist = ["Main_Page", "Special:", "Category:", "Portal:", "Template:", "Wikipedia:", "Talk:", "User:", "_talk:", "Help:", "File:"]
+    blacklist = ["Main_Page", "Special:", "Category:", "Portal:", "Template:", "Wikipedia:", "Talk:", "User:", "_talk:", "Help:", "File:", "United_States_Senate",]
     df_aa = df_aa[~df_aa['title'].str.contains('|'.join(blacklist))]
 
     #sort by weekly views
