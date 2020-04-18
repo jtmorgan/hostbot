@@ -56,15 +56,15 @@ if __name__ == "__main__":
 
     daily_sample = hb_profiles.Samples()
     all_records = daily_sample.select_rows(params['select sample query'], 'enwiki_db', convert_bytestrings = True) #list of lists
-#     print(all_records)
 
     daily_sample.insert_rows(params['insert sample query'], all_records)
+#     all_records.append([0,"\"Sadlyme\"", 0, 0]) #testing escape chars
+#     all_records.append([0,"abc'd", 0, 0])
 
-    sample_pagenames = ['"' + '","'.join(x[1].replace(" ","_") for x in all_records) + '"']
-#     print(sample_userpages)
+    sample_pagenames = [x[1].replace(" ","_") for x in all_records]
+#     print(sample_pagenames)
 
     all_talkpages = daily_sample.select_rows_formatted(params['talkpage select query'], sample_pagenames, 'enwiki_db', convert_bytestrings = True)#should I add this to 'all records' instead?
-    print(all_talkpages)
 
     daily_sample.update_rows(params['talkpage update query'], all_talkpages)
 

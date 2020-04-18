@@ -83,15 +83,20 @@ class Samples:
         Return a list of tuples
         """
         if query_db == 'enwiki_db':
-#             query_vals = self.conn_wiki.escape(query_vals) #escaping any special chars, e.g. apostrophes
+            qv_escaped = [pymysql.escape_string(x) for x in query_vals] #escape any apostrophes or quotes in the username. per https://www.reddit.com/r/learnpython/comments/ajcp5i/pymysql_and_escaping_input/
+            q_format = "'" + "', '".join(qv_escaped) + "'" #make it a single string
             cursor = self.cursor_wiki
+
         elif query_db == 'hostbot_db':
             cursor = self.cursor_hostbot
+
         else:
             print("unrecognized database: " + query_db)
 
         qstring = self.queries.getQuery(query_key)
-        query = qstring.format(*query_vals)
+        query = qstring.format(q_format) #can't seem to do this without the SQL injection no-no
+#         print(query)
+
         rows = cursor.execute(query)
 
         if convert_bytestrings:
@@ -99,6 +104,7 @@ class Samples:
         else:
             rows = list(cursor.fetchall())
 
+#         print(rows)
         return rows
 
 

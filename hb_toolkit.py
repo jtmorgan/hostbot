@@ -61,7 +61,7 @@ class Eligible:
         api_data = api_req.json()
         if "blockid" in api_data["query"]["users"][0].keys():#check this
             blocked = True
-            print("The user " + user_name + " is blocked.") #to check whether my block check is working
+ #            print("The user " + user_name + " is blocked.") #to check whether my block check is working
         else:
             pass
 
@@ -91,8 +91,8 @@ class Eligible:
         """
 
         is_blocked = self.get_block_status(user)
-        if is_blocked:
-            print(user + " is blocked")
+#         if is_blocked: #for checking whether the block check is working
+#             print(user + " is blocked")
 
         if elig_type == 'inviter':
             latest_edit_date = self.get_latest_edit_date(user)
@@ -122,7 +122,7 @@ class Eligible:
             for t in skip_templates:
                 if t in tp_text:
                     skip = True
-                    print("This talkpage contains skip templates: " + page_path) #verifying the talkpage check is working
+#                     print("This talkpage contains skip templates: " + page_path) #verifying the talkpage check is working
         return skip
 
 
