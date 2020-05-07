@@ -203,7 +203,7 @@ if __name__ == "__main__":
     #get yesterday's date info for queries and reporting
     date_parts = get_yesterdates()
 
-    cat = 'Template:2019–20 coronavirus pandemic'
+    cat = 'Template:COVID-19_pandemic'
 
     mems = get_template_mems(cat)
 #     print(mems)
