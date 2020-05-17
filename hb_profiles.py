@@ -60,9 +60,13 @@ class Samples:
         Return a list of tuples
         """
         if query_db == 'enwiki_db':
-            cursor = self.cursor_wiki
+#             cursor = self.cursor_wiki
+            cursor = self.conn_wiki.cursor() #attempt to solve the pymysql.err.InterfaceError: (0, '')
+
         elif query_db == 'hostbot_db':
-            cursor = self.cursor_hostbot
+#             cursor = self.cursor_hostbot
+            cursor = self.conn_hostbot.cursor() #attempt to solve the pymysql.err.InterfaceError: (0, '')
+
         else:
             print("unrecognized database: " + query_db)
 
@@ -74,6 +78,7 @@ class Samples:
         else:
             rows = list(cursor.fetchall())
 
+        cursor.close() #attempt to solve the pymysql.err.InterfaceError: (0, '')
         return rows
 
 

@@ -56,6 +56,7 @@ if __name__ == "__main__":
 
     daily_sample = hb_profiles.Samples()
     all_records = daily_sample.select_rows(params['select sample query'], 'enwiki_db', convert_bytestrings = True) #list of lists
+    print("There were " + str(len(all_records)) + " users found in today's candidate group.")
 
     daily_sample.insert_rows(params['insert sample query'], all_records)
 #     all_records.append([0,"\"Sadlyme\"", 0, 0]) #testing escape chars
