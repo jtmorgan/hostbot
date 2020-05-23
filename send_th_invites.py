@@ -55,57 +55,61 @@ if __name__ == "__main__":
     elig_check = hb_toolkit.Eligible(params)
 
     daily_sample = hb_profiles.Samples()
-    all_records = daily_sample.select_rows(params['select sample query'], 'enwiki_db', convert_bytestrings = True) #list of lists
+    all_records = daily_sample.select_rows(params['select sample query'], 'enwiki', convert_bytestrings = True) #list of lists
+
+
     print("There were " + str(len(all_records)) + " users found in today's candidate group.")
+    print(all_records)
 
-    daily_sample.insert_rows(params['insert sample query'], all_records)
-#     all_records.append([0,"\"Sadlyme\"", 0, 0]) #testing escape chars
-#     all_records.append([0,"abc'd", 0, 0])
 
-    sample_pagenames = [x[1].replace(" ","_") for x in all_records]
-#     print(sample_pagenames)
-
-    all_talkpages = daily_sample.select_rows_formatted(params['talkpage select query'], sample_pagenames, 'enwiki_db', convert_bytestrings = True)#should I add this to 'all records' instead?
-
-    daily_sample.update_rows(params['talkpage update query'], all_talkpages)
-
-    candidates = daily_sample.select_rows(params['select candidates query'], 'hostbot_db', convert_bytestrings = True)
-#     print(candidates)
-
-    candidate_usernames = [x[0] for x in candidates]
-    eligible_usernames = get_eligible_users(elig_check, [x[0] for x in candidates], elig_type='invitee')
-    eligible = [x for x in candidates if x[0] in eligible_usernames]
-#     print(eligible)
-    ineligible = [x for x in candidates if x[0] not in eligible_usernames]
-#     print(ineligible)
-
-    inviters = get_eligible_users(elig_check, params['inviters'], elig_type = 'inviter')
-#     print(inviters)
-#     print(params)
-
-    for e in eligible:
-        profile = send_invites(e, random.choice(inviters), "th-invite", params) #use when inviting everyone who is eligible
-        daily_sample.update_rows(params['status update query'], [profile.condition, int(profile.invited), int(profile.skip), profile.user_id], single_row = True)
-
-    for i in ineligible:
-        daily_sample.update_rows(params['status update query'], ['invalid', 0, 1, i[1]], single_row = True) #should it always be single rows?
-
-    eligible_new_talkpage = [x for x in eligible if x[2] is None]
-#     print(eligible_new_talkpage)
-
-    sleep(30) #sleep to let the replicas catch up with prod
-
-    for e in eligible_new_talkpage:
-        #try to grab the ID of the newly-created talkpage
-        page_id = elig_check.get_page_id(params['output namespace'] + e[0])
-#         print(page_id)
-#         print(e[0])
-        if page_id:
-            updates = [page_id,0,e[0]]
-            #wrap this in try/except...
-            try:
-                daily_sample.update_rows(params['talkpage update query'], updates, single_row=True)
-            except:
-                print("something went wrong trying to save new talkpage for " + e[0])
-        else:
-            pass
+#     daily_sample.insert_rows(params['insert sample query'], all_records)
+# #     all_records.append([0,"\"Sadlyme\"", 0, 0]) #testing escape chars
+# #     all_records.append([0,"abc'd", 0, 0])
+#
+#     sample_pagenames = [x[1].replace(" ","_") for x in all_records]
+# #     print(sample_pagenames)
+#
+#     all_talkpages = daily_sample.select_rows_formatted(params['talkpage select query'], sample_pagenames, 'enwiki', convert_bytestrings = True)#should I add this to 'all records' instead?
+#
+#     daily_sample.update_rows(params['talkpage update query'], all_talkpages)
+#
+#     candidates = daily_sample.select_rows(params['select candidates query'], 'hostbot', convert_bytestrings = True)
+# #     print(candidates)
+#
+#     candidate_usernames = [x[0] for x in candidates]
+#     eligible_usernames = get_eligible_users(elig_check, [x[0] for x in candidates], elig_type='invitee')
+#     eligible = [x for x in candidates if x[0] in eligible_usernames]
+# #     print(eligible)
+#     ineligible = [x for x in candidates if x[0] not in eligible_usernames]
+# #     print(ineligible)
+#
+#     inviters = get_eligible_users(elig_check, params['inviters'], elig_type = 'inviter')
+# #     print(inviters)
+# #     print(params)
+#
+#     for e in eligible:
+#         profile = send_invites(e, random.choice(inviters), "th-invite", params) #use when inviting everyone who is eligible
+#         daily_sample.update_rows(params['status update query'], [profile.condition, int(profile.invited), int(profile.skip), profile.user_id], single_row = True)
+#
+#     for i in ineligible:
+#         daily_sample.update_rows(params['status update query'], ['invalid', 0, 1, i[1]], single_row = True) #should it always be single rows?
+#
+#     eligible_new_talkpage = [x for x in eligible if x[2] is None]
+# #     print(eligible_new_talkpage)
+#
+#     sleep(30) #sleep to let the replicas catch up with prod
+#
+#     for e in eligible_new_talkpage:
+#         #try to grab the ID of the newly-created talkpage
+#         page_id = elig_check.get_page_id(params['output namespace'] + e[0])
+# #         print(page_id)
+# #         print(e[0])
+#         if page_id:
+#             updates = [page_id,0,e[0]]
+#             #wrap this in try/except...
+#             try:
+#                 daily_sample.update_rows(params['talkpage update query'], updates, single_row=True)
+#             except:
+#                 print("something went wrong trying to save new talkpage for " + e[0])
+#         else:
+#             pass

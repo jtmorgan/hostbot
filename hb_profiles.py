@@ -24,25 +24,58 @@ class Samples:
         Set up connections to hostbot db and enwiki db
         Load query library
         """
-        self.conn_hostbot = pymysql.connect(
-            host = hb_config.hostbot_host,
-            db = hb_config.hostbot_db,
-            read_default_file = hb_config.defaultcnf,
-            charset="utf8",
-        )
-
-        self.cursor_hostbot = self.conn_hostbot.cursor()
-
-        self.conn_wiki = pymysql.connect(
-            host = hb_config.wiki_host,
-            db = hb_config.wiki_db,
-            read_default_file = hb_config.defaultcnf,
-            charset="utf8",
-        )
-
-        self.cursor_wiki = self.conn_wiki.cursor()
+#         self.conn_hostbot = pymysql.connect(
+#             host = hb_config.hostbot_host,
+#             db = hb_config.hostbot_db,
+#             read_default_file = hb_config.defaultcnf,
+#             charset="utf8",
+#         )
+#
+#         self.cursor_hostbot = self.conn_hostbot.cursor()
+#
+#         self.conn_wiki = pymysql.connect(
+#             host = hb_config.wiki_host,
+#             db = hb_config.wiki_db,
+#             read_default_file = hb_config.defaultcnf,
+#             charset="utf8",
+#         )
+#
+#         self.cursor_wiki = self.conn_wiki.cursor()
 
         self.queries = hb_queries.Query()
+
+    def connect_to_db(self, db_name):
+        """
+        Takes a string corresponding to a database name (a key in the config)
+        Returns a connection to that database
+        """
+
+        if db_name == 'hostbot':
+#             cursor = self.cursor_wiki
+            sql_host = hb_config.hostbot_host
+            query_db = hb_config.hostbot_db
+
+        elif db_name == 'enwiki':
+            sql_host = hb_config.wiki_host
+            query_db = hb_config.wiki_db
+
+        else:
+            print("unrecognized database")
+
+        conn = pymysql.connect(
+            host = sql_host,
+            db = query_db,
+            read_default_file = hb_config.defaultcnf,
+            charset="utf8",
+        )
+
+        if conn.open:
+            print("conn is open")
+
+        else:
+            print("conn NOT open")
+#         cursor = conn.cursor()
+        return conn
 
 
     def convert_bytes_in_db_rows(self, rows): #should be in toolkit?
@@ -54,23 +87,26 @@ class Samples:
         return [[x.decode() if type(x) == bytes else x for x in row] for row in rows]
 
 
-    def select_rows(self, query_key, query_db, convert_bytestrings = False):
+    def select_rows(self, query_key, db_name, convert_bytestrings = False):
         """
         Select one or more rows from the wiki db
         Return a list of tuples
         """
-        if query_db == 'enwiki_db':
-#             cursor = self.cursor_wiki
-            cursor = self.conn_wiki.cursor() #attempt to solve the pymysql.err.InterfaceError: (0, '')
+#         if query_db == 'enwiki_db':
+# #             cursor = self.cursor_wiki
+#             cursor = self.conn_wiki.cursor() #attempt to solve the pymysql.err.InterfaceError: (0, '')
+#
+#         elif query_db == 'hostbot_db':
+# #             cursor = self.cursor_hostbot
+#             cursor = self.conn_hostbot.cursor() #attempt to solve the pymysql.err.InterfaceError: (0, '')
+#
+# #         else:
+# #             print("unrecognized database: " + query_db)
 
-        elif query_db == 'hostbot_db':
-#             cursor = self.cursor_hostbot
-            cursor = self.conn_hostbot.cursor() #attempt to solve the pymysql.err.InterfaceError: (0, '')
-
-        else:
-            print("unrecognized database: " + query_db)
-
+        conn = self.connect_to_db(db_name)
         query = self.queries.getQuery(query_key)
+        print(query )
+        cursor = conn.cursor()
         rows = cursor.execute(query)
 
         if convert_bytestrings:
@@ -78,38 +114,9 @@ class Samples:
         else:
             rows = list(cursor.fetchall())
 
-        cursor.close() #attempt to solve the pymysql.err.InterfaceError: (0, '')
-        return rows
+        cursor.close() #attempt to solve the pymysql.err.InterfaceError: (0, ''), see https://stackoverflow.com/questions/6650940/interfaceerror-0
+        conn.close() #can I do this without closing the cursor first?
 
-
-    def select_rows_formatted(self, query_key, query_vals, query_db, convert_bytestrings = False):
-        """
-        Select one or more rows from the wiki db, based on a formatted query
-        Return a list of tuples
-        """
-        if query_db == 'enwiki_db':
-            qv_escaped = [pymysql.escape_string(x) for x in query_vals] #escape any apostrophes or quotes in the username. per https://www.reddit.com/r/learnpython/comments/ajcp5i/pymysql_and_escaping_input/
-            q_format = "'" + "', '".join(qv_escaped) + "'" #make it a single string
-            cursor = self.cursor_wiki
-
-        elif query_db == 'hostbot_db':
-            cursor = self.cursor_hostbot
-
-        else:
-            print("unrecognized database: " + query_db)
-
-        qstring = self.queries.getQuery(query_key)
-        query = qstring.format(q_format) #can't seem to do this without the SQL injection no-no
-#         print(query)
-
-        rows = cursor.execute(query)
-
-        if convert_bytestrings:
-            rows = self.convert_bytes_in_db_rows(cursor.fetchall())
-        else:
-            rows = list(cursor.fetchall())
-
-#         print(rows)
         return rows
 
 
@@ -120,31 +127,82 @@ class Samples:
         Converts datetime values to strings - is this necessary?
         currently, datetime is hardcoded as field 4
         """
+
+        conn = self.connect_to_db("hostbot") #hardcoded because I don't ever want to commit anywhere else
+        cursor = conn.cursor()
         query = self.queries.getQuery(query_key)
+
         for row in rows:
             try:
                 row[4] = "{:%Y-%m-%d %H:%M:%S}".format(row[4])
-                self.cursor_hostbot.execute(query.format(*row))
-                self.conn_hostbot.commit()
+                cursor.execute(query.format(*row))
+                conn.commit()
             except:
-#                 print("couldn't insert record for " + str(row[0]))
+                print("couldn't insert record for " + str(row[0]))
                 continue
+
+        cursor.close() #attempt to solve the pymysql.err.InterfaceError: (0, ''), see https://stackoverflow.com/questions/6650940/interfaceerror-0
+        conn.close() #can I do this without closing the cursor first?
+
+
+    def select_rows_formatted(self, query_key, query_vals, db_name, convert_bytestrings = False):
+        """
+        Select one or more rows from the wiki db, based on a formatted query
+        Return a list of tuples
+        """
+#         if query_db == 'enwiki_db':
+#             qv_escaped = [pymysql.escape_string(x) for x in query_vals] #escape any apostrophes or quotes in the username. per https://www.reddit.com/r/learnpython/comments/ajcp5i/pymysql_and_escaping_input/
+#             q_format = "'" + "', '".join(qv_escaped) + "'" #make it a single string
+#             cursor = self.cursor_wiki
+#
+#         elif query_db == 'hostbot_db':
+#             cursor = self.cursor_hostbot
+#
+#         else:
+#             print("unrecognized database: " + query_db)
+        conn = self.connect_to_db(db_name)
+        cursor = conn.cursor()
+        qstring = self.queries.getQuery(query_key)
+        qv_escaped = [pymysql.escape_string(x) for x in query_vals] #escape any apostrophes or quotes in the username. per https://www.reddit.com/r/learnpython/comments/ajcp5i/pymysql_and_escaping_input/
+        q_format = "'" + "', '".join(qv_escaped) + "'" #make it a single string
+        query = qstring.format(q_format) #can't seem to do this without the SQL injection no-no
+#         print(query)
+
+        rows = cursor.execute(query)
+
+        if convert_bytestrings:
+            rows = self.convert_bytes_in_db_rows(cursor.fetchall())
+        else:
+            rows = list(cursor.fetchall())
+#         print(rows)
+
+        cursor.close() #attempt to solve the pymysql.err.InterfaceError: (0, ''), see https://stackoverflow.com/questions/6650940/interfaceerror-0
+        conn.close() #can I do this without closing the cursor first?
+
+        return rows
+
 
     def update_rows(self,query_key, rows, single_row = False):
         """
         Update values in existing rows on the hostbot db
         """
+        conn = self.connect_to_db("hostbot") #hardcoded because I don't ever want to commit anywhere else
+        cursor = conn.cursor()
         query = self.queries.getQuery(query_key)
+
         if single_row:
-            self.cursor_hostbot.execute(query.format(*rows)) #works if it's a list?
-            self.conn_hostbot.commit()
+            cursor.execute(query.format(*rows)) #works if it's a list?
+            conn.commit()
         else:
             for row in rows:
                 try:
-                    self.cursor_hostbot.execute(query.format(*row)) #works if it's a list?
-                    self.conn_hostbot.commit()
+                    cursor.execute(query.format(*rows)) #works if it's a list?
+                    conn.commit()
                 except:
                     continue #this was leading to a traceback and possibly halting the script
+
+        cursor.close() #attempt to solve the pymysql.err.InterfaceError: (0, ''), see https://stackoverflow.com/questions/6650940/interfaceerror-0
+        conn.close() #can I do this without closing the cursor first?
 
 
 class Profiles:
