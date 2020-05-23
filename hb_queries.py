@@ -6,24 +6,22 @@ class Query:
     def __init__(self):
         self.mysql_queries = {
 'select th sample' : {#should sub-sample in code for test, not in a separate query
-    'string' : """SELECT user_id, user_name, user_registration, user_editcount, NOW(), 4
-    FROM enwiki_p.user
-    WHERE user_registration > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s')
-    AND user_editcount >=5
-    AND user_id NOT IN (SELECT ug_user FROM enwiki_p.user_groups WHERE ug_group = 'bot')
-    AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging
-        where log_type = "block" and log_action = "block"
-        and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s')) limit 10""",
+    'string' : """SELECT u.user_id, u.user_name, u.user_registration, u.user_editcount, NOW(), 4
+    FROM enwiki_p.user AS u WHERE (u.user_editcount >= 5 AND u.user_editcount < 100) AND u.user_id IN
+(SELECT a.actor_user AS uid FROM enwiki_p.recentchanges AS r JOIN enwiki_p.actor AS a ON r.rc_actor = a.actor_id WHERE r.rc_log_type = "newusers"
+AND r.rc_log_action != "autocreate"
+AND r.rc_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s') AND r.rc_title NOT IN (SELECT log_title FROM enwiki_p.logging
+        WHERE log_type = "block" AND log_action = "block"
+        AND log_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s'))) LIMIT 300""",
                 },
 'select sample test' : {#only select 20 of the possible invitees
-    'string' : """SELECT user_id, user_name, user_registration, user_editcount, NOW(), 4
-    FROM enwiki_p.user
-    WHERE user_registration > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s')
-    AND user_editcount >=5
-    AND user_id NOT IN (SELECT ug_user FROM enwiki_p.user_groups WHERE ug_group = 'bot')
-    AND user_name not in (SELECT REPLACE(log_title,"_"," ") from enwiki_p.logging
-        where log_type = "block" and log_action = "block"
-        and log_timestamp >  DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s')) limit 100""",
+    'string' : """SELECT u.user_id, u.user_name, u.user_registration, u.user_editcount, NOW(), 4
+    FROM enwiki_p.user AS u WHERE (u.user_editcount >= 5 AND u.user_editcount < 100) AND u.user_id IN
+(SELECT a.actor_user AS uid FROM enwiki_p.recentchanges AS r JOIN enwiki_p.actor AS a ON r.rc_actor = a.actor_id WHERE r.rc_log_type = "newusers"
+AND r.rc_log_action != "autocreate"
+AND r.rc_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s') AND r.rc_title NOT IN (SELECT log_title FROM enwiki_p.logging
+        WHERE log_type = "block" AND log_action = "block"
+        AND log_timestamp > DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 2 DAY),'%Y%m%d%H%i%s'))) LIMIT 20""",
                 },
 'insert th sample' : {'string' : """INSERT IGNORE INTO th_up_invitees_current(user_id, user_name, user_registration, user_editcount, sample_date, sample_type) VALUES({}, "{}", "{}", {}, "{}", {})"""
                 },
