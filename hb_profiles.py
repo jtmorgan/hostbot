@@ -69,11 +69,11 @@ class Samples:
             charset="utf8",
         )
 
-        if conn.open:
-            print("conn is open")
-
-        else:
-            print("conn NOT open")
+#         if conn.open:
+#             print("conn is open")
+#
+#         else:
+#             print("conn NOT open")
 #         cursor = conn.cursor()
         return conn
 
@@ -105,7 +105,7 @@ class Samples:
 
         conn = self.connect_to_db(db_name)
         query = self.queries.getQuery(query_key)
-        print(query )
+#         print(query )
         cursor = conn.cursor()
         rows = cursor.execute(query)
 
