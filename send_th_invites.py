@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from datetime import date
 import hb_toolkit
 import hb_output_settings
 import hb_profiles
@@ -57,8 +58,11 @@ if __name__ == "__main__":
     daily_sample = hb_profiles.Samples()
     all_records = daily_sample.select_rows(params['select sample query'], 'enwiki', convert_bytestrings = True) #list of lists
 
-
-#     print("There were " + str(len(all_records)) + " users found in today's candidate group.")
+    if len(all_records) == 0: #if we can't retrieve any records at all. Currently implemented because of ongoing replag on the replica dbs.
+        message = "{}: nobody to invite today".format(date.today()) #not sure if you can use .format in the sys.exit message directly
+        sys.exit(message)
+    else:
+        print("{0}: There were {1} users found in today's candidate group.".format(date.today(), len(all_records)))
 #     print(all_records)
 
 
