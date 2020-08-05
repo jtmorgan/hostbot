@@ -67,6 +67,29 @@ class Eligible:
 
         return blocked
 
+    def get_lock_status(self, user_name, locked = False):
+        """
+        Takes a user name. Returns whether the user is currently GLOBALLY LOCKED, as a boolean value.
+        See: https://www.mediawiki.org/wiki/API:Query
+        Example: https://en.wikipedia.org/w/api.php?action=query&meta=globaluserinfo&guiuser=Jmorgan_(WMF)
+        """
+        api_params = {
+            "action" : "query",
+            "meta" : "globaluserinfo",
+            "guiuser" : user_name,
+            "format": "json",
+            }
+        api_req = requests.get(self.api_url, params=api_params)
+        # print(api_req.url)
+
+        api_data = api_req.json()
+        if "locked" in api_data["query"]["globaluserinfo"].keys():
+            locked = True
+        else:
+            pass
+
+        return locked
+
 
     def meets_edit_date_threshold(self, latest_edit_date, threshold, meets_threshold = False):
         """
@@ -94,15 +117,17 @@ class Eligible:
 #         if is_blocked: #for checking whether the block check is working
 #             print(user + " is blocked")
 
+        is_locked = self.get_lock_status(user)
+
         if elig_type == 'inviter':
             latest_edit_date = self.get_latest_edit_date(user)
             is_active = self.meets_edit_date_threshold(latest_edit_date, self.output_params['inviter edit threshold'])#check
-            if is_active and not is_blocked:
+            if is_active and not is_blocked and not is_locked:
                 is_eligible = True
 
         elif elig_type == 'invitee':
             has_skip_template = self.check_talkpage_text(self.output_params["output namespace"] + user, self.output_params["skip templates"])
-            if not has_skip_template and not is_blocked:
+            if not has_skip_template and not is_blocked and not is_locked:
                 is_eligible = True
 
         else:
