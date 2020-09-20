@@ -8,6 +8,7 @@ import random
 from time import sleep
 import sys
 
+#test of new 2020-refactor branch
 def get_eligible_users(elig_check, usernames, elig_type):
     """
     Takes an eligibility checker object, and a list of usernames.
