@@ -101,7 +101,16 @@ def get_pageviews(article_params):
     q_template= "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/user/{title}/daily/{startdate}/{enddate}"
     q_string = q_template.format(**article_params)
 #     print(q_string)
-    response = requests.get(q_string).json()
+#     r = requests.get(q_string)
+    r = requests.get(
+    url = q_string,
+    headers = {'User-Agent': "hostbot (https://wikitech.wikimedia.org/wiki/Tool:HostBot, jonnymorgan.esq@gmail.com"},
+        )
+#     print(r.headers)
+#     print(r.text)
+#     print(r.url)
+
+    response = r.json()
 #     print(response)
     try:
         views = response['items'][0]['views']
@@ -157,7 +166,7 @@ def get_token(auth1):
             'type': "csrf",
             'format': "json"
             },
-        headers={'User-Agent': "jonnymorgan.esq@gmail.com"}, #TODO add to config
+        headers={'User-Agent': "hostbot (https://wikitech.wikimedia.org/wiki/Tool:HostBot, jonnymorgan.esq@gmail.com"}, #TODO add to config
         auth=auth1,
         ).json()
 
@@ -198,7 +207,7 @@ if __name__ == "__main__":
            "ca1b222d687be9ac33cfb49676f5bfd2",
            hb_config.resource_owner_secret)
 
-    session = mwapi.Session('https://en.wikipedia.org/', user_agent="jonnymorgan.esq@gmail.com") #add ua to config
+    session = mwapi.Session('https://en.wikipedia.org/', user_agent="hostbot (https://wikitech.wikimedia.org/wiki/Tool:HostBot, jonnymorgan.esq@gmail.com") #add ua to config
 
     #get yesterday's date info for queries and reporting
     date_parts = get_yesterdates()
@@ -217,14 +226,14 @@ if __name__ == "__main__":
     scores = []
 
     for row in df_pandemic['page title']:
-    #     print(dfd_test['event_pageTitle'])
-    #     print(get_latest_rev(row))
+#         print(dfd_test['event_pageTitle'])
+#         print(get_latest_rev(row))
 
         latest = get_latest_rev(row)
         latest_revs.append(latest)
         scores.append(get_quality_score(latest))
 
-    # Add the scores and revs into the dataframe
+    #Add the scores and revs into the dataframe
     lrs = pd.Series(latest_revs)
     ss = pd.Series(scores)
 

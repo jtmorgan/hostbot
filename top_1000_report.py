@@ -70,7 +70,17 @@ def get_all_topk_articles(day_range):
 
     for day_val in day_range:
         q_string = q_template.format(**day_val)
-        response = requests.get(q_string).json()
+        r = requests.get(
+            url = q_string,
+            headers = {'User-Agent': "hostbot (https://wikitech.wikimedia.org/wiki/Tool:HostBot, jonnymorgan.esq@gmail.com)"},
+                )
+    #     print(r.headers)
+    #     print(r.text)
+    #     print(r.url)
+        response = r.json()
+    #     print(response)
+
+#         response = requests.get(q_string).json()
         top_articles_list = response['items'][0]['articles']
 
         for ar in top_articles_list:
@@ -113,7 +123,16 @@ def get_daily_non_topk_counts(day_range, ar_dict):
             safe_title = parse.quote(k, safe='') #in case there are weird chars in title
             q_string = q_template.format(article = safe_title, day7 = day_range[6]['api_date'], day1 = day_range[0]['api_date'])
 #             print(q_string)
-            response = requests.get(q_string).json()
+            r = requests.get(
+                url = q_string,
+                headers = {'User-Agent': "hostbot (https://wikitech.wikimedia.org/wiki/Tool:HostBot, jonnymorgan.esq@gmail.com)"},
+                    )
+        #     print(r.headers)
+        #     print(r.text)
+        #     print(r.url)
+            response = r.json()
+        #     print(response)
+#             response = requests.get(q_string).json()
 
             ar_views = response['items']
     #         print(ar_views)
@@ -170,7 +189,7 @@ def get_token(auth1):
             'type': "csrf",
             'format': "json"
             },
-        headers={'User-Agent': "jonnymorgan.esq@gmail.com"}, #TODO add to config
+        headers={'User-Agent': "hostbot (https://wikitech.wikimedia.org/wiki/Tool:HostBot, jonnymorgan.esq@gmail.com)"}, #TODO add to config
         auth=auth1,
         ).json()
 
@@ -197,7 +216,7 @@ def publish_report(output, edit_sum, auth1, edit_token):
         'token': edit_token,
         'format': "json"
         },
-    headers={'User-Agent': "jonnymorgan.esq@gmail.com"}, #TODO add to config
+    headers={'User-Agent': "hostbot (https://wikitech.wikimedia.org/wiki/Tool:HostBot, jonnymorgan.esq@gmail.com)"}, #TODO add to config
     auth=auth1
         )
 
